@@ -1,0 +1,9 @@
+[submodule "SystemEx"]
+	path = SystemEx
+	url = git@github.com:yatagarasu25/SystemEx.git
+[submodule "UE4Assistant"]
+	path = UE4Assistant
+	url = git@github.com:yatagarasu25/UE4Assistant.git
+[submodule "UE4Assistant.Templates"]
+	path = UE4Assistant.Templates
+	url = git@github.com:yatagarasu25/UE4Assistant.Templates.git
