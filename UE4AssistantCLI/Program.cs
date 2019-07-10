@@ -246,7 +246,7 @@ namespace UE4Assistant
 				}
 				else
 				{
-					string UnrealVersionSelector = GetUEVersionSelectorPath();
+					string UnrealVersionSelector = UnrealEngineInstance.GetUEVersionSelectorPath();
 					Console.Out.WriteLine(UnrealVersionSelector);
 					Utilities.ExecuteCommandLine(Utilities.EscapeCommandLineArgs(UnrealVersionSelector) + " /projectfiles " + UnrealItem.FullPath);
 				}
@@ -259,14 +259,11 @@ namespace UE4Assistant
 				if (UnrealItem == null)
 				{
 					Console.WriteLine("Command should be run inside project folder.");
+					return -1;
 				}
 				else
 				{
-					string UERoot = GetUERootForProject(UnrealItem);
-					if (string.IsNullOrEmpty(UERoot))
-						return -1;
-
-					Console.WriteLine(UERoot);
+					Console.WriteLine(new UnrealEngineInstance(UnrealItem).RootPath);
 					return 0;
 				}
 			}
@@ -277,12 +274,11 @@ namespace UE4Assistant
 
 				using (var SleepGuard = Utilities.PreventSleep())
 				{
-					BuildSettings.UE4RootPath = Path.GetFullPath(GetUERootForProject(UnrealItem));
+					UnrealEngineInstance UnrealInstance = new UnrealEngineInstance(UnrealItem);
+					BuildSettings.UE4RootPath = Path.GetFullPath(UnrealInstance.RootPath);
 					BuildSettings.ProjectFullPath = Path.GetFullPath(UnrealItem.FullPath);					
 
-					string RunUATPath = Path.Combine(BuildSettings.UE4RootPath, "Engine\\Build\\BatchFiles\\RunUAT.bat");
-
-					Utilities.ExecuteCommandLine(string.Format("\"{0}\" BuildCookRun {1}", RunUATPath, BuildSettings));
+					Utilities.ExecuteCommandLine(string.Format("\"{0}\" BuildCookRun {1}", UnrealInstance.RunUATPath, BuildSettings));
 				}
 			}
 			else if (args[0] == "cook")
@@ -301,21 +297,18 @@ namespace UE4Assistant
 				{
 					foreach (var Recipe in CookSettings)
 					{
-						if (string.IsNullOrWhiteSpace(Recipe.UE4RootPath))
-						{
-							Recipe.UE4RootPath = GetUERootForProject(UnrealItem);
-						}
+						UnrealEngineInstance UnrealInstance = null;
+						try { UnrealInstance = new UnrealEngineInstance(Recipe.UE4RootPath); }
+						catch { UnrealInstance = new UnrealEngineInstance(UnrealItem); }
 						if (string.IsNullOrWhiteSpace(Recipe.ProjectFullPath))
 						{
 							Recipe.ProjectFullPath = UnrealItem.FullPath;
 						}
-						Recipe.UE4RootPath = Path.GetFullPath(Recipe.UE4RootPath);
+						Recipe.UE4RootPath = UnrealInstance.RootPath;
 						Recipe.ProjectFullPath = Path.GetFullPath(Recipe.ProjectFullPath);
 						Recipe.ArchiveDirectory = Path.GetFullPath(Recipe.ArchiveDirectory);
 
-						string RunUATPath = Path.Combine(Recipe.UE4RootPath, "Engine\\Build\\BatchFiles\\RunUAT.bat");
-
-						Utilities.ExecuteCommandLine(string.Format("\"{0}\" BuildCookRun {1}", RunUATPath, Recipe));
+						Utilities.ExecuteCommandLine(string.Format("\"{0}\" BuildCookRun {1}", UnrealInstance.RunUATPath, Recipe));
 					}
 				}
 			}
@@ -354,7 +347,7 @@ namespace UE4Assistant
 				if (args.Length == 2)
 				{
 					UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealProject(System.IO.Directory.GetCurrentDirectory());
-					string UE4EditorPath = Path.Combine(GetUERootForProject(UnrealItem), "Engine\\Binaries\\Win64\\UE4Editor.exe");
+					UnrealEngineInstance UnrealInstance = new UnrealEngineInstance(UnrealItem);					
 
 					string savedDiffPath = Path.Combine(UnrealItem.RootPath, "Saved\\Diff");
 					if (!Directory.Exists(savedDiffPath))
@@ -373,7 +366,7 @@ namespace UE4Assistant
 					Utilities.ExecuteCommandLine(string.Format("git show :1:./{0} | git lfs smudge > {1}", file, resultFile));
 
 					Utilities.ExecuteCommandLine(Utilities.EscapeCommandLineArgs(
-						UE4EditorPath, UnrealItem.FullPath, "-diff", remoteFile, localFile, baseFile, resultFile));
+						UnrealInstance.UE4EditorPath, UnrealItem.FullPath, "-diff", remoteFile, localFile, baseFile, resultFile));
 
 					var baseMd5 = Utilities.CalculateMD5(baseFile);
 					var resultMd5 = Utilities.CalculateMD5(resultFile);
@@ -766,61 +759,6 @@ namespace UE4Assistant
 				writetext.WriteLine("\tEndGlobalSection");
 				writetext.WriteLine("EndGlobal");
 			}
-		}
-
-		private static string GetUEVersionSelectorPath()
-		{
-			var LocalUnrealEngine = Microsoft.Win32.Registry.ClassesRoot.OpenSubKey(@"Unreal.ProjectFile\DefaultIcon");
-			if (LocalUnrealEngine != null)
-			{
-				return ((string)LocalUnrealEngine.GetValue("")).Trim('"', ' ');
-			}
-
-			return string.Empty;
-		}
-
-		private static string GetUERootForProject(UnrealItemDescription Description)
-		{
-			UProject project = UProject.Load(Description.FullPath);
-
-			Dictionary<string, string> availableBuilds = new Dictionary<string, string>();
-
-			var LocalUnrealEngine = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\EpicGames\Unreal Engine");
-			var UserUnrealEngineBuilds = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Epic Games\Unreal Engine\Builds");
-
-			if (LocalUnrealEngine != null)
-			{
-				foreach (string build in LocalUnrealEngine.GetSubKeyNames())
-				{
-					string ueroot = (string)LocalUnrealEngine.OpenSubKey(build).GetValue("InstalledDirectory");
-
-					if (!string.IsNullOrWhiteSpace(ueroot))
-					{
-						availableBuilds.Add(build, ueroot);
-					}
-				}
-			}
-
-			if (UserUnrealEngineBuilds != null)
-			{
-				foreach (string build in UserUnrealEngineBuilds.GetValueNames())
-				{
-					string ueroot = (string)UserUnrealEngineBuilds.GetValue(build);
-
-					if (!string.IsNullOrWhiteSpace(ueroot))
-					{
-						availableBuilds.Add(build, ueroot);
-					}
-				}
-			}
-
-			string projectUERoot;
-			if (availableBuilds.TryGetValue(project.EngineAssociation, out projectUERoot))
-			{
-				return projectUERoot;
-			}
-
-			return null;
 		}
 
 		private static Dictionary<string, object> ParseUE4Object(string line, ref int li)
