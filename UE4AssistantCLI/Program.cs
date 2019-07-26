@@ -589,7 +589,7 @@ namespace UE4Assistant
 				{
 					{ "modulename", modulename },
 					{ "objectname", objectname },
-					{ "objectpath", objectpath.Replace('\\', '/') },
+					{ "objectpath", objectpath.Replace('\\', '/') + '/' },
 					{ "basename", basename },
 					{ "typename", typename },
 				};
@@ -634,7 +634,7 @@ namespace UE4Assistant
 				{
 					{ "modulename", modulename },
 					{ "objectname", objectname },
-					{ "objectpath", objectpath.Replace('\\', '/') },
+					{ "objectpath", objectpath.Replace('\\', '/') + '/' },
 				};
 
 			string classesPath = Path.Combine(UnrealItem.ModuleClassesPath, objectpath);
@@ -663,7 +663,7 @@ namespace UE4Assistant
 				{
 					{ "modulename", modulename },
 					{ "objectname", objectname },
-					{ "objectpath", objectpath.Replace('\\', '/') },
+					{ "objectpath", objectpath.Replace('\\', '/') + '/' },
 					{ "basename", basename },
 					{ "typename", "U" },
 				};
