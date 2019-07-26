@@ -55,6 +55,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SystemEx\SystemEx.net461.csproj">
+      <Project>{B99C3D19-A0F3-45E0-AECF-3F06688E4493}</Project>
+      <Name>SystemEx.net461</Name>
+    </ProjectReference>
     <ProjectReference Include="..\UE4Assistant.Templates\UE4Assistant.Templates.csproj">
       <Project>{1d12ad29-68b1-470f-9230-bd7796e58350}</Project>
       <Name>UE4Assistant.Templates</Name>

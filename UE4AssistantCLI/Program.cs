@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml;
+using SystemEx;
 using UE4Assistant.Templates;
 using UE4Assistant.Templates.Config;
 using UE4Assistant.Templates.Generators;
@@ -166,7 +167,7 @@ namespace UE4Assistant
 				}
 				else if (type == "bpfl")
 				{
-					UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealModule(System.IO.Directory.GetCurrentDirectory());
+					UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project, UnrealItemType.Plugin);
 					if (UnrealItem == null)
 					{
 						Console.WriteLine("This command should be run inside module folder.");
@@ -196,7 +197,7 @@ namespace UE4Assistant
 			}
 			else if (args[0] == "init")
 			{
-				UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealProject(System.IO.Directory.GetCurrentDirectory());
+				UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
 
 				if (UnrealItem == null)
 				{
@@ -209,7 +210,7 @@ namespace UE4Assistant
 			}
 			else if (args[0] == "clean")
 			{
-				UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealProject(System.IO.Directory.GetCurrentDirectory());
+				UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
 
 				if (UnrealItem == null)
 				{
@@ -238,7 +239,7 @@ namespace UE4Assistant
 			}
 			else if (args[0] == "generate")
 			{
-				UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealProject(System.IO.Directory.GetCurrentDirectory());
+				UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
 
 				if (UnrealItem == null)
 				{
@@ -253,8 +254,8 @@ namespace UE4Assistant
 			}
 			else if (args[0] == "get_ue_root")
 			{
-				string projectName = args.Length > 1 ? args[1] : null;
-				UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealProject(System.IO.Directory.GetCurrentDirectory(), projectName);
+				string projectName = args.Length > 1 ? args[1] : "";
+				UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), projectName, UnrealItemType.Project);
 
 				if (UnrealItem == null)
 				{
@@ -269,7 +270,7 @@ namespace UE4Assistant
 			}
 			else if (args[0] == "build")
 			{
-				UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealProject(System.IO.Directory.GetCurrentDirectory());
+				UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
 				UnrealCookSettings BuildSettings = UnrealCookSettings.CreateBuildSettings();
 
 				using (var SleepGuard = Utilities.PreventSleep())
@@ -284,7 +285,7 @@ namespace UE4Assistant
 			else if (args[0] == "cook")
 			{
 				string cookSettingsFile = args.Length > 1 ? args[1] : null;
-				UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealProject(System.IO.Directory.GetCurrentDirectory());
+				UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
 				UnrealCookSettings[] CookSettings = cookSettingsFile != null
 					? JsonConvert.DeserializeObject<UnrealCookSettings[]>(File.ReadAllText(cookSettingsFile)
 						, new JsonSerializerSettings
@@ -346,7 +347,7 @@ namespace UE4Assistant
 			{
 				if (args.Length == 2)
 				{
-					UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealProject(System.IO.Directory.GetCurrentDirectory());
+					UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
 					UnrealEngineInstance UnrealInstance = new UnrealEngineInstance(UnrealItem);					
 
 					string savedDiffPath = Path.Combine(UnrealItem.RootPath, "Saved\\Diff");
@@ -388,7 +389,7 @@ namespace UE4Assistant
 
 		static IEnumerable<UnrealItemDescription> ListUnrealPlugins(string path)
 		{
-			foreach (string file in System.IO.Directory.GetFiles(path, "*.uplugin", SearchOption.AllDirectories))
+			foreach (string file in Directory.GetFiles(path, "*.uplugin", SearchOption.AllDirectories))
 			{
 				yield return new UnrealItemDescription(UnrealItemType.Plugin, file);
 			}
@@ -519,22 +520,33 @@ namespace UE4Assistant
 
 		private static void AddPlugin(string pluginname)
 		{
-			UPlugin plugin = new UPlugin();
-
+			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
+			if (UnrealItem == null)
 			{
-				UModule module = new UModule();
-				module.Name = pluginname;
-				module.Type = "Runtime";
-				module.LoadingPhase = "Default";
-				plugin.AddModule(module);
+				Console.WriteLine("This command should be run inside project or plugin folder.");
+				return;
 			}
 
-			plugin.Save(pluginname + ".uplugin");
+			string pluginDirectory = Path.Combine(UnrealItem.RootPath, "Plugins", pluginname);
+			if (Directory.Exists(pluginDirectory))
+			{
+				Console.WriteLine("\"{0}\" should not exist.".format(pluginDirectory));
+				return;
+			}
+
+			Directory.CreateDirectory(pluginDirectory);
+			using (Utilities.SetCurrentDirectory(pluginDirectory))
+			{
+				UPlugin plugin = new UPlugin();
+				plugin.Save(Path.Combine(pluginDirectory, pluginname + ".uplugin"));
+
+				AddModule(pluginname);
+			}
 		}
 
 		private static void AddModule(string modulename)
 		{
-			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealProject(System.IO.Directory.GetCurrentDirectory());
+			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project, UnrealItemType.Plugin);
 			if (UnrealItem == null)
 			{
 				Console.WriteLine("This command should be run inside project or plugin folder.");
@@ -573,9 +585,9 @@ namespace UE4Assistant
 		private static void AddClass(string objectname, string basename)
 		{
 			string typename = basename[0].ToString();
-			string objectfolder = System.IO.Directory.GetCurrentDirectory();
+			string objectfolder = Directory.GetCurrentDirectory();
 
-			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealModule(objectfolder);
+			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(objectfolder, UnrealItemType.Module);
 			if (UnrealItem == null)
 			{
 				Console.WriteLine("This command should be run inside module folder.");
@@ -618,9 +630,9 @@ namespace UE4Assistant
 
 		private static void AddInterface(string objectname)
 		{
-			string objectfolder = System.IO.Directory.GetCurrentDirectory();
+			string objectfolder = Directory.GetCurrentDirectory();
 
-			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealModule(objectfolder);
+			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(objectfolder, UnrealItemType.Module);
 			if (UnrealItem == null)
 			{
 				Console.WriteLine("This command should be run inside module folder.");
@@ -647,9 +659,9 @@ namespace UE4Assistant
 
 		private static void AddDataAsset(string objectname, string basename)
 		{
-			string objectfolder = System.IO.Directory.GetCurrentDirectory();
+			string objectfolder = Directory.GetCurrentDirectory();
 
-			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealModule(objectfolder);
+			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(objectfolder, UnrealItemType.Module);
 			if (UnrealItem == null)
 			{
 				Console.WriteLine("This command should be run inside module folder.");
