@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml;
@@ -248,9 +249,20 @@ namespace UE4Assistant
 				}
 				else
 				{
-					string UnrealVersionSelector = UnrealEngineInstance.GetUEVersionSelectorPath();
-					Console.Out.WriteLine(UnrealVersionSelector);
-					Utilities.ExecuteCommandLine(Utilities.EscapeCommandLineArgs(UnrealVersionSelector) + " /projectfiles " + UnrealItem.FullPath);
+					if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+					{
+						string UnrealVersionSelector = UnrealEngineInstance.GetUEVersionSelectorPath();
+						Console.Out.WriteLine(UnrealVersionSelector);
+						Utilities.ExecuteCommandLine(Utilities.EscapeCommandLineArgs(UnrealVersionSelector) + " /projectfiles " + UnrealItem.FullPath);
+					}
+					else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+					{
+						UnrealEngineInstance UnrealInstance = new UnrealEngineInstance(UnrealItem);
+						Utilities.ExecuteCommandLine(string.Join(" "
+							, "\"{0}\"".format(UnrealInstance.GenerateProjectFiles)
+							, "-project=\"{0}\"".format(UnrealItem.FullPath)
+							, "-game"));
+					}
 				}
 			}
 			else if (args[0] == "get_ue_root")
