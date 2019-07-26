@@ -41,7 +41,8 @@ namespace UE4Assistant
 
 		public static UnrealCookSettings CreateDefaultSettings()
 		{
-			return new UnrealCookSettings {
+			return new UnrealCookSettings
+			{
 				UE4RootPath = null,
 				ProjectFullPath = null,
 				UseP4 = false,
@@ -276,7 +277,7 @@ namespace UE4Assistant
 				{
 					UnrealEngineInstance UnrealInstance = new UnrealEngineInstance(UnrealItem);
 					BuildSettings.UE4RootPath = Path.GetFullPath(UnrealInstance.RootPath);
-					BuildSettings.ProjectFullPath = Path.GetFullPath(UnrealItem.FullPath);					
+					BuildSettings.ProjectFullPath = Path.GetFullPath(UnrealItem.FullPath);
 
 					Utilities.ExecuteCommandLine(string.Format("\"{0}\" BuildCookRun {1}", UnrealInstance.RunUATPath, BuildSettings));
 				}
@@ -347,7 +348,7 @@ namespace UE4Assistant
 				if (args.Length == 2)
 				{
 					UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealProject(System.IO.Directory.GetCurrentDirectory());
-					UnrealEngineInstance UnrealInstance = new UnrealEngineInstance(UnrealItem);					
+					UnrealEngineInstance UnrealInstance = new UnrealEngineInstance(UnrealItem);
 
 					string savedDiffPath = Path.Combine(UnrealItem.RootPath, "Saved\\Diff");
 					if (!Directory.Exists(savedDiffPath))
