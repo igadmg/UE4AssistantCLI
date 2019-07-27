@@ -253,7 +253,7 @@ namespace UE4Assistant
 					{
 						string UnrealVersionSelector = UnrealEngineInstance.GetUEVersionSelectorPath();
 						Console.Out.WriteLine(UnrealVersionSelector);
-						Utilities.ExecuteCommandLine(Utilities.EscapeCommandLineArgs(UnrealVersionSelector) + " /projectfiles " + UnrealItem.FullPath);
+						Utilities.ExecuteCommandLine(Utilities.EscapeCommandLineArgs(UnrealVersionSelector, "/projectfiles",  UnrealItem.FullPath));
 					}
 					else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
 					{
@@ -414,121 +414,7 @@ namespace UE4Assistant
 		{
 			Utilities.ExecuteCommandLine("git init");
 
-			UProject project = new UProject();
-
-			string configPath = Path.Combine("Config");
-			string contentPath = Path.Combine("Content");
-			string sourcePath = Path.Combine("Source/Game");
-
-			Directory.CreateDirectory(configPath);
-			Directory.CreateDirectory(contentPath);
-			Directory.CreateDirectory(sourcePath);
-
-			{
-				UModule module = new UModule();
-				module.Name = projectname;
-				module.Type = "Runtime";
-				module.LoadingPhase = "Default";
-				project.AddModule(module);
-
-				Dictionary<string, object> parameters = new Dictionary<string, object>
-				{
-					{ "targetname", module.Name },
-					{ "targettype", "Game" },
-					{ "extramodulenames", new List<String> { module.Name } },
-				};
-
-				File.WriteAllText(Path.Combine(sourcePath, projectname + ".Target.cs")
-					, Template.TransformToText<ProjectTarget_cs>(parameters));
-
-				{
-					parameters.Add("modulename", module.Name);
-					parameters.Add("isprimary", true);
-
-					string modulePath = Path.Combine(sourcePath, module.Name);
-					string gamemodePath = Path.Combine(modulePath, "GameMode");
-					string gamestatePath = Path.Combine(modulePath, "GameState");
-					string playerstatePath = Path.Combine(modulePath, "PlayerState");
-
-					Directory.CreateDirectory(modulePath);
-					Directory.CreateDirectory(gamemodePath);
-					Directory.CreateDirectory(gamestatePath);
-					Directory.CreateDirectory(playerstatePath);
-
-					File.WriteAllText(Path.Combine(gamemodePath, module.Name + "GameMode.h")
-						, Template.TransformToText<GameMode_h>(parameters));
-					File.WriteAllText(Path.Combine(gamemodePath, module.Name + "GameMode.cpp")
-						, Template.TransformToText<GameMode_cpp>(parameters));
-
-					File.WriteAllText(Path.Combine(gamestatePath, module.Name + "GameState.h")
-						, Template.TransformToText<GameState_h>(parameters));
-					File.WriteAllText(Path.Combine(gamestatePath, module.Name + "GameState.cpp")
-						, Template.TransformToText<GameState_cpp>(parameters));
-
-					File.WriteAllText(Path.Combine(playerstatePath, module.Name + "PlayerState.h")
-						, Template.TransformToText<PlayerState_h>(parameters));
-					File.WriteAllText(Path.Combine(playerstatePath, module.Name + "PlayerState.cpp")
-						, Template.TransformToText<PlayerState_cpp>(parameters));
-
-					File.WriteAllText(Path.Combine(modulePath, module.Name + "GameInstance.h")
-						, Template.TransformToText<GameInstance_h>(parameters));
-					File.WriteAllText(Path.Combine(modulePath, module.Name + "GameInstance.cpp")
-						, Template.TransformToText<GameInstance_cpp>(parameters));
-
-					File.WriteAllText(Path.Combine(modulePath, module.Name + "Statics.h")
-						, Template.TransformToText<Statics_h>(parameters));
-					File.WriteAllText(Path.Combine(modulePath, module.Name + "Statics.cpp")
-						, Template.TransformToText<Statics_cpp>(parameters));
-				}
-			}
-
-			{
-				UModule module = new UModule();
-				module.Name = projectname + "Editor";
-				module.Type = "Editor";
-				module.LoadingPhase = "Default";
-				project.AddModule(module);
-
-				Dictionary<string, object> parameters = new Dictionary<string, object>
-				{
-					{ "targetname", module.Name },
-					{ "targettype", "Editor" },
-					{ "extramodulenames", new List<String> { projectname } }
-				};
-
-				File.WriteAllText(Path.Combine(sourcePath, projectname + "Editor.Target.cs")
-					, Template.TransformToText<ProjectTarget_cs>(parameters));
-			}
-
-			project.Save(projectname + ".uproject");
-
-			{
-				Dictionary<string, object> parameters = new Dictionary<string, object>
-				{
-					{ "modulename", projectname }
-				};
-
-				File.WriteAllText(Path.Combine(configPath, "DefaultEditor.ini")
-					, Template.TransformToText<DefaultEditor_ini>(parameters));
-				File.WriteAllText(Path.Combine(configPath, "DefaultEditorSettings.ini")
-					, Template.TransformToText<DefaultEditorSettings_ini>(parameters));
-				File.WriteAllText(Path.Combine(configPath, "DefaultEngine.ini")
-					, Template.TransformToText<DefaultEngine_ini>(parameters));
-				File.WriteAllText(Path.Combine(configPath, "DefaultGame.ini")
-					, Template.TransformToText<DefaultGame_ini>(parameters));
-				File.WriteAllText(Path.Combine(configPath, "DefaultGameUserSettings.ini")
-					, Template.TransformToText<DefaultGameUserSettings_ini>(parameters));
-				File.WriteAllText(Path.Combine(configPath, "DefaultInput.ini")
-					, Template.TransformToText<DefaultInput_ini>(parameters));
-			}
-
-			/*
-			foreach (string path in Utilities.ListSubmodulePaths("."))
-			{
-				Utilities.ExecuteCommandLine(string.Format("cd {0} && git checkout master"
-					, Utilities.EscapeCommandLineArgs(path)));
-			}
-			*/
+			UProject project = Template.CreateProject(projectname);
 		}
 
 		private static void AddPlugin(string pluginname)
@@ -574,9 +460,8 @@ namespace UE4Assistant
 
 					UModule module = new UModule();
 					module.Name = modulename;
-					module.Type = "Runtime";
-					module.LoadingPhase = "Default";
-					plugin.AddModule(module);
+					Template.CreateModule(plugin.RootPath, module.Name);
+					plugin.Modules.Add(module);
 
 					plugin.Save(itemFullPath);
 				}
@@ -586,9 +471,8 @@ namespace UE4Assistant
 
 					UModule module = new UModule();
 					module.Name = modulename;
-					module.Type = "Runtime";
-					module.LoadingPhase = "Default";
-					project.AddModule(module);
+					Template.CreateModule(project.RootPath, module.Name);
+					project.Modules.Add(module);
 
 					project.Save(itemFullPath);
 				}
