@@ -253,7 +253,7 @@ namespace UE4Assistant
 					{
 						string UnrealVersionSelector = UnrealEngineInstance.GetUEVersionSelectorPath();
 						Console.Out.WriteLine(UnrealVersionSelector);
-						Utilities.ExecuteCommandLine(Utilities.EscapeCommandLineArgs(UnrealVersionSelector, "/projectfiles",  UnrealItem.FullPath));
+						Utilities.ExecuteCommandLine(Utilities.EscapeCommandLineArgs(UnrealVersionSelector, "/projectfiles", UnrealItem.FullPath));
 					}
 					else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
 					{
@@ -498,7 +498,7 @@ namespace UE4Assistant
 				{
 					{ "modulename", modulename },
 					{ "objectname", objectname },
-					{ "objectpath", objectpath.Replace('\\', '/') + '/' },
+					{ "objectpath", objectpath.Replace('\\', '/') + (objectpath.null_() ? "" : "/") },
 					{ "basename", basename },
 					{ "typename", typename },
 				};
@@ -543,7 +543,7 @@ namespace UE4Assistant
 				{
 					{ "modulename", modulename },
 					{ "objectname", objectname },
-					{ "objectpath", objectpath.Replace('\\', '/') + '/' },
+					{ "objectpath", objectpath.Replace('\\', '/') + (objectpath.null_() ? "" : "/") },
 				};
 
 			string classesPath = Path.Combine(UnrealItem.ModuleClassesPath, objectpath);
@@ -572,7 +572,7 @@ namespace UE4Assistant
 				{
 					{ "modulename", modulename },
 					{ "objectname", objectname },
-					{ "objectpath", objectpath.Replace('\\', '/') + '/' },
+					{ "objectpath", objectpath.Replace('\\', '/') + (objectpath.null_() ? "" : "/") },
 					{ "basename", basename },
 					{ "typename", "U" },
 				};
