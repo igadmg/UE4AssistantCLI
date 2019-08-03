@@ -1,4 +1,5 @@
 Command line tools for working with UE4 projects.
+Full Windows support. Most commands work in OSX (project, plugin, module and code generation) some need improvement (opening project and building from command line is not tested yet)
 
 ```
 ua-cli <command> <parameters>
@@ -14,6 +15,8 @@ available items to add:
 
     init <vs version> - initialize working environment, create Libraries.sln.
     clean - clean project and plugins from build files.
+    code - open code editor for project.
+    editor - open UE4 editor for project.
     generate - generate VS project for project.
     get_ue_root <ProjectName> - get UE root of associated UE build.
     build - build project.
