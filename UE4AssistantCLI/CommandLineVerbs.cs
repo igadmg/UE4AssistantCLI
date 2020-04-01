@@ -1,8 +1,4 @@
-﻿using CommandLine;
-using CommandLine.Text;
-using System.Collections.Generic;
-
-
+﻿#if false
 
 namespace UE4AssistantCLI
 {
@@ -97,3 +93,5 @@ namespace UE4AssistantCLI
 		public string DestinationPath { get; set; }
 	}
 }
+
+#endif

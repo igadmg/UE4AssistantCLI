@@ -1,4 +1,5 @@
-﻿using CommandLine;
+﻿using ConsoleAppFramework;
+using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -6,7 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Windows.Forms;
+using System.Threading.Tasks;
 using System.Xml;
 using SystemEx;
 using UE4Assistant;
@@ -15,94 +16,6 @@ using Template = UE4Assistant.Template;
 
 namespace UE4AssistantCLI
 {
-	class UnrealCookSettings
-	{
-		public string UE4RootPath = null;
-		public string ProjectFullPath = null;
-		public string Platform = null;
-		public string CookFlavor = null;
-		public string ClientConfig;
-		public string ServerConfig;
-		public bool? UseP4 = null;
-		public bool? Cook = null;
-		public bool? AllMaps = null;
-		public bool? Client = null;
-		public bool? Server = null;
-		public bool? Build = null;
-		public bool? Stage = null;
-		public bool? Pak = null;
-		public bool? Archive = null;
-		public bool? Package = null;
-		public bool? Compressed = null;
-		public string ArchiveDirectory;
-
-		public static UnrealCookSettings CreateDefaultSettings()
-		{
-			return new UnrealCookSettings
-			{
-				UE4RootPath = null,
-				ProjectFullPath = null,
-				UseP4 = false,
-				Platform = "Win64",
-				ClientConfig = "Development",
-				ServerConfig = "Development",
-				Cook = true,
-				AllMaps = true,
-				Server = false,
-				Build = true,
-				Stage = true,
-				Pak = true,
-				Archive = true,
-				Package = true,
-				ArchiveDirectory = "./Packages",
-			};
-		}
-
-		public static UnrealCookSettings CreateBuildSettings()
-		{
-			return new UnrealCookSettings
-			{
-				UE4RootPath = null,
-				ProjectFullPath = null,
-				UseP4 = false,
-				Platform = "Win64",
-				ClientConfig = "Development",
-				ServerConfig = "Development",
-				Cook = false,
-				AllMaps = true,
-				Server = false,
-				Build = true,
-				Stage = false,
-				Pak = false,
-				Archive = false,
-				Package = false,
-				ArchiveDirectory = null,
-			};
-		}
-
-		public override string ToString()
-		{
-			return (!string.IsNullOrWhiteSpace(ProjectFullPath) ? string.Format("-project=\"{0}\"", ProjectFullPath) : "")
-				+ (Platform != null ? string.Format(" -platform=\"{0}\"", Platform) : "")
-				+ (CookFlavor != null ? string.Format(" -cookflavor=\"{0}\"", CookFlavor) : "")
-				+ string.Format(" -clientconfig=\"{0}\"", ClientConfig)
-				+ string.Format(" -serverconfig=\"{0}\"", ServerConfig)
-				+ (UseP4 != null ? UseP4.Value ? " -P4" : " -noP4" : "")
-				+ (Cook != null ? Cook.Value ? " -cook" : "" : "")
-				+ (AllMaps != null ? AllMaps.Value ? " -allmaps" : "" : "")
-				+ (Client != null ? Client.Value ? " -client" : " -noclient" : "")
-				+ (Server != null ? Server.Value ? " -server" : " -noserver" : "")
-				+ (Build != null ? Build.Value ? " -build" : "" : "")
-				+ (Stage != null ? Stage.Value ? " -stage" : "" : "")
-				+ (Pak != null ? Pak.Value ? " -pak" : "" : "")
-				+ (Archive != null ? Archive.Value ? " -archive" : "" : "")
-				+ (Package != null ? Package.Value ? " -package" : "" : "")
-				+ (Compressed != null ? Compressed.Value ? " -compressed" : "" : "")
-				+ (!string.IsNullOrWhiteSpace(ArchiveDirectory) ? string.Format(" -archivedirectory=\"{0}\"", ArchiveDirectory) : "")
-				;
-		}
-	}
-
 	class Program
 	{
 		static void PrintUsage()
@@ -133,48 +46,12 @@ namespace UE4AssistantCLI
 			Console.Error.WriteLine("    merge - launch UE4 diff tool to merge conflict file.");
 		}
 
-		[STAThread]
-		static int Main(string[] args)
+		static async Task Main(string[] args)
 		{
-			/*
-			if (args.Length == 0)
-			{
-				PrintUsage();
-				return -1;
-			}
-			*/
-
-			Parser.Default.ParseArguments(args
-				, typeof(AddVerb)
-				, typeof(InitVerb)
-				, typeof(CleanVerb)
-				, typeof(GenerateVerb)
-				, typeof(EditorVerb)
-				, typeof(CodeVerb)
-				, typeof(GetUERootVerb)
-				, typeof(BuildVerb)
-				, typeof(CookVerb)
-				, typeof(ConvertVerb)
-				, typeof(MergeVerb)
-				, typeof(MoveVerb)
-				)
-				.WithParsed<AddVerb>(v => AddItem(v))
-				.WithParsed<InitVerb>(v => InitProject(v))
-				.WithParsed<CleanVerb>(v => CleanProject(v))
-				.WithParsed<GenerateVerb>(v => GenerateProject(v))
-				.WithParsed<EditorVerb>(v => OpenEditor(v))
-				.WithParsed<CodeVerb>(v => OpenCode(v))
-				.WithParsed<GetUERootVerb>(v => GetUERoot(v))
-				.WithParsed<BuildVerb>(v => BuildProject(v))
-				.WithParsed<CookVerb>(v => CookProject(v))
-				.WithParsed<ConvertVerb>(v => ConvertObject(v))
-				.WithParsed<MergeVerb>(v => MergeAsset(v))
-				.WithParsed<MoveVerb>(v => MoveClass(v));
-
-			return 0;
+			await Host.CreateDefaultBuilder().RunConsoleAppFrameworkAsync<CLI>(args);
 		}
 
-		static IEnumerable<UnrealItemDescription> ListUnrealPlugins(string path)
+		public static IEnumerable<UnrealItemDescription> ListUnrealPlugins(string path)
 		{
 			foreach (string file in Directory.GetFiles(path, "*.uplugin", SearchOption.AllDirectories))
 			{
@@ -182,60 +59,6 @@ namespace UE4AssistantCLI
 			}
 
 			yield break;
-		}
-
-		private static void AddItem(AddVerb verb)
-		{
-			string[] args = verb.Parameters.ToArray();
-
-			if (verb.ItemType == "project")
-			{
-				AddProject(args[0]);
-			}
-			if (verb.ItemType == "plugin")
-			{
-				AddPlugin(args[0]);
-			}
-			else if (verb.ItemType == "module")
-			{
-				AddModule(args[0]);
-			}
-			else if (verb.ItemType == "class")
-			{
-				AddClass(args[0], args[1]);
-			}
-			else if (verb.ItemType == "bpfl")
-			{
-				UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory());
-				if (UnrealItem == null)
-				{
-					Console.WriteLine("This command should be run inside module folder.");
-					return;// -1;
-				}
-
-				string functionlibraryname = Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(UnrealItem.ItemFileName)) + "Statics";
-
-				if (File.Exists(Path.Combine(UnrealItem.ModuleClassesPath, functionlibraryname + ".h")))
-				{
-					Console.WriteLine("This module already contains function library.");
-					return;// -1;
-				}
-
-				AddClass(functionlibraryname, "UBlueprintFunctionLibrary", false, new List<string>
-				{
-					"Kismet/BlueprintFunctionLibrary.h"
-				});
-			}
-			else if (verb.ItemType == "interface")
-			{
-				if (!args[0].EndsWith("Interface"))
-					args[0] = args[0] + "Interface";
-				AddInterface(args[0]);
-			}
-			else if (verb.ItemType == "dataasset")
-			{
-				AddDataAsset(args[0], args.Length < 2 ? "UDataAsset" : args[1]);
-			}
 		}
 
 		private static void AddProject(string projectname)
@@ -427,7 +250,7 @@ namespace UE4AssistantCLI
 			public List<string> configurations = new List<string>();
 		}
 
-		private static void InitProject(string path, string suffix)
+		public static void InitProject(string path, string suffix)
 		{
 			List<VSProject> vsprojects = new List<VSProject>();
 			List<string> vsconfigurations = new List<string>();
@@ -505,139 +328,11 @@ namespace UE4AssistantCLI
 			}
 		}
 
-		private static void InitProject(InitVerb verb)
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+		public static async Task CookProject(UnrealCookSettings[] CookSettings)
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 		{
 			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
-
-			if (UnrealItem == null)
-			{
-				Console.WriteLine("Command should be run inside project folder.");
-				return;// -1;
-			}
-
-			InitProject(UnrealItem.RootPath, verb.UE4Version);
-		}
-
-		private static void CleanProject(CleanVerb verb)
-		{
-			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
-
-			if (UnrealItem == null)
-			{
-				Console.WriteLine("Command should be run inside project folder.");
-				return;// -1;
-			}
-
-			Console.WriteLine("Cleaning in {0}.", UnrealItem.RootPath);
-
-			Utilities.DeleteDirectory(Path.Combine(UnrealItem.RootPath, "Binaries"));
-			Utilities.DeleteDirectory(Path.Combine(UnrealItem.RootPath, "Build"));
-			Utilities.DeleteDirectory(Path.Combine(UnrealItem.RootPath, "Intermediate"));
-			Utilities.DeleteDirectory(Path.Combine(UnrealItem.RootPath, ".vs"));
-			Utilities.DeleteFile(Path.Combine(UnrealItem.RootPath, UnrealItem.Name + ".sln"));
-
-			try
-			{
-				foreach (var plugin in ListUnrealPlugins(UnrealItem.RootPath))
-				{
-					Utilities.DeleteDirectory(Path.Combine(plugin.RootPath, "Binaries"));
-					Utilities.DeleteDirectory(Path.Combine(plugin.RootPath, "Intermediate"));
-				}
-			}
-			catch { }
-		}
-
-		private static void GenerateProject(GenerateVerb verb)
-		{
-			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
-
-			if (UnrealItem == null)
-			{
-				Console.WriteLine("Command should be run inside project folder.");
-				return;// -1;
-			}
-
-			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-			{
-				string UnrealVersionSelector = UnrealEngineInstance.GetUEVersionSelectorPath();
-				Console.Out.WriteLine(UnrealVersionSelector);
-				Utilities.ExecuteCommandLine(Utilities.EscapeCommandLineArgs(UnrealVersionSelector, "/projectfiles", UnrealItem.FullPath));
-			}
-			else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-			{
-				UnrealEngineInstance UnrealInstance = new UnrealEngineInstance(UnrealItem);
-				Utilities.ExecuteCommandLine(string.Join(" "
-					, "\"{0}\"".format(UnrealInstance.GenerateProjectFiles)
-					, "-project=\"{0}\"".format(UnrealItem.FullPath)
-					, "-game"));
-			}
-		}
-
-		private static void OpenEditor(EditorVerb verb)
-		{
-			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
-
-			if (UnrealItem == null)
-			{
-				Console.WriteLine("Command should be run inside project folder.");
-				return;// -1;
-			}
-
-			Utilities.ExecuteOpenFile(UnrealItem.FullPath);
-		}
-
-		private static void OpenCode(CodeVerb verb)
-		{
-			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
-
-			if (UnrealItem == null)
-			{
-				Console.WriteLine("Command should be run inside project folder.");
-				return;// -1;
-			}
-
-			Utilities.ExecuteOpenFile(Path.Combine(UnrealItem.RootPath, UnrealItem.Name + ".sln"));
-		}
-
-		private static void GetUERoot(GetUERootVerb verb)
-		{
-			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), verb.ProjectName, UnrealItemType.Project);
-
-			if (UnrealItem == null)
-			{
-				Console.WriteLine("Command should be run inside project folder.");
-				return;// -1;
-			}
-
-			Console.WriteLine(new UnrealEngineInstance(UnrealItem).RootPath);
-		}
-
-		private static void BuildProject(BuildVerb verb)
-		{
-			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
-			UnrealCookSettings BuildSettings = UnrealCookSettings.CreateBuildSettings();
-
-			using (var SleepGuard = Utilities.PreventSleep())
-			{
-				UnrealEngineInstance UnrealInstance = new UnrealEngineInstance(UnrealItem);
-				BuildSettings.UE4RootPath = Path.GetFullPath(UnrealInstance.RootPath);
-				BuildSettings.ProjectFullPath = Path.GetFullPath(UnrealItem.FullPath);
-
-				Utilities.ExecuteCommandLine(string.Format("\"{0}\" BuildCookRun {1}", UnrealInstance.RunUATPath, BuildSettings));
-			}
-		}
-
-		private static void CookProject(CookVerb verb)
-		{
-			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
-			UnrealCookSettings[] CookSettings = !verb.CookSettings.null_()
-				? JsonConvert.DeserializeObject<UnrealCookSettings[]>(File.ReadAllText(verb.CookSettings)
-					, new JsonSerializerSettings
-					{
-						ObjectCreationHandling = ObjectCreationHandling.Replace
-					})
-				: new UnrealCookSettings[] { UnrealCookSettings.CreateDefaultSettings() };
-
 			using (var SleepGuard = Utilities.PreventSleep())
 			{
 				foreach (var Recipe in CookSettings)
@@ -656,102 +351,6 @@ namespace UE4AssistantCLI
 					Utilities.ExecuteCommandLine(string.Format("\"{0}\" BuildCookRun {1}", UnrealInstance.RunUATPath, Recipe));
 				}
 			}
-		}
-
-		private static void ConvertObject(ConvertVerb verb)
-		{
-			if (Console.IsInputRedirected)
-			{
-				string line = null;
-				while ((line = Console.In.ReadLine()) != null)
-				{
-					Console.WriteLine(ConvertToJSON(Clipboard.GetText()));
-				}
-			}
-			else
-			{
-				if (Clipboard.ContainsText())
-				{
-					string json = ConvertToJSON(Clipboard.GetText());
-					Clipboard.SetText(json);
-				}
-				else
-				{
-					string line = null;
-					while ((line = Console.In.ReadLine()) != null)
-					{
-						Console.WriteLine(ConvertToJSON(Clipboard.GetText()));
-					}
-				}
-			}
-		}
-
-		private static void MergeAsset(MergeVerb verb)
-		{
-			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
-			UnrealEngineInstance UnrealInstance = new UnrealEngineInstance(UnrealItem);
-
-			string savedDiffPath = Path.Combine(UnrealItem.RootPath, "Saved\\Diff");
-			if (!Directory.Exists(savedDiffPath))
-				Directory.CreateDirectory(savedDiffPath);
-
-			string file = verb.AssetPath;
-			string fileName = Path.GetFileName(file).Replace('.', '_');
-			string baseFile = Path.Combine(savedDiffPath, string.Format("{0}.Base.uasset", fileName));
-			string localFile = Path.Combine(savedDiffPath, string.Format("{0}.Local.uasset", fileName));
-			string remoteFile = Path.Combine(savedDiffPath, string.Format("{0}.Remote.uasset", fileName));
-			string resultFile = Path.Combine(savedDiffPath, string.Format("{0}.Result.uasset", fileName));
-
-			Utilities.ExecuteCommandLine(string.Format("git show :1:./{0} | git lfs smudge > {1}", file, baseFile));
-			Utilities.ExecuteCommandLine(string.Format("git show :2:./{0} | git lfs smudge > {1}", file, localFile));
-			Utilities.ExecuteCommandLine(string.Format("git show :3:./{0} | git lfs smudge > {1}", file, remoteFile));
-			Utilities.ExecuteCommandLine(string.Format("git show :1:./{0} | git lfs smudge > {1}", file, resultFile));
-
-			Utilities.ExecuteCommandLine(Utilities.EscapeCommandLineArgs(
-				UnrealInstance.UE4EditorPath, UnrealItem.FullPath, "-diff", remoteFile, localFile, baseFile, resultFile));
-
-			var baseMd5 = Utilities.CalculateMD5(baseFile);
-			var resultMd5 = Utilities.CalculateMD5(resultFile);
-
-			if (!baseMd5.SequenceEqual(resultMd5))
-			{
-				File.Copy(resultFile, Path.GetFullPath(file), true);
-			}
-
-			File.Delete(baseFile);
-			File.Delete(localFile);
-			File.Delete(remoteFile);
-			File.Delete(resultFile);
-		}
-
-		private static void MoveClass(MoveVerb verb)
-		{
-			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Module);
-
-			if (UnrealItem == null)
-			{
-				Console.WriteLine("Command should be run inside project module folder.");
-				return;// -1;
-			}
-
-			string originalFilePath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), verb.OriginalFileName));
-			string destinationFilePath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), verb.DestinationPath));
-
-			if (File.Exists(destinationFilePath))
-			{
-				Console.WriteLine("Destination path should be a folder.");
-				return;// -1;
-			}
-
-			if (!Directory.Exists(destinationFilePath))
-			{
-				Directory.CreateDirectory()
-			}
-
-			UnrealItemPath originalItem = new UnrealItemPath(UnrealItem, originalFilePath);
-			UnrealItemPath destiantionItem = new UnrealItemPath(UnrealItem, destinationFilePath);
-
-			int i = 0;
 		}
 
 		private static Dictionary<string, object> ParseUE4Object(string line, ref int li)

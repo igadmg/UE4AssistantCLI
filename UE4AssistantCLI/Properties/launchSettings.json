@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "UE4AssistantCLI": {
+      "commandName": "Project",
+      "commandLineArgs": "-help"
+    }
+  }
+}
