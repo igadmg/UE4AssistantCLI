@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
@@ -61,14 +60,14 @@ namespace UE4AssistantCLI
 			yield break;
 		}
 
-		private static void AddProject(string projectname)
+		public static void AddProject(string projectname)
 		{
 			Utilities.ExecuteCommandLine("git init");
 
 			UProject project = Template.CreateProject(projectname);
 		}
 
-		private static void AddPlugin(string pluginname)
+		public static void AddPlugin(string pluginname)
 		{
 			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
 			if (UnrealItem == null)
@@ -94,7 +93,7 @@ namespace UE4AssistantCLI
 			}
 		}
 
-		private static void AddModule(string modulename)
+		public static void AddModule(string modulename)
 		{
 			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project, UnrealItemType.Plugin);
 			if (UnrealItem == null)
@@ -130,12 +129,12 @@ namespace UE4AssistantCLI
 			}
 		}
 
-		private static void AddClass(string objectname, string basename)
+		public static void AddClass(string objectname, string basename)
 		{
 			AddClass(objectname, basename, true, new List<string>());
 		}
 
-		private static void AddClass(string objectname, string basename, bool hasConstructor, List<string> extraincludes)
+		public static void AddClass(string objectname, string basename, bool hasConstructor, List<string> extraincludes)
 		{
 			string typename = basename[0].ToString();
 			string objectfolder = Directory.GetCurrentDirectory();
@@ -183,7 +182,7 @@ namespace UE4AssistantCLI
 			}
 		}
 
-		private static void AddInterface(string objectname)
+		public static void AddInterface(string objectname)
 		{
 			string objectfolder = Directory.GetCurrentDirectory();
 
@@ -212,7 +211,7 @@ namespace UE4AssistantCLI
 				, Template.TransformToText<Interface_h>(parameters));
 		}
 
-		private static void AddDataAsset(string objectname, string basename)
+		public static void AddDataAsset(string objectname, string basename)
 		{
 			string objectfolder = Directory.GetCurrentDirectory();
 
@@ -425,7 +424,7 @@ namespace UE4AssistantCLI
 			return ParseUE4Object(line, ref li);
 		}
 
-		private static string ConvertToJSON(string line)
+		public static string ConvertToJSON(string line)
 		{
 			var ue4Object = ParseUE4Object(line);
 

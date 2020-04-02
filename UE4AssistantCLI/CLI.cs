@@ -1,6 +1,8 @@
-﻿using ConsoleAppFramework;
+﻿using ClipboardEx.Win32;
+using ConsoleAppFramework;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -13,71 +15,71 @@ namespace UE4AssistantCLI
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
 	class CLI : ConsoleAppBase
 	{
-		[Command("add")]
-		public async Task AddItem([Option(0)] string verb)
+		[Command("add_project", "Create new project.")]
+		public async Task AddProject([Option(0, "project name")] string name)
 		{
-			/*
-				string[] args = verb.Parameters.ToArray();
+			Program.AddProject(name);
+		}
 
-				if (verb.ItemType == "project")
-				{
-					AddProject(args[0]);
-				}
-				if (verb.ItemType == "plugin")
-				{
-					AddPlugin(args[0]);
-				}
-				else if (verb.ItemType == "module")
-				{
-					AddModule(args[0]);
-				}
-				else if (verb.ItemType == "class")
-				{
-					AddClass(args[0], args[1]);
-				}
-				else if (verb.ItemType == "bpfl")
-				{
-					UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory());
-					if (UnrealItem == null)
-					{
-						Console.WriteLine("This command should be run inside module folder.");
-						return;// -1;
-					}
+		[Command("add_plugin", "Create and add new plugin to current project.")]
+		public async Task AddPlugin([Option(0, "plugin name")] string name)
+		{
+			Program.AddPlugin(name);
+		}
 
-					string functionlibraryname = Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(UnrealItem.ItemFileName)) + "Statics";
+		[Command("add_module", "Add new module to current project or plugin.")]
+		public async Task AddModule([Option(0, "module name")] string name)
+		{
+			Program.AddModule(name);
+		}
 
-					if (File.Exists(Path.Combine(UnrealItem.ModuleClassesPath, functionlibraryname + ".h")))
-					{
-						Console.WriteLine("This module already contains function library.");
-						return;// -1;
-					}
+		[Command("add_class", "Add new class to current module.")]
+		public async Task AddClass([Option(0, "class name")] string name, [Option(1, "base class name")] string basename = "UObject")
+		{
+			Program.AddClass(name, basename);
+		}
 
-					AddClass(functionlibraryname, "UBlueprintFunctionLibrary", false, new List<string>
+		[Command("add_bpfl", "Add a function library to current module, if one does not exist.")]
+		public async Task AddBpfl()
+		{
+			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory());
+			if (UnrealItem == null)
+			{
+				Console.WriteLine("This command should be run inside module folder.");
+				return;// -1;
+			}
+
+			string functionlibraryname = Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(UnrealItem.ItemFileName)) + "Statics";
+
+			if (File.Exists(Path.Combine(UnrealItem.ModuleClassesPath, functionlibraryname + ".h")))
+			{
+				Console.WriteLine("This module already contains function library.");
+				return;// -1;
+			}
+
+			Program.AddClass(functionlibraryname, "UBlueprintFunctionLibrary", false
+				, new List<string>
 					{
 						"Kismet/BlueprintFunctionLibrary.h"
 					});
-				}
-				else if (verb.ItemType == "interface")
-				{
-					if (!args[0].EndsWith("Interface"))
-						args[0] = args[0] + "Interface";
-					AddInterface(args[0]);
-				}
-				else if (verb.ItemType == "dataasset")
-				{
-					AddDataAsset(args[0], args.Length < 2 ? "UDataAsset" : args[1]);
-				}
-			*/
 		}
 
-		[Command("init", "Initialize working environment, create Libraries.sln.")]
-		public async Task InitProject()
+		[Command("add_interface", "Add new interface to current module.")]
+		public async Task AddInterface([Option(0, "interface name")] string name)
 		{
-			await InitProject(string.Empty);
+			if (!name.EndsWith("Interface"))
+				name += "Interface";
+			Program.AddInterface(name);
+		}
+
+		[Command("add_dataasset", "Add a data asset class with given name.")]
+		public async Task AddDataAsset([Option(0, "data asset name")] string name, [Option(1, "data asset base class name")] string basename = "UDataAsset")
+		{
+			Program.AddDataAsset(name, basename);
 		}
 
 		[Command("init", "Initialize working environment, create Libraries.sln.")]
-		public async Task InitProject([Option(0)] string UE4Version)
+		public async Task InitProject([Option(0, "UE4 version")] string UE4Version = null)
 		{
 			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
 
@@ -87,7 +89,7 @@ namespace UE4AssistantCLI
 				return;// -1;
 			}
 
-			Program.InitProject(UnrealItem.RootPath, UE4Version);
+			Program.InitProject(UnrealItem.RootPath, UE4Version ?? "");
 		}
 
 		[Command("clean", "Clean project and plugins from build files.")]
@@ -176,15 +178,9 @@ namespace UE4AssistantCLI
 		}
 
 		[Command("get_ue_root", "Get UE root of associated UE build.")]
-		public async Task GetUERoot()
+		public async Task GetUERoot([Option(0, "project name")] string ProjectName = null)
 		{
-			await GetUERoot(string.Empty);
-		}
-
-		[Command("get_ue_root", "Get UE root of associated UE build.")]
-		public async Task GetUERoot([Option(0)] string ProjectName)
-		{
-			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), ProjectName, UnrealItemType.Project);
+			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), ProjectName ?? "", UnrealItemType.Project);
 
 			if (UnrealItem == null)
 			{
@@ -211,53 +207,35 @@ namespace UE4AssistantCLI
 		}
 
 		[Command("cook", "Cook project with cook settings.")]
-		public async Task CookProject()
+		public async Task CookProject([Option(0, "cook settings json file name")] string CookSettings = null)
 		{
-			await Program.CookProject(new UnrealCookSettings[] { UnrealCookSettings.CreateDefaultSettings() });
-		}
-
-		[Command("cook", "Cook project with cook settings.")]
-		public async Task CookProject([Option(0)] string CookSettings)
-		{
-			await Program.CookProject(
-				JsonConvert.DeserializeObject<UnrealCookSettings[]>(File.ReadAllText(CookSettings)
+			await Program.CookProject(!CookSettings.null_ws_()
+				? JsonConvert.DeserializeObject<UnrealCookSettings[]>(File.ReadAllText(CookSettings)
 					, new JsonSerializerSettings
 					{
 						ObjectCreationHandling = ObjectCreationHandling.Replace
-					}));
+					})
+				: new UnrealCookSettings[] { UnrealCookSettings.CreateDefaultSettings() });
 		}
 
 		[Command("convert", "Convert copied clipboard data to json file.")]
 		public async Task ConvertObject()
 		{
-			if (Console.IsInputRedirected)
+			string text = ClipboardEx.GetConsoleOrClipboardText(out var toClipboard);
+			string json = Program.ConvertToJSON(text);
+			if (toClipboard)
 			{
-				//string line = null;
-				//while ((line = Console.In.ReadLine()) != null)
-				//{
-				//	Console.WriteLine(ConvertToJSON(Clipboard.GetText()));
-				//}
+				using var clipboard = new Clipboard();
+				clipboard.Text = json;
 			}
 			else
 			{
-				//if (Clipboard.ContainsText())
-				//{
-				//	string json = ConvertToJSON(Clipboard.GetText());
-				//	Clipboard.SetText(json);
-				//}
-				//else
-				//{
-				//	string line = null;
-				//	while ((line = Console.In.ReadLine()) != null)
-				//	{
-				//		Console.WriteLine(ConvertToJSON(Clipboard.GetText()));
-				//	}
-				//}
+				Console.WriteLine(json);
 			}
 		}
 
 		[Command("merge", "Launch UE4 diff tool to merge conflict file.")]
-		public async Task MergeAsset([Option(0)] string AssetPath)
+		public async Task MergeAsset([Option(0, "asset path")] string AssetPath)
 		{
 			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
 			UnrealEngineInstance UnrealInstance = new UnrealEngineInstance(UnrealItem);
@@ -295,8 +273,8 @@ namespace UE4AssistantCLI
 			File.Delete(resultFile);
 		}
 
-		[Command("move", "Move class to another path.")]
-		public static void MoveClass([Option(0)] string OriginalFileName, [Option(1)] string DestinationPath)
+		[Command("move", "Move class to another path. NOT IMPLEMENTED.")]
+		public async Task MoveClass([Option(0)] string OriginalFileName, [Option(1)] string DestinationPath)
 		{
 			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Module);
 
@@ -324,6 +302,12 @@ namespace UE4AssistantCLI
 			UnrealItemPath destiantionItem = new UnrealItemPath(UnrealItem, destinationFilePath);
 
 			// TODO: implement
+		}
+
+		[Command("vs_pch_cleanup", "Cleanup PCH file errors.")]
+		public async Task VsPCHCleanup()
+		{
+
 		}
 	}
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously

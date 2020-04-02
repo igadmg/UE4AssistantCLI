@@ -7,3 +7,6 @@
 [submodule "UE4Assistant.Templates"]
 	path = UE4Assistant.Templates
 	url = git@github.com:yatagarasu25/UE4Assistant.Templates.git
+[submodule "ClipboardEx"]
+	path = ClipboardEx
+	url = git@github.com:yatagarasu25/ClipboardEx.git
