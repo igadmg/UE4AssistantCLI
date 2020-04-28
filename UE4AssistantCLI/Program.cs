@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
@@ -47,6 +48,15 @@ namespace UE4AssistantCLI
 
 		static async Task Main(string[] args)
 		{
+			AppDomain.CurrentDomain.AssemblyLoad += (object sender, AssemblyLoadEventArgs args) =>
+			{
+				int i = 0;
+			};
+			AppDomain.CurrentDomain.AssemblyResolve += (object sender, ResolveEventArgs args) =>
+			{
+				return null;
+			};
+
 			await Host.CreateDefaultBuilder().RunConsoleAppFrameworkAsync<CLI>(args);
 		}
 
