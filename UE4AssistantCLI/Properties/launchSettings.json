@@ -2,7 +2,8 @@
   "profiles": {
     "UE4AssistantCLI": {
       "commandName": "Project",
-      "commandLineArgs": "add_project p"
+      "commandLineArgs": "test",
+      "workingDirectory": "D:\\project\\Epos\\Source\\"
     }
   }
 }

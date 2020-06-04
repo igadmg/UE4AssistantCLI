@@ -15,7 +15,7 @@
     <ProjectReference Include="..\ClipboardEx\ClipboardEx.Win32\ClipboardEx.Win32.csproj" />
     <ProjectReference Include="..\SystemEx\SystemEx.csproj" />
     <ProjectReference Include="..\UE4Assistant.Templates\UE4Assistant.Templates.csproj">
-      <Private>false</Private>
+      <Private>true</Private>
     </ProjectReference>
     <ProjectReference Include="..\UE4Assistant\UE4Assistant.csproj" />
   </ItemGroup>

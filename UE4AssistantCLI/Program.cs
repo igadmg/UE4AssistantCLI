@@ -18,34 +18,6 @@ namespace UE4AssistantCLI
 {
 	class Program
 	{
-		static void PrintUsage()
-		{
-			Console.Error.WriteLine(string.Format(System.Globalization.CultureInfo.InvariantCulture
-				, "ua-cli current version: {0:n0}"
-				, System.Reflection.Assembly.GetExecutingAssembly().GetLinkerTime().Ticks / 1000000).Replace(',', '.'));
-			Console.Error.WriteLine("ua-cli <command> <parameters>");
-			Console.Error.WriteLine("    add <item> <params> - add something to the project");
-			Console.Error.WriteLine("available items to add:");
-			Console.Error.WriteLine("        project <ProjectName> - create new project");
-			Console.Error.WriteLine("        plugin <PluginName> - create and add new plugin to current project.");
-			Console.Error.WriteLine("        module <ModuleName> - add new module to current project or plugin.");
-			Console.Error.WriteLine("        interface <InterfaceName> - add new interface to current module.");
-			Console.Error.WriteLine("        class <ClassName> <BaseType> - add new class to current module.");
-			Console.Error.WriteLine("        bpfl - add a function library to current module, if one does not exist.");
-			Console.Error.WriteLine("        dataasset <ClassName> <BaseType> - add a data asset class with given name. BaseType is optional.");
-			Console.Error.WriteLine("");
-			Console.Error.WriteLine("    init <vs version> - initialize working environment, create Libraries.sln.");
-			Console.Error.WriteLine("    clean - clean project and plugins from build files.");
-			Console.Error.WriteLine("    generate - generate VS project for project.");
-			Console.Error.WriteLine("    get_ue_root <ProjectName> - get UE root of associated UE build.");
-			Console.Error.WriteLine("    build - build project.");
-			Console.Error.WriteLine("    cook <CookSettings> - cook project with cook settings.");
-			Console.Error.WriteLine("");
-			Console.Error.WriteLine("    convert - copied clipboard data to json file.");
-			Console.Error.WriteLine("");
-			Console.Error.WriteLine("    merge - launch UE4 diff tool to merge conflict file.");
-		}
-
 		static async Task Main(string[] args)
 		{
 			AppDomain.CurrentDomain.AssemblyLoad += (object sender, AssemblyLoadEventArgs args) =>
@@ -144,9 +116,9 @@ namespace UE4AssistantCLI
 			AddClass(objectname, basename, true, new List<string>());
 		}
 
-		public static void AddClass(string objectname, string basename, bool hasConstructor, List<string> extraincludes)
+		public static void AddClass(string typeName, string baseName, bool hasConstructor, List<string> extraincludes)
 		{
-			string typename = basename[0].ToString();
+			var typePrefix = baseName.GetTypePrefix();
 			string objectfolder = Directory.GetCurrentDirectory();
 
 			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(objectfolder, UnrealItemType.Module);
@@ -156,43 +128,43 @@ namespace UE4AssistantCLI
 				return;
 			}
 
-			string modulename = UnrealItem.Name;
-			string objectpath = new UnrealItemPath(UnrealItem, objectfolder).ItemPath;
+			string moduleName = UnrealItem.Name;
+			string objectPath = new UnrealItemPath(UnrealItem, objectfolder).ItemPath;
 
-			Dictionary<string, object> parameters = new Dictionary<string, object>
-				{
-					{ "modulename", modulename },
-					{ "objectname", objectname },
-					{ "objectpath", objectpath.Replace('\\', '/') + (objectpath.null_() ? "" : "/") },
-					{ "extraincludes", extraincludes },
-					{ "basename", basename },
-					{ "typename", typename },
-					{ "hasConstructor", hasConstructor }
-				};
-
-			string classesPath = Path.Combine(UnrealItem.ModuleClassesPath, objectpath);
-			string privatePath = Path.Combine(UnrealItem.ModulePrivatePath, objectpath);
+			string classesPath = Path.Combine(UnrealItem.ModuleClassesPath, objectPath);
+			string privatePath = Path.Combine(UnrealItem.ModulePrivatePath, objectPath);
 
 			Directory.CreateDirectory(classesPath);
 			Directory.CreateDirectory(privatePath);
 
-			if (typename == "U" || typename == "A")
+			string sourceContent;
+			string headerContent;
+			string generatedHeader = null;
+			string pchHeader = null;
+			string finalHeader = null;
+			string locTextNamespaceName = null;
+
+			if (typePrefix == TypePrefix.U || typePrefix == TypePrefix.A)
 			{
-				File.WriteAllText(Path.Combine(classesPath, objectname + ".h")
-					, Template.TransformToText<Class_h>(parameters));
-				File.WriteAllText(Path.Combine(privatePath, objectname + ".cpp")
-					, Template.TransformToText<Class_cpp>(parameters));
+				generatedHeader = $"{typeName}.generated.h";
+				headerContent = Template.CreateClass_h(moduleName, typePrefix, typeName, baseName, hasConstructor);
+				sourceContent = Template.CreateClass_cpp(moduleName, typePrefix, typeName, baseName, hasConstructor);
 			}
 			else
 			{
-				File.WriteAllText(Path.Combine(classesPath, objectname + ".h")
-					, Template.TransformToText<SimpleClass_h>(parameters));
-				File.WriteAllText(Path.Combine(privatePath, objectname + ".cpp")
-					, Template.TransformToText<SimpleClass_cpp>(parameters));
+				headerContent = Template.CreateSimpleClass_h(moduleName, typePrefix, typeName, baseName);
+				sourceContent = Template.CreateSimpleClass_cpp(moduleName, typePrefix, typeName, baseName);
 			}
+
+			File.WriteAllText(Path.Combine(classesPath, typeName + ".h")
+				, Template.CreateHeaderFile(headerContent
+					, generatedHeader: generatedHeader));
+			File.WriteAllText(Path.Combine(privatePath, typeName + ".cpp")
+				, Template.CreateSourceFile(sourceContent, Path.Combine(objectPath, $"{typeName}.h")
+					, pchHeader: pchHeader, finalHeader: finalHeader, locTextNamespaceName: locTextNamespaceName));
 		}
 
-		public static void AddInterface(string objectname)
+		public static void AddInterface(string typeName)
 		{
 			string objectfolder = Directory.GetCurrentDirectory();
 
@@ -203,53 +175,37 @@ namespace UE4AssistantCLI
 				return;
 			}
 
-			string modulename = UnrealItem.Name;
+			string moduleName = UnrealItem.Name;
 			string objectpath = new UnrealItemPath(UnrealItem, objectfolder).ItemPath;
-
-			Dictionary<string, object> parameters = new Dictionary<string, object>
-				{
-					{ "modulename", modulename },
-					{ "objectname", objectname },
-					{ "objectpath", objectpath.Replace('\\', '/') + (objectpath.null_() ? "" : "/") },
-				};
-
 			string classesPath = Path.Combine(UnrealItem.ModuleClassesPath, objectpath);
 
 			Directory.CreateDirectory(classesPath);
 
-			File.WriteAllText(Path.Combine(classesPath, objectname + ".h")
-				, Template.TransformToText<Interface_h>(parameters));
+			File.WriteAllText(Path.Combine(classesPath, typeName + ".h")
+				, Template.CreateHeaderFile(Template.CreateInterface_h(moduleName, typeName)
+					, generatedHeader: $"{typeName}.generated.h"));
 		}
 
-		public static void AddDataAsset(string objectname, string basename)
+		public static void AddDataAsset(string typeName, string baseName)
 		{
-			string objectfolder = Directory.GetCurrentDirectory();
+			string objectFolder = Directory.GetCurrentDirectory();
 
-			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(objectfolder, UnrealItemType.Module);
+			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(objectFolder, UnrealItemType.Module);
 			if (UnrealItem == null)
 			{
 				Console.WriteLine("This command should be run inside module folder.");
 				return;
 			}
 
-			string modulename = UnrealItem.Name;
-			string objectpath = new UnrealItemPath(UnrealItem, objectfolder).ItemPath;
-
-			Dictionary<string, object> parameters = new Dictionary<string, object>
-				{
-					{ "modulename", modulename },
-					{ "objectname", objectname },
-					{ "objectpath", objectpath.Replace('\\', '/') + (objectpath.null_() ? "" : "/") },
-					{ "basename", basename },
-					{ "typename", "U" },
-				};
-
-			string classesPath = Path.Combine(UnrealItem.ModuleClassesPath, objectpath);
+			string moduleName = UnrealItem.Name;
+			string objectPath = new UnrealItemPath(UnrealItem, objectFolder).ItemPath;
+			string classesPath = Path.Combine(UnrealItem.ModuleClassesPath, objectPath);
 
 			Directory.CreateDirectory(classesPath);
 
-			File.WriteAllText(Path.Combine(classesPath, objectname + ".h")
-				, Template.TransformToText<Class_h>(parameters));
+			File.WriteAllText(Path.Combine(classesPath, typeName + ".h")
+				, Template.CreateHeaderFile(Template.CreateClass_h(moduleName, TypePrefix.U, typeName, baseName, false)
+					, generatedHeader: $"{typeName}.generated.h"));
 		}
 
 		class VSProject
