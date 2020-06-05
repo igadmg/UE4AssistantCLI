@@ -118,94 +118,23 @@ namespace UE4AssistantCLI
 
 		public static void AddClass(string typeName, string baseName, bool hasConstructor, List<string> extraincludes)
 		{
-			var typePrefix = baseName.GetTypePrefix();
 			string objectfolder = Directory.GetCurrentDirectory();
 
-			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(objectfolder, UnrealItemType.Module);
-			if (UnrealItem == null)
-			{
-				Console.WriteLine("This command should be run inside module folder.");
-				return;
-			}
-
-			string moduleName = UnrealItem.Name;
-			string objectPath = new UnrealItemPath(UnrealItem, objectfolder).ItemPath;
-
-			string classesPath = Path.Combine(UnrealItem.ModuleClassesPath, objectPath);
-			string privatePath = Path.Combine(UnrealItem.ModulePrivatePath, objectPath);
-
-			Directory.CreateDirectory(classesPath);
-			Directory.CreateDirectory(privatePath);
-
-			string sourceContent;
-			string headerContent;
-			string generatedHeader = null;
-			string pchHeader = null;
-			string finalHeader = null;
-			string locTextNamespaceName = null;
-
-			if (typePrefix == TypePrefix.U || typePrefix == TypePrefix.A)
-			{
-				generatedHeader = $"{typeName}.generated.h";
-				headerContent = Template.CreateClass_h(moduleName, typePrefix, typeName, baseName, hasConstructor);
-				sourceContent = Template.CreateClass_cpp(moduleName, typePrefix, typeName, baseName, hasConstructor);
-			}
-			else
-			{
-				headerContent = Template.CreateSimpleClass_h(moduleName, typePrefix, typeName, baseName);
-				sourceContent = Template.CreateSimpleClass_cpp(moduleName, typePrefix, typeName, baseName);
-			}
-
-			File.WriteAllText(Path.Combine(classesPath, typeName + ".h")
-				, Template.CreateHeaderFile(headerContent
-					, generatedHeader: generatedHeader));
-			File.WriteAllText(Path.Combine(privatePath, typeName + ".cpp")
-				, Template.CreateSourceFile(sourceContent, Path.Combine(objectPath, $"{typeName}.h")
-					, pchHeader: pchHeader, finalHeader: finalHeader, locTextNamespaceName: locTextNamespaceName));
+			Template.CreateClass(objectfolder, typeName, baseName, hasConstructor, extraincludes);
 		}
 
 		public static void AddInterface(string typeName)
 		{
 			string objectfolder = Directory.GetCurrentDirectory();
 
-			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(objectfolder, UnrealItemType.Module);
-			if (UnrealItem == null)
-			{
-				Console.WriteLine("This command should be run inside module folder.");
-				return;
-			}
-
-			string moduleName = UnrealItem.Name;
-			string objectpath = new UnrealItemPath(UnrealItem, objectfolder).ItemPath;
-			string classesPath = Path.Combine(UnrealItem.ModuleClassesPath, objectpath);
-
-			Directory.CreateDirectory(classesPath);
-
-			File.WriteAllText(Path.Combine(classesPath, typeName + ".h")
-				, Template.CreateHeaderFile(Template.CreateInterface_h(moduleName, typeName)
-					, generatedHeader: $"{typeName}.generated.h"));
+			Template.CreateInterface(objectfolder, typeName);
 		}
 
 		public static void AddDataAsset(string typeName, string baseName)
 		{
 			string objectFolder = Directory.GetCurrentDirectory();
 
-			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(objectFolder, UnrealItemType.Module);
-			if (UnrealItem == null)
-			{
-				Console.WriteLine("This command should be run inside module folder.");
-				return;
-			}
-
-			string moduleName = UnrealItem.Name;
-			string objectPath = new UnrealItemPath(UnrealItem, objectFolder).ItemPath;
-			string classesPath = Path.Combine(UnrealItem.ModuleClassesPath, objectPath);
-
-			Directory.CreateDirectory(classesPath);
-
-			File.WriteAllText(Path.Combine(classesPath, typeName + ".h")
-				, Template.CreateHeaderFile(Template.CreateClass_h(moduleName, TypePrefix.U, typeName, baseName, false)
-					, generatedHeader: $"{typeName}.generated.h"));
+			Template.CreateDataAsset(objectFolder, typeName, baseName);
 		}
 
 		class VSProject
