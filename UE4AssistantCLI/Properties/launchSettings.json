@@ -2,8 +2,8 @@
   "profiles": {
     "UE4AssistantCLI": {
       "commandName": "Project",
-      "commandLineArgs": "test",
-      "workingDirectory": "D:\\project\\Epos\\Source\\"
+      "commandLineArgs": "vs_pch_cleanup",
+      "workingDirectory": "D:\\workspace\\TwinFist\\Source\\TwinFist\\Public\\Game\\"
     }
   }
 }

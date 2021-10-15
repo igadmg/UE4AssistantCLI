@@ -5,13 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using SystemEx;
 using UE4Assistant;
-using UE4Assistant.Templates.Generators;
 using Template = UE4Assistant.Template;
 
 namespace UE4AssistantCLI
@@ -22,7 +20,6 @@ namespace UE4AssistantCLI
 		{
 			AppDomain.CurrentDomain.AssemblyLoad += (object sender, AssemblyLoadEventArgs args) =>
 			{
-				int i = 0;
 			};
 			AppDomain.CurrentDomain.AssemblyResolve += (object sender, ResolveEventArgs args) =>
 			{
@@ -111,16 +108,11 @@ namespace UE4AssistantCLI
 			}
 		}
 
-		public static void AddClass(string objectname, string basename)
-		{
-			AddClass(objectname, basename, true, new List<string>());
-		}
-
-		public static void AddClass(string typeName, string baseName, bool hasConstructor, List<string> extraincludes)
+		public static void AddClass(string typeName, string baseName, bool hasConstructor = true, string[] headers = null)
 		{
 			string objectfolder = Directory.GetCurrentDirectory();
 
-			Template.CreateClass(objectfolder, typeName, baseName, hasConstructor, extraincludes);
+			Template.CreateClass(objectfolder, typeName, baseName, hasConstructor, headers);
 		}
 
 		public static void AddInterface(string typeName)

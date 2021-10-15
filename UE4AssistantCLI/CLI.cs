@@ -40,7 +40,7 @@ namespace UE4AssistantCLI
 		}
 
 		[Command("add_bpfl", "Add a function library to current module, if one does not exist.")]
-		public async Task AddBpfl()
+		public async Task AddBpfl([Option(0, "class name")] string name = null)
 		{
 			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory());
 			if (UnrealItem == null)
@@ -49,7 +49,9 @@ namespace UE4AssistantCLI
 				return;// -1;
 			}
 
-			string functionlibraryname = Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(UnrealItem.ItemFileName)) + "Statics";
+			string functionlibraryname = name.null_ws_()
+				? Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(UnrealItem.ItemFileName)) + "Statics"
+				: Path.Combine(Directory.GetCurrentDirectory(), name + "Statics");
 
 			if (File.Exists(Path.Combine(UnrealItem.ModuleClassesPath, functionlibraryname + ".h")))
 			{
@@ -57,8 +59,9 @@ namespace UE4AssistantCLI
 				return;// -1;
 			}
 
-			Program.AddClass(functionlibraryname, "UBlueprintFunctionLibrary", false
-				, new List<string>
+			Program.AddClass(functionlibraryname, "UBlueprintFunctionLibrary"
+				, hasConstructor: false
+				, headers: new string[]
 					{
 						"Kismet/BlueprintFunctionLibrary.h"
 					});
@@ -174,7 +177,11 @@ namespace UE4AssistantCLI
 				return;// -1;
 			}
 
-			Utilities.ExecuteOpenFile(Path.Combine(UnrealItem.RootPath, UnrealItem.Name + ".sln"));
+			var solutionFile = Path.Combine(UnrealItem.RootPath, UnrealItem.Name + ".sln");
+			if (!File.Exists(solutionFile))
+				await GenerateProject();
+
+			Utilities.ExecuteOpenFile(solutionFile);
 		}
 
 		[Command("get_ue_root", "Get UE root of associated UE build.")]
@@ -304,10 +311,40 @@ namespace UE4AssistantCLI
 			// TODO: implement
 		}
 
-		[Command("vs_pch_cleanup", "Cleanup PCH file errors.")]
-		public async Task VsPCHCleanup()
+		[Command("pch_cleanup", "Cleanup PCH file errors.")]
+		public async Task PCHCleanup()
 		{
+			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
+			if (UnrealItem == null)
+			{
+				Console.WriteLine("Command should be run inside project folder.");
+				return;
+			}
 
+			foreach (var buildLog in UnrealItem.BuildLogs)
+			{
+				Console.WriteLine("==> {buildLog}");
+				var pchFiles = new HashSet<string>(Utilities.ParsePCHFilesErrors(File.ReadAllText(buildLog)));
+
+				foreach (var pchFile in pchFiles)
+				{
+					Console.WriteLine(pchFiles);
+					File.Delete(pchFile);
+				}
+			}
+		}
+
+		[Command("create_config", "Create empty template config in current module.")]
+		public async Task CreateConfig()
+		{
+			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Module);
+			if (UnrealItem == null)
+			{
+				Console.WriteLine("Command should be run inside project module folder.");
+				return;
+			}
+
+			Configuration.WriteConfiguration(UnrealItem.ConfigurationPath, new TemplateConfiguration());
 		}
 	}
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
