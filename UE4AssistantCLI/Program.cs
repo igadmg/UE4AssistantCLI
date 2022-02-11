@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using SystemEx;
+using SystemEx.Sleep;
 using UE4Assistant;
 using Template = UE4Assistant.Template;
 
@@ -233,7 +234,7 @@ namespace UE4AssistantCLI
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 		{
 			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
-			using (var SleepGuard = Utilities.PreventSleep())
+			using (var SleepGuard = new PreventSleepGuard())
 			{
 				foreach (var Recipe in CookSettings)
 				{

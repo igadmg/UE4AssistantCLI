@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using SystemEx;
+using SystemEx.Sleep;
 using UE4Assistant;
 
 namespace UE4AssistantCLI
@@ -247,7 +248,7 @@ namespace UE4AssistantCLI
 		public async Task BuildProject([Option(0, "build settings json file name")] string BuildSettingsJson = null
 			, [Option("dump", "Dump configuration file config to console.")] bool dump = false)
 		{
-			using var SleepGuard = Utilities.PreventSleep();
+			using var SleepGuard = new PreventSleepGuard();
 
 			var BuildSettings = LoadSettings(BuildSettingsJson, () => UnrealCookSettings.CreateBuildSettings()
 				.Also(s => {

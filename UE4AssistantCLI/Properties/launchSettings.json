@@ -4,6 +4,11 @@
       "commandName": "Project",
       "commandLineArgs": "uuid show",
       "workingDirectory": "F:\\UnrealEngine.master"
+    },
+    "ue4cli build": {
+      "commandName": "Project",
+      "commandLineArgs": "build",
+      "workingDirectory": "D:\\project\\DeOrbeNovo"
     }
   }
 }

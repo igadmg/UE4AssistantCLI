@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SystemEx", "SystemEx\System
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClipboardEx.Win32", "ClipboardEx\ClipboardEx.Win32\ClipboardEx.Win32.csproj", "{2BE8C80F-DA4E-49D6-8BF0-81472548CC6F}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SystemEx.Sleep", "SystemEx.Sleep\SystemEx.Sleep.csproj", "{874AABC8-E530-416D-8345-B1AB23B78AA0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{2BE8C80F-DA4E-49D6-8BF0-81472548CC6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2BE8C80F-DA4E-49D6-8BF0-81472548CC6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2BE8C80F-DA4E-49D6-8BF0-81472548CC6F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{874AABC8-E530-416D-8345-B1AB23B78AA0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{874AABC8-E530-416D-8345-B1AB23B78AA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{874AABC8-E530-416D-8345-B1AB23B78AA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{874AABC8-E530-416D-8345-B1AB23B78AA0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net50</TargetFramework>
-    <Version>1.3.2</Version>
+    <TargetFrameworks>net50;net60</TargetFrameworks>
+    <Version>1.3.8</Version>
     <AssemblyName>ue4cli</AssemblyName>
 
     <PackAsTool>true</PackAsTool>
@@ -32,6 +32,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ClipboardEx\ClipboardEx.Win32\ClipboardEx.Win32.csproj" />
+    <ProjectReference Include="..\SystemEx.Sleep\SystemEx.Sleep.csproj" />
     <ProjectReference Include="..\SystemEx\SystemEx.csproj" />
     <ProjectReference Include="..\UE4Assistant.Templates\UE4Assistant.Templates.csproj">
       <Private>true</Private>
