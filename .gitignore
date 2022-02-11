@@ -2,4 +2,6 @@
 bin
 obj
 packages
+nupkg
+publish
 *.user

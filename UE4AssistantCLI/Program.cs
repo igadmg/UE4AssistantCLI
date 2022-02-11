@@ -26,7 +26,14 @@ namespace UE4AssistantCLI
 				return null;
 			};
 
-			await Host.CreateDefaultBuilder().RunConsoleAppFrameworkAsync<CLI>(args);
+			await ConsoleApp.CreateBuilder(args)
+				.ConfigureServices((ctx, services) => {
+				})
+				.Build()
+				.AddCommands<CLI>()
+				.AddSubCommands<CLI.Add>()
+				.AddSubCommands<CLI.Uuid>()
+				.RunAsync();
 		}
 
 		public static IEnumerable<UnrealItemDescription> ListUnrealPlugins(string path)
@@ -127,6 +134,13 @@ namespace UE4AssistantCLI
 			string objectFolder = Directory.GetCurrentDirectory();
 
 			Template.CreateDataAsset(objectFolder, typeName, baseName);
+		}
+
+		public static void AddTableRow(string typeName, string baseName)
+		{
+			string objectFolder = Directory.GetCurrentDirectory();
+
+			Template.CreateTableRow(objectFolder, typeName, baseName);
 		}
 
 		class VSProject

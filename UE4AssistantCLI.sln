@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29920.165
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32112.339
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UE4AssistantCLI", "UE4AssistantCLI\UE4AssistantCLI.csproj", "{169FC615-98A4-4E47-87E3-7C82E8C43C2D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UE4Assistant", "UE4Assistant\UE4Assistant.csproj", "{60F43FC3-EF8D-4334-92E9-B75DBBAD3545}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UE4Assistant", "UE4Assistant\UE4Assistant.csproj", "{60F43FC3-EF8D-4334-92E9-B75DBBAD3545}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UE4Assistant.Templates", "UE4Assistant.Templates\UE4Assistant.Templates.csproj", "{1D12AD29-68B1-470F-9230-BD7796E58350}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UE4Assistant.Templates", "UE4Assistant.Templates\UE4Assistant.Templates.csproj", "{1D12AD29-68B1-470F-9230-BD7796E58350}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SystemEx", "SystemEx\SystemEx.csproj", "{39539AC4-AFFF-4970-8809-46515F3508ED}"
 EndProject

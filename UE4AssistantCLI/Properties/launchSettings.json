@@ -2,8 +2,8 @@
   "profiles": {
     "UE4AssistantCLI": {
       "commandName": "Project",
-      "commandLineArgs": "vs_pch_cleanup",
-      "workingDirectory": "D:\\workspace\\TwinFist\\Source\\TwinFist\\Public\\Game\\"
+      "commandLineArgs": "uuid show",
+      "workingDirectory": "F:\\UnrealEngine.master"
     }
   }
 }
