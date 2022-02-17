@@ -53,15 +53,9 @@ namespace UE4AssistantCLI
 					return;// -1;
 				}
 
-				string functionlibraryname = name.null_ws_()
+				string functionlibraryname = name.IsNullOrWhiteSpace()
 					? Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(UnrealItem.ItemFileName)) + "Statics"
-					: Path.Combine(Directory.GetCurrentDirectory(), name + "Statics");
-
-				if (File.Exists(Path.Combine(UnrealItem.ModuleClassesPath, functionlibraryname + ".h")))
-				{
-					Console.WriteLine("This module already contains function library.");
-					return;// -1;
-				}
+					: name + "Statics";
 
 				Program.AddClass(functionlibraryname, "UBlueprintFunctionLibrary"
 					, hasConstructor: false
@@ -235,7 +229,7 @@ namespace UE4AssistantCLI
 
 		T[] LoadSettings<T>(string fileName, Func<T> defaultSettings)
         {
-			return !fileName.null_ws_()
+			return !fileName.IsNullOrWhiteSpace()
 				? JsonConvert.DeserializeObject<T[]>(File.ReadAllText(fileName)
 					, new JsonSerializerSettings
 					{
@@ -327,8 +321,45 @@ namespace UE4AssistantCLI
 			}
 		}
 
+		[Command("diff", "Launch UE4 diff tool to diff two files.")]
+		public async Task MergeAsset([Option(0, "Left file")] string LeftFile, [Option(1, "Right file")] string RightFile)
+		{
+			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
+			if (UnrealItem == null) UnrealItem = UnrealItemDescription.DetectUnrealItem(Path.GetDirectoryName(LeftFile), UnrealItemType.Project);
+			if (UnrealItem == null) UnrealItem = UnrealItemDescription.DetectUnrealItem(Path.GetDirectoryName(RightFile), UnrealItemType.Project);
+
+			if (UnrealItem == null)
+			{
+				Console.WriteLine($"Can not guess project location with such parameters {LeftFile} {RightFile}");
+			}
+
+			UnrealEngineInstance UnrealInstance = new UnrealEngineInstance(UnrealItem);
+
+			Utilities.ExecuteCommandLine(Utilities.EscapeCommandLineArgs(
+				UnrealInstance.UE4EditorPath, UnrealItem.FullPath, "-diff", LeftFile, RightFile));
+		}
+
 		[Command("merge", "Launch UE4 diff tool to merge conflict file.")]
-		public async Task MergeAsset([Option(0, "asset path")] string AssetPath)
+		public async Task MergeAsset([Option(0, "Base file")] string BaseFile, [Option(1, "Local file")] string LocalFile, [Option(2, "Remote file")] string RemoteFile, [Option(3, "Result file")] string ResultFile)
+		{
+			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
+			if (UnrealItem == null) UnrealItem = UnrealItemDescription.DetectUnrealItem(Path.GetDirectoryName(BaseFile), UnrealItemType.Project);
+			if (UnrealItem == null) UnrealItem = UnrealItemDescription.DetectUnrealItem(Path.GetDirectoryName(LocalFile), UnrealItemType.Project);
+			if (UnrealItem == null) UnrealItem = UnrealItemDescription.DetectUnrealItem(Path.GetDirectoryName(RemoteFile), UnrealItemType.Project);
+
+			if (UnrealItem == null)
+			{
+				Console.WriteLine($"Can not guess project location with such parameters {BaseFile} {LocalFile} {RemoteFile} {ResultFile}");
+			}
+
+			UnrealEngineInstance UnrealInstance = new UnrealEngineInstance(UnrealItem);
+
+			Utilities.ExecuteCommandLine(Utilities.EscapeCommandLineArgs(
+				UnrealInstance.UE4EditorPath, UnrealItem.FullPath, "-diff", RemoteFile, LocalFile, BaseFile, ResultFile));
+		}
+
+		[Command("merge_lfs", "Launch UE4 diff tool to merge conflict file.")]
+		public async Task MergeAssetFromLFS([Option(0, "asset path")] string AssetPath)
 		{
 			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
 			UnrealEngineInstance UnrealInstance = new UnrealEngineInstance(UnrealItem);

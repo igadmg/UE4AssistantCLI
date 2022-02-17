@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>net50;net60</TargetFrameworks>
-    <Version>1.3.8</Version>
+    <Version>1.4.0</Version>
     <AssemblyName>ue4cli</AssemblyName>
 
     <PackAsTool>true</PackAsTool>
@@ -16,7 +16,11 @@
     <Authors>Igor Karatayev</Authors>
     <Description>Command line tools for Unreal Engine</Description>
     <Copyright>Igor Karatayev</Copyright>
-    <PackageTags>unreal engine</PackageTags>
+    <PackageTags>unreal engine;</PackageTags>
+    <PackageProjectUrl>https://github.com/yatagarasu25/UE4AssistantCLI</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/yatagarasu25/UE4AssistantCLI</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <ItemGroup>

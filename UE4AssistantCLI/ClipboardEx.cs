@@ -1,7 +1,5 @@
 ﻿using ClipboardEx.Win32;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace UE4AssistantCLI
 {
