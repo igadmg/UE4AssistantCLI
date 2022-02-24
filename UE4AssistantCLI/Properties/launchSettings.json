@@ -13,6 +13,11 @@
     "ue4cli uuid list": {
       "commandName": "Project",
       "commandLineArgs": "uuid list"
+    },
+    "ue4cli uuid set": {
+      "commandName": "Project",
+      "commandLineArgs": "uuid set {82C7EB94-431D-A701-7959-3F845C07FADB}",
+      "workingDirectory": "D:\\project\\MathExpressionTest\\Source\\MathExpressionTest"
     }
   }
 }
