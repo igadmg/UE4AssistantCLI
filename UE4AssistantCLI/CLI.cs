@@ -89,7 +89,18 @@ namespace UE4AssistantCLI
 		[Command("uuid")]
 		public class Uuid : ConsoleAppBase
 		{
-			[Command("show", "show project's UI uuid identifier.")]
+			[Command("list", "list registered Unreal Engine uuid identifiers.")]
+			public async Task List()
+			{
+				var availableBuilds = UnrealEngineInstance.FindAvailableBuilds();
+
+				foreach (var build in availableBuilds)
+				{
+					Console.WriteLine($"{build.Key}\t{build.Value}");
+				}
+			}
+
+			[Command("show", "show project's Unreal Engine uuid identifier.")]
 			public async Task Show()
 			{
 				UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory());
@@ -104,11 +115,11 @@ namespace UE4AssistantCLI
 				}
 			}
 
-			[Command("set", "set project's UI uuid identifier.")]
+			[Command("set", "set project's Unreal Engine uuid identifier.")]
 			public async Task Set()
 			{
 			}
-			}
+		}
 
 		[Command("init", "Initialize working environment, create Libraries.sln.")]
 		public async Task InitProject([Option(0, "UE4 version")] string UE4Version = null)
@@ -240,7 +251,7 @@ namespace UE4AssistantCLI
 
 		[Command("build", "Build project.")]
 		public async Task BuildProject([Option(0, "build settings json file name")] string BuildSettingsJson = null
-			, [Option("dump", "Dump configuration file config to console.")] bool dump = false)
+			, [Option("dump", "Dump configuration file to the console.")] bool dump = false)
 		{
 			using var SleepGuard = new PreventSleepGuard();
 

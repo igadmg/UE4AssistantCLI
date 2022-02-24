@@ -8,7 +8,11 @@
     "ue4cli build": {
       "commandName": "Project",
       "commandLineArgs": "build",
-      "workingDirectory": "D:\\project\\DeOrbeNovo"
+      "workingDirectory": "D:\\project\\MathExpressionTest\\Source\\MathExpressionTest"
+    },
+    "ue4cli uuid list": {
+      "commandName": "Project",
+      "commandLineArgs": "uuid list"
     }
   }
 }
