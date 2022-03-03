@@ -1,10 +1,10 @@
 ﻿using ConsoleAppFramework;
-using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
@@ -15,15 +15,14 @@ using Template = UE4Assistant.Template;
 
 namespace UE4AssistantCLI
 {
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
 	class Program
 	{
 		static async Task Main(string[] args)
 		{
-			AppDomain.CurrentDomain.AssemblyLoad += (object sender, AssemblyLoadEventArgs args) =>
-			{
+			AppDomain.CurrentDomain.AssemblyLoad += (object sender, AssemblyLoadEventArgs args) => {
 			};
-			AppDomain.CurrentDomain.AssemblyResolve += (object sender, ResolveEventArgs args) =>
-			{
+			AppDomain.CurrentDomain.AssemblyResolve += (object sender, ResolveEventArgs args) => {
 				return null;
 			};
 
@@ -35,6 +34,17 @@ namespace UE4AssistantCLI
 				.AddSubCommands<CLI.Add>()
 				.AddSubCommands<CLI.Uuid>()
 				.RunAsync();
+		}
+
+		static IDisposable GenerateOnAdd(string path) => GenerateOnAdd(UnrealItemDescription.DetectUnrealItem(path, UnrealItemType.Project));
+		static IDisposable GenerateOnAdd(UnrealItemDescription UnrealItem)
+		{
+			if (UnrealItem?.ReadConfiguration<ProjectConfiguration>()?.GenerateProject.onEditor ?? false)
+			{
+				return DisposableLock.Lock(() => GenerateProject(UnrealItem.RootPath));
+			}
+
+			return DisposableLock.empty;
 		}
 
 		public static IEnumerable<UnrealItemDescription> ListUnrealPlugins(string path)
@@ -54,15 +64,16 @@ namespace UE4AssistantCLI
 			UProject project = Template.CreateProject(projectname);
 		}
 
-		public static void AddPlugin(string pluginname)
+		public static void AddPlugin(string path, string pluginname)
 		{
-			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
+			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(path, UnrealItemType.Project);
 			if (UnrealItem == null)
 			{
 				Console.WriteLine("This command should be run inside project or plugin folder.");
 				return;
 			}
 
+			using var GenerateOnAddGuard = GenerateOnAdd(UnrealItem);
 			string pluginDirectory = Path.Combine(UnrealItem.RootPath, "Plugins", pluginname);
 			if (Directory.Exists(pluginDirectory))
 			{
@@ -71,77 +82,107 @@ namespace UE4AssistantCLI
 			}
 
 			Directory.CreateDirectory(pluginDirectory);
-			using (Utilities.SetCurrentDirectory(pluginDirectory))
-			{
-				UPlugin plugin = new UPlugin();
-				plugin.Save(Path.Combine(pluginDirectory, pluginname + ".uplugin"));
+			UPlugin plugin = new UPlugin();
+			plugin.Save(Path.Combine(pluginDirectory, pluginname + ".uplugin"));
 
-				AddModule(pluginname);
-			}
+			AddModule(pluginDirectory, pluginname);
 		}
 
-		public static void AddModule(string modulename)
+		public static void AddModule(string path, string modulename)
 		{
-			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project, UnrealItemType.Plugin);
+			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(path, UnrealItemType.Project, UnrealItemType.Plugin);
 			if (UnrealItem == null)
 			{
 				Console.WriteLine("This command should be run inside project or plugin folder.");
 				return;
 			}
-			else
+
+			using var GenerateOnAddGuard = GenerateOnAdd(UnrealItem);
+			string itemFullPath = UnrealItem.FullPath;
+			if (UnrealItem.Type == UnrealItemType.Plugin)
 			{
-				string itemFullPath = UnrealItem.FullPath;
-				if (UnrealItem.Type == UnrealItemType.Plugin)
-				{
-					UPlugin plugin = UPlugin.Load(itemFullPath);
+				UPlugin plugin = UPlugin.Load(itemFullPath);
 
-					UModule module = new UModule();
-					module.Name = modulename;
-					Template.CreateModule(plugin.RootPath, module.Name);
-					plugin.Modules.Add(module);
+				UModule module = new UModule();
+				module.Name = modulename;
+				Template.CreateModule(plugin.RootPath, module.Name);
+				plugin.Modules.Add(module);
 
-					plugin.Save(itemFullPath);
-				}
-				else if (UnrealItem.Type == UnrealItemType.Project)
-				{
-					UProject project = UProject.Load(itemFullPath);
+				plugin.Save(itemFullPath);
+			}
+			else if (UnrealItem.Type == UnrealItemType.Project)
+			{
+				UProject project = UProject.Load(itemFullPath);
 
-					UModule module = new UModule();
-					module.Name = modulename;
-					Template.CreateModule(project.RootPath, module.Name);
-					project.Modules.Add(module);
+				UModule module = new UModule();
+				module.Name = modulename;
+				Template.CreateModule(project.RootPath, module.Name);
+				project.Modules.Add(module);
 
-					project.Save(itemFullPath);
-				}
+				project.Save(itemFullPath);
 			}
 		}
 
-		public static void AddClass(string typeName, string baseName, bool hasConstructor = true, string[] headers = null)
+		public static void AddClass(string path, string typeName, string baseName, bool hasConstructor = true, string[] headers = null)
 		{
-			string objectfolder = Directory.GetCurrentDirectory();
+			using var GenerateOnAddGuard = GenerateOnAdd(path);
 
-			Template.CreateClass(objectfolder, typeName, baseName, hasConstructor, headers);
+			Template.CreateClass(path, typeName, baseName, hasConstructor, headers);
 		}
 
-		public static void AddInterface(string typeName)
+		public static void AddBpfl(string path, string name = null)
 		{
-			string objectfolder = Directory.GetCurrentDirectory();
+			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(path);
+			if (UnrealItem == null)
+			{
+				Console.WriteLine("This command should be run inside module folder.");
+				return;// -1;
+			}
 
-			Template.CreateInterface(objectfolder, typeName);
+			using var GenerateOnAddGuard = GenerateOnAdd(UnrealItem);
+			var ProjectConfiguration = UnrealItemDescription.DetectUnrealItem(path, UnrealItemType.Project)?.ReadConfiguration<ProjectConfiguration>();
+			var FunctionLibrarySuffix = ProjectConfiguration?.FunctionLibrarySuffix ?? "Statics";
+
+			string functionlibraryname = name.IsNullOrWhiteSpace()
+				? Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(UnrealItem.ItemFileName))
+				: name;
+
+			if (!functionlibraryname.EndsWith(FunctionLibrarySuffix))
+				functionlibraryname += FunctionLibrarySuffix;
+
+			AddClass(path, functionlibraryname, "UBlueprintFunctionLibrary"
+				, hasConstructor: false
+				, headers: new string[]
+					{
+						"Kismet/BlueprintFunctionLibrary.h"
+					});
 		}
 
-		public static void AddDataAsset(string typeName, string baseName)
+		public static void AddInterface(string path, string typeName)
 		{
-			string objectFolder = Directory.GetCurrentDirectory();
+			using var GenerateOnAddGuard = GenerateOnAdd(path);
 
-			Template.CreateDataAsset(objectFolder, typeName, baseName);
+			var ProjectConfiguration = UnrealItemDescription.DetectUnrealItem(path, UnrealItemType.Project)?.ReadConfiguration<ProjectConfiguration>();
+			var InterfaceSuffix = ProjectConfiguration?.InterfaceSuffix ?? "Interface";
+
+			if (!typeName.EndsWith(InterfaceSuffix))
+				typeName += InterfaceSuffix;
+
+			Template.CreateInterface(path, typeName);
 		}
 
-		public static void AddTableRow(string typeName, string baseName)
+		public static void AddDataAsset(string path, string typeName, string baseName)
 		{
-			string objectFolder = Directory.GetCurrentDirectory();
+			using var GenerateOnAddGuard = GenerateOnAdd(path);
 
-			Template.CreateTableRow(objectFolder, typeName, baseName);
+			Template.CreateDataAsset(path, typeName, baseName);
+		}
+
+		public static void AddTableRow(string path, string typeName, string baseName)
+		{
+			using var GenerateOnAddGuard = GenerateOnAdd(path);
+
+			Template.CreateTableRow(path, typeName, baseName);
 		}
 
 		class VSProject
@@ -229,28 +270,82 @@ namespace UE4AssistantCLI
 			}
 		}
 
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-		public static async Task CookProject(UnrealCookSettings[] CookSettings)
-#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+		public static async Task BuildProject(string path, UnrealCookSettings[] BuildSettings)
 		{
-			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
-			using (var SleepGuard = new PreventSleepGuard())
-			{
-				foreach (var Recipe in CookSettings)
-				{
-					UnrealEngineInstance UnrealInstance = null;
-					try { UnrealInstance = new UnrealEngineInstance(Recipe.UE4RootPath); }
-					catch { UnrealInstance = new UnrealEngineInstance(UnrealItem); }
-					if (string.IsNullOrWhiteSpace(Recipe.ProjectFullPath))
-					{
-						Recipe.ProjectFullPath = UnrealItem.FullPath;
-					}
-					Recipe.UE4RootPath = UnrealInstance.RootPath;
-					Recipe.ProjectFullPath = Path.GetFullPath(Recipe.ProjectFullPath);
-					Recipe.ArchiveDirectory = Path.GetFullPath(Recipe.ArchiveDirectory);
+			using var SleepGuard = new PreventSleepGuard();
 
-					Utilities.ExecuteCommandLine(string.Format("\"{0}\" BuildCookRun {1}", UnrealInstance.RunUATPath, Recipe));
+			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(path, UnrealItemType.Project);
+			if (UnrealItem == null)
+			{
+				Console.WriteLine("Command should be run inside project folder.");
+				return;// -1;
+			}
+
+			foreach (var setting in BuildSettings)
+			{
+				UnrealEngineInstance UnrealInstance;
+				try { UnrealInstance = new UnrealEngineInstance(setting.UE4RootPath); }
+				catch { UnrealInstance = new UnrealEngineInstance(UnrealItem); }
+
+				setting.UE4RootPath = Path.GetFullPath(UnrealInstance.RootPath);
+				setting.ProjectFullPath = Path.GetFullPath(UnrealItem.FullPath);
+
+				Utilities.ExecuteCommandLine(string.Format("\"{0}\" BuildCookRun {1}", UnrealInstance.RunUATPath, setting));
+			}
+		}
+
+		public static async Task CookProject(string path, UnrealCookSettings[] CookSettings)
+		{
+			using var SleepGuard = new PreventSleepGuard();
+
+			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(path, UnrealItemType.Project);
+			if (UnrealItem == null)
+			{
+				Console.WriteLine("Command should be run inside project folder.");
+				return;// -1;
+			}
+
+			foreach (var setting in CookSettings)
+			{
+				UnrealEngineInstance UnrealInstance;
+				try { UnrealInstance = new UnrealEngineInstance(setting.UE4RootPath); }
+				catch { UnrealInstance = new UnrealEngineInstance(UnrealItem); }
+
+				if (string.IsNullOrWhiteSpace(setting.ProjectFullPath))
+				{
+					setting.ProjectFullPath = UnrealItem.FullPath;
 				}
+				setting.UE4RootPath = Path.GetFullPath(UnrealInstance.RootPath);
+				setting.ProjectFullPath = Path.GetFullPath(setting.ProjectFullPath);
+				setting.ArchiveDirectory = Path.GetFullPath(setting.ArchiveDirectory);
+
+				Utilities.ExecuteCommandLine(string.Format("\"{0}\" BuildCookRun {1}", UnrealInstance.RunUATPath, setting));
+			}
+		}
+
+		public static void GenerateProject(string path)
+		{
+			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(path, UnrealItemType.Project);
+
+			if (UnrealItem == null)
+			{
+				Console.WriteLine("Command should be run inside project folder.");
+				return;// -1;
+			}
+
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+			{
+				string UnrealVersionSelector = UnrealEngineInstance.GetUEVersionSelectorPath();
+				Console.Out.WriteLine(UnrealVersionSelector);
+				Utilities.ExecuteCommandLine(Utilities.EscapeCommandLineArgs(UnrealVersionSelector, "/projectfiles", UnrealItem.FullPath));
+			}
+			else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+			{
+				UnrealEngineInstance UnrealInstance = new UnrealEngineInstance(UnrealItem);
+				Utilities.ExecuteCommandLine(string.Join(" "
+					, "\"{0}\"".format(UnrealInstance.GenerateProjectFiles)
+					, "-project=\"{0}\"".format(UnrealItem.FullPath)
+					, "-game"));
 			}
 		}
 
@@ -333,4 +428,5 @@ namespace UE4AssistantCLI
 			return JsonConvert.SerializeObject(ue4Object, Newtonsoft.Json.Formatting.Indented);
 		}
 	}
+	#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 }

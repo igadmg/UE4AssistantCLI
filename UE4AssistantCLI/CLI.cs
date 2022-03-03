@@ -28,61 +28,43 @@ namespace UE4AssistantCLI
 			[Command("plugin", "Create and add new plugin to current project.")]
 			public async Task AddPlugin([Option(0, "plugin name")] string name)
 			{
-				Program.AddPlugin(name);
+				Program.AddPlugin(Directory.GetCurrentDirectory(), name);
 			}
 
 			[Command("module", "Add new module to current project or plugin.")]
 			public async Task AddModule([Option(0, "module name")] string name)
 			{
-				Program.AddModule(name);
+				Program.AddModule(Directory.GetCurrentDirectory(), name);
 			}
 
 			[Command("class", "Add new class to current module.")]
 			public async Task AddClass([Option(0, "class name")] string name, [Option(1, "base class name")] string basename = "UObject")
 			{
-				Program.AddClass(name, basename);
+				Program.AddClass(Directory.GetCurrentDirectory(), name, basename);
 			}
 
 			[Command("bpfl", "Add a function library to current module, if one does not exist.")]
 			public async Task AddBpfl([Option(0, "class name")] string name = null)
 			{
-				UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory());
-				if (UnrealItem == null)
-				{
-					Console.WriteLine("This command should be run inside module folder.");
-					return;// -1;
-				}
-
-				string functionlibraryname = name.IsNullOrWhiteSpace()
-					? Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(UnrealItem.ItemFileName)) + "Statics"
-					: name + "Statics";
-
-				Program.AddClass(functionlibraryname, "UBlueprintFunctionLibrary"
-					, hasConstructor: false
-					, headers: new string[]
-						{
-						"Kismet/BlueprintFunctionLibrary.h"
-						});
+				Program.AddBpfl(Directory.GetCurrentDirectory(), name);
 			}
 
 			[Command("interface", "Add new interface to current module.")]
 			public async Task AddInterface([Option(0, "interface name")] string name)
 			{
-				if (!name.EndsWith("Interface"))
-					name += "Interface";
-				Program.AddInterface(name);
+				Program.AddInterface(Directory.GetCurrentDirectory(), name);
 			}
 
 			[Command("dataasset", "Add a data asset class with given name.")]
 			public async Task AddDataAsset([Option(0, "data asset name")] string name, [Option(1, "data asset base class name")] string basename = "UDataAsset")
 			{
-				Program.AddDataAsset(name, basename);
+				Program.AddDataAsset(Directory.GetCurrentDirectory(), name, basename);
 			}
 
 			[Command("tablerow", "Add a data table row struct with given name.")]
 			public async Task AddTableRow([Option(0, "table row name")] string name, [Option(1, "table row base class name")] string basename = "FTableRowBase")
 			{
-				Program.AddTableRow(name, basename);
+				Program.AddTableRow(Directory.GetCurrentDirectory(), name, basename);
 			}
 		}
 
@@ -175,28 +157,7 @@ namespace UE4AssistantCLI
 		[Command("generate", "Generate Source Code Solution for current project.")]
 		public async Task GenerateProject()
 		{
-			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
-
-			if (UnrealItem == null)
-			{
-				Console.WriteLine("Command should be run inside project folder.");
-				return;// -1;
-			}
-
-			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-			{
-				string UnrealVersionSelector = UnrealEngineInstance.GetUEVersionSelectorPath();
-				Console.Out.WriteLine(UnrealVersionSelector);
-				Utilities.ExecuteCommandLine(Utilities.EscapeCommandLineArgs(UnrealVersionSelector, "/projectfiles", UnrealItem.FullPath));
-			}
-			else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-			{
-				UnrealEngineInstance UnrealInstance = new UnrealEngineInstance(UnrealItem);
-				Utilities.ExecuteCommandLine(string.Join(" "
-					, "\"{0}\"".format(UnrealInstance.GenerateProjectFiles)
-					, "-project=\"{0}\"".format(UnrealItem.FullPath)
-					, "-game"));
-			}
+			Program.GenerateProject(Directory.GetCurrentDirectory());
 		}
 
 		[Command("editor", "Open UE4 Editor for current project.")]
@@ -208,6 +169,11 @@ namespace UE4AssistantCLI
 			{
 				Console.WriteLine("Command should be run inside project folder.");
 				return;// -1;
+			}
+
+			if (UnrealItem.ReadConfiguration<ProjectConfiguration>()?.GenerateProject.onEditor ?? false)
+			{
+				await GenerateProject();
 			}
 
 			Utilities.ExecuteOpenFile(UnrealItem.FullPath);
@@ -222,6 +188,11 @@ namespace UE4AssistantCLI
 			{
 				Console.WriteLine("Command should be run inside project folder.");
 				return;// -1;
+			}
+
+			if (UnrealItem.ReadConfiguration<ProjectConfiguration>()?.GenerateProject.onCode ?? false)
+			{
+				await GenerateProject();
 			}
 
 			var solutionFile = Path.Combine(UnrealItem.RootPath, UnrealItem.Name + ".sln");
@@ -260,8 +231,6 @@ namespace UE4AssistantCLI
 		public async Task BuildProject([Option(0, "build settings json file name")] string BuildSettingsJson = null
 			, [Option("dump", "Dump configuration file to the console.")] bool dump = false)
 		{
-			using var SleepGuard = new PreventSleepGuard();
-
 			var BuildSettings = LoadSettings(BuildSettingsJson, () => UnrealCookSettings.CreateBuildSettings()
 				.Also(s => {
 					UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
@@ -282,16 +251,7 @@ namespace UE4AssistantCLI
 			}
 			else
 			{
-				UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
-				UnrealEngineInstance UnrealInstance = new UnrealEngineInstance(UnrealItem);
-
-				foreach (var setting in BuildSettings)
-				{
-					setting.UE4RootPath = Path.GetFullPath(UnrealInstance.RootPath);
-					setting.ProjectFullPath = Path.GetFullPath(UnrealItem.FullPath);
-
-					Utilities.ExecuteCommandLine(string.Format("\"{0}\" BuildCookRun {1}", UnrealInstance.RunUATPath, setting));
-				}
+				await Program.BuildProject(Directory.GetCurrentDirectory(), BuildSettings);
 			}
 		}
 
@@ -319,7 +279,7 @@ namespace UE4AssistantCLI
 			}
 			else
 			{
-				await Program.CookProject(CookSettings);
+				await Program.CookProject(Directory.GetCurrentDirectory(), CookSettings);
             }
 		}
 
