@@ -20,7 +20,7 @@ Commands:
   code                          Open Source Code Editor for current project.
   convert                       Convert copied clipboard data to json file.
   cook [Config] [--dump]        Cook project with cook settings. --dump - Dump configuration file to the console.
-  create_config                 Create empty template or project config in current module or project.
+  create_config                 Create new or update old template config in current project or module.
   diff <LeftFile> <RightFile>   Launch UE4 diff tool to diff two files.
   editor                        Open UE4 Editor for current project.
   generate                      Generate Source Code Solution for current project.

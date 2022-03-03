@@ -431,7 +431,7 @@ namespace UE4AssistantCLI
 			}
 		}
 
-		[Command("create_config", "Create empty template config in current module.")]
+		[Command("create_config", "Create new or update old template config in current project or module.")]
 		public async Task CreateConfig()
 		{
 			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project, UnrealItemType.Module);
@@ -441,16 +441,10 @@ namespace UE4AssistantCLI
 				return;
 			}
 
-			if (File.Exists(UnrealItem.ConfigurationPath))
-			{
-				Console.WriteLine($"Config file already exist.\n{UnrealItem.ConfigurationPath}");
-				return;
-			}
-
 			if (UnrealItem.Type == UnrealItemType.Project)
-				Configuration.WriteConfiguration(UnrealItem.ConfigurationPath, new ProjectConfiguration());
+				Configuration.WriteConfiguration(UnrealItem.ConfigurationPath, UnrealItem.ReadConfiguration<ProjectConfiguration>());
 			else if (UnrealItem.Type == UnrealItemType.Module)
-				Configuration.WriteConfiguration(UnrealItem.ConfigurationPath, new TemplateConfiguration());
+				Configuration.WriteConfiguration(UnrealItem.ConfigurationPath, UnrealItem.ReadConfiguration<TemplateConfiguration>());
 		}
 	}
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
