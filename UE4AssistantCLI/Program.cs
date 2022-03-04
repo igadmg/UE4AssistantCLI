@@ -83,7 +83,7 @@ namespace UE4AssistantCLI
 
 			Directory.CreateDirectory(pluginDirectory);
 			UPlugin plugin = new UPlugin();
-			plugin.Save(Path.Combine(pluginDirectory, pluginname + ".uplugin"));
+			plugin.Save(Path.Combine(pluginDirectory, pluginname + ".uplugin"), JsonIndentation.ReadFromSettings(path));
 
 			AddModule(pluginDirectory, pluginname);
 		}
@@ -101,25 +101,25 @@ namespace UE4AssistantCLI
 			string itemFullPath = UnrealItem.FullPath;
 			if (UnrealItem.Type == UnrealItemType.Plugin)
 			{
-				UPlugin plugin = UPlugin.Load(itemFullPath);
+				var plugin = UPlugin.Load(itemFullPath);
 
-				UModule module = new UModule();
+				var module = new UModuleItem();
 				module.Name = modulename;
 				Template.CreateModule(plugin.RootPath, module.Name);
 				plugin.Modules.Add(module);
 
-				plugin.Save(itemFullPath);
+				plugin.Save(itemFullPath, JsonIndentation.ReadFromSettings(path));
 			}
 			else if (UnrealItem.Type == UnrealItemType.Project)
 			{
-				UProject project = UProject.Load(itemFullPath);
+				var project = UProject.Load(itemFullPath);
 
-				UModule module = new UModule();
+				var module = new UModuleItem();
 				module.Name = modulename;
 				Template.CreateModule(project.RootPath, module.Name);
 				project.Modules.Add(module);
 
-				project.Save(itemFullPath);
+				project.Save(itemFullPath, JsonIndentation.ReadFromSettings(path));
 			}
 		}
 

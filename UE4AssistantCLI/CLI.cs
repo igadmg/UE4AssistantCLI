@@ -100,13 +100,20 @@ namespace UE4AssistantCLI
 			[Command("set", "set project's Unreal Engine uuid identifier.")]
 			public async Task Set([Option(0, "UUID")] string uuid)
 			{
-				UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory());
+				UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
 				UnrealEngineInstance UnrealInstance = (UnrealItem != null)
 					? new UnrealEngineInstance(UnrealItem)
 					: new UnrealEngineInstance(Directory.GetCurrentDirectory());
 
 				var Uuid = new Guid(uuid);
 				UnrealEngineInstance.SetUserUnrealEngineBuilds(Uuid.ToString("B").ToUpper(), UnrealInstance.RootPath);
+
+				if (UnrealItem != null)
+				{
+					UProject project = UProject.Load(UnrealItem.FullPath);
+					project.EngineAssociation = uuid;
+					project.Save(UnrealItem.FullPath, JsonIndentation.ReadFromSettings(Directory.GetCurrentDirectory()));
+				}
 			}
 		}
 
@@ -247,7 +254,7 @@ namespace UE4AssistantCLI
 
 			if (dump)
 			{
-				Console.WriteLine(JsonConvert.SerializeObject(BuildSettings, Formatting.Indented));
+				Console.WriteLine(BuildSettings.SerializeObject(Formatting.Indented, JsonIndentation.ReadFromSettings(Directory.GetCurrentDirectory())));
 			}
 			else
 			{
@@ -275,7 +282,7 @@ namespace UE4AssistantCLI
 
 			if (dump)
 			{
-				Console.WriteLine(JsonConvert.SerializeObject(CookSettings, Formatting.Indented));
+				Console.WriteLine(CookSettings.SerializeObject(Formatting.Indented, JsonIndentation.ReadFromSettings(Directory.GetCurrentDirectory())));
 			}
 			else
 			{

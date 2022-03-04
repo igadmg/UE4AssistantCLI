@@ -23,6 +23,11 @@
       "commandName": "Project",
       "commandLineArgs": "help",
       "workingDirectory": "D:\\project\\MathExpressionTest\\Source\\MathExpressionTest"
+    },
+    "ue4cli create_config": {
+      "commandName": "Project",
+      "commandLineArgs": "create_config",
+      "workingDirectory": "D:\\project\\MathExpressionTest\\"
     }
   }
 }
