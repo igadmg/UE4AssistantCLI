@@ -5,10 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using SystemEx;
-using SystemEx.Sleep;
 using UE4Assistant;
 
 namespace UE4AssistantCLI
@@ -224,7 +222,7 @@ namespace UE4AssistantCLI
 		}
 
 		T[] LoadSettings<T>(string fileName, Func<T> defaultSettings)
-        {
+		{
 			return !fileName.IsNullOrWhiteSpace()
 				? JsonConvert.DeserializeObject<T[]>(File.ReadAllText(fileName)
 					, new JsonSerializerSettings
@@ -235,7 +233,7 @@ namespace UE4AssistantCLI
 		}
 
 		[Command("build", "Build project.")]
-		public async Task BuildProject([Option(0, "build settings json file name")] string BuildSettingsJson = null
+		public async Task<int> BuildProject([Option(0, "build settings json file name")] string BuildSettingsJson = null
 			, [Option("dump", "Dump configuration file to the console.")] bool dump = false)
 		{
 			var BuildSettings = LoadSettings(BuildSettingsJson, () => UnrealCookSettings.CreateBuildSettings()
@@ -258,12 +256,14 @@ namespace UE4AssistantCLI
 			}
 			else
 			{
-				await Program.BuildProject(Directory.GetCurrentDirectory(), BuildSettings);
+				return await Program.BuildProject(Directory.GetCurrentDirectory(), BuildSettings);
 			}
+
+			return 0;
 		}
 
 		[Command("cook", "Cook project with cook settings.")]
-		public async Task CookProject([Option(0, "cook settings json file name")] string CookSettingsJson = null
+		public async Task<int> CookProject([Option(0, "cook settings json file name")] string CookSettingsJson = null
 			, [Option("dump", "Dump configuration file config to console.")] bool dump = false)
 		{
 			var CookSettings = LoadSettings(CookSettingsJson, () => UnrealCookSettings.CreateDefaultSettings()
@@ -286,8 +286,10 @@ namespace UE4AssistantCLI
 			}
 			else
 			{
-				await Program.CookProject(Directory.GetCurrentDirectory(), CookSettings);
-            }
+				return await Program.CookProject(Directory.GetCurrentDirectory(), CookSettings);
+			}
+
+			return 0;
 		}
 
 		[Command("convert", "Convert copied clipboard data to json file.")]

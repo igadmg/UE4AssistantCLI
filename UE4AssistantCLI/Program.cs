@@ -270,7 +270,7 @@ namespace UE4AssistantCLI
 			}
 		}
 
-		public static async Task BuildProject(string path, UnrealCookSettings[] BuildSettings)
+		public static async Task<int> BuildProject(string path, UnrealCookSettings[] BuildSettings)
 		{
 			using var SleepGuard = new PreventSleepGuard();
 
@@ -278,7 +278,7 @@ namespace UE4AssistantCLI
 			if (UnrealItem == null)
 			{
 				Console.WriteLine("Command should be run inside project folder.");
-				return;// -1;
+				return -1;
 			}
 
 			foreach (var setting in BuildSettings)
@@ -290,11 +290,15 @@ namespace UE4AssistantCLI
 				setting.UE4RootPath = Path.GetFullPath(UnrealInstance.RootPath);
 				setting.ProjectFullPath = Path.GetFullPath(UnrealItem.FullPath);
 
-				Utilities.ExecuteCommandLine(string.Format("\"{0}\" BuildCookRun {1}", UnrealInstance.RunUATPath, setting));
+				var error = Utilities.ExecuteCommandLine(string.Format("\"{0}\" BuildCookRun {1}", UnrealInstance.RunUATPath, setting));
+				if (error != 0)
+					return error;
 			}
+
+			return 0;
 		}
 
-		public static async Task CookProject(string path, UnrealCookSettings[] CookSettings)
+		public static async Task<int> CookProject(string path, UnrealCookSettings[] CookSettings)
 		{
 			using var SleepGuard = new PreventSleepGuard();
 
@@ -302,7 +306,7 @@ namespace UE4AssistantCLI
 			if (UnrealItem == null)
 			{
 				Console.WriteLine("Command should be run inside project folder.");
-				return;// -1;
+				return -1;
 			}
 
 			foreach (var setting in CookSettings)
@@ -319,8 +323,12 @@ namespace UE4AssistantCLI
 				setting.ProjectFullPath = Path.GetFullPath(setting.ProjectFullPath);
 				setting.ArchiveDirectory = Path.GetFullPath(setting.ArchiveDirectory);
 
-				Utilities.ExecuteCommandLine(string.Format("\"{0}\" BuildCookRun {1}", UnrealInstance.RunUATPath, setting));
+				var error = Utilities.ExecuteCommandLine(string.Format("\"{0}\" BuildCookRun {1}", UnrealInstance.RunUATPath, setting));
+				if (error != 0)
+					return error;
 			}
+
+			return 0;
 		}
 
 		public static void GenerateProject(string path)
