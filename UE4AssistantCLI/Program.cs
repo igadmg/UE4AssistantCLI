@@ -18,7 +18,7 @@ namespace UE4AssistantCLI
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
 	class Program
 	{
-		static async Task Main(string[] args)
+		static async Task<int> Main(string[] args)
 		{
 			AppDomain.CurrentDomain.AssemblyLoad += (object sender, AssemblyLoadEventArgs args) => {
 			};
@@ -26,14 +26,29 @@ namespace UE4AssistantCLI
 				return null;
 			};
 
-			await ConsoleApp.CreateBuilder(args)
-				.ConfigureServices((ctx, services) => {
-				})
-				.Build()
-				.AddCommands<CLI>()
-				.AddSubCommands<CLI.Add>()
-				.AddSubCommands<CLI.Uuid>()
-				.RunAsync();
+			try
+			{
+				await ConsoleApp.CreateBuilder(args)
+					.ConfigureServices((ctx, services) => {
+					})
+					.Build()
+					.AddCommands<CLI>()
+					.AddSubCommands<CLI.Add>()
+					.AddSubCommands<CLI.Uuid>()
+					.RunAsync();
+			}
+			catch (UE4AssistantException e)
+			{
+				Console.Error.WriteLine(e.Message);
+				return e.errorCode;
+			}
+			catch (Exception e)
+			{
+				Console.Error.WriteLine(e.Message);
+				return -1;
+			}
+
+			return 0;
 		}
 
 		static IDisposable GenerateOnAdd(string path) => GenerateOnAdd(UnrealItemDescription.DetectUnrealItem(path, UnrealItemType.Project));
@@ -66,19 +81,13 @@ namespace UE4AssistantCLI
 
 		public static void AddPlugin(string path, string pluginname)
 		{
-			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(path, UnrealItemType.Project);
-			if (UnrealItem == null)
-			{
-				Console.WriteLine("This command should be run inside project or plugin folder.");
-				return;
-			}
+			UnrealItemDescription UnrealItem = UnrealItemDescription.RequireUnrealItem(path, UnrealItemType.Project);
 
 			using var GenerateOnAddGuard = GenerateOnAdd(UnrealItem);
 			string pluginDirectory = Path.Combine(UnrealItem.RootPath, "Plugins", pluginname);
 			if (Directory.Exists(pluginDirectory))
 			{
-				Console.WriteLine("\"{0}\" should not exist.".format(pluginDirectory));
-				return;
+				throw new UE4AssistantException($"\"{pluginDirectory}\" should not exist.");
 			}
 
 			Directory.CreateDirectory(pluginDirectory);
@@ -90,12 +99,7 @@ namespace UE4AssistantCLI
 
 		public static void AddModule(string path, string modulename)
 		{
-			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(path, UnrealItemType.Project, UnrealItemType.Plugin);
-			if (UnrealItem == null)
-			{
-				Console.WriteLine("This command should be run inside project or plugin folder.");
-				return;
-			}
+			UnrealItemDescription UnrealItem = UnrealItemDescription.RequireUnrealItem(path, UnrealItemType.Project, UnrealItemType.Plugin);
 
 			using var GenerateOnAddGuard = GenerateOnAdd(UnrealItem);
 			string itemFullPath = UnrealItem.FullPath;
@@ -132,12 +136,7 @@ namespace UE4AssistantCLI
 
 		public static void AddBpfl(string path, string name = null)
 		{
-			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(path);
-			if (UnrealItem == null)
-			{
-				Console.WriteLine("This command should be run inside module folder.");
-				return;// -1;
-			}
+			UnrealItemDescription UnrealItem = UnrealItemDescription.RequireUnrealItem(path, UnrealItemType.Module);
 
 			using var GenerateOnAddGuard = GenerateOnAdd(UnrealItem);
 			var ProjectConfiguration = UnrealItemDescription.DetectUnrealItem(path, UnrealItemType.Project)?.ReadConfiguration<ProjectConfiguration>();
@@ -270,16 +269,11 @@ namespace UE4AssistantCLI
 			}
 		}
 
-		public static async Task<int> BuildProject(string path, UnrealCookSettings[] BuildSettings)
+		public static async Task BuildProject(string path, UnrealCookSettings[] BuildSettings)
 		{
 			using var SleepGuard = new PreventSleepGuard();
 
-			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(path, UnrealItemType.Project);
-			if (UnrealItem == null)
-			{
-				Console.WriteLine("Command should be run inside project folder.");
-				return -1;
-			}
+			UnrealItemDescription UnrealItem = UnrealItemDescription.RequireUnrealItem(path, UnrealItemType.Project);
 
 			foreach (var setting in BuildSettings)
 			{
@@ -292,22 +286,15 @@ namespace UE4AssistantCLI
 
 				var error = Utilities.ExecuteCommandLine(string.Format("\"{0}\" BuildCookRun {1}", UnrealInstance.RunUATPath, setting));
 				if (error != 0)
-					return error;
+					throw new ExecuteCommandLineException(error);
 			}
-
-			return 0;
 		}
 
-		public static async Task<int> CookProject(string path, UnrealCookSettings[] CookSettings)
+		public static async Task CookProject(string path, UnrealCookSettings[] CookSettings)
 		{
 			using var SleepGuard = new PreventSleepGuard();
 
-			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(path, UnrealItemType.Project);
-			if (UnrealItem == null)
-			{
-				Console.WriteLine("Command should be run inside project folder.");
-				return -1;
-			}
+			UnrealItemDescription UnrealItem = UnrealItemDescription.RequireUnrealItem(path, UnrealItemType.Project);
 
 			foreach (var setting in CookSettings)
 			{
@@ -323,34 +310,24 @@ namespace UE4AssistantCLI
 				setting.ProjectFullPath = Path.GetFullPath(setting.ProjectFullPath);
 				setting.ArchiveDirectory = Path.GetFullPath(setting.ArchiveDirectory);
 
-				var error = Utilities.ExecuteCommandLine(string.Format("\"{0}\" BuildCookRun {1}", UnrealInstance.RunUATPath, setting));
-				if (error != 0)
-					return error;
+				Utilities.RequireExecuteCommandLine(string.Format("\"{0}\" BuildCookRun {1}", UnrealInstance.RunUATPath, setting));
 			}
-
-			return 0;
 		}
 
 		public static void GenerateProject(string path)
 		{
-			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(path, UnrealItemType.Project);
-
-			if (UnrealItem == null)
-			{
-				Console.WriteLine("Command should be run inside project folder.");
-				return;// -1;
-			}
+			UnrealItemDescription UnrealItem = UnrealItemDescription.RequireUnrealItem(path, UnrealItemType.Project);
 
 			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
 			{
 				string UnrealVersionSelector = UnrealEngineInstance.GetUEVersionSelectorPath();
 				Console.Out.WriteLine(UnrealVersionSelector);
-				Utilities.ExecuteCommandLine(Utilities.EscapeCommandLineArgs(UnrealVersionSelector, "/projectfiles", UnrealItem.FullPath));
+				Utilities.RequireExecuteCommandLine(Utilities.EscapeCommandLineArgs(UnrealVersionSelector, "/projectfiles", UnrealItem.FullPath));
 			}
 			else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
 			{
 				UnrealEngineInstance UnrealInstance = new UnrealEngineInstance(UnrealItem);
-				Utilities.ExecuteCommandLine(string.Join(" "
+				Utilities.RequireExecuteCommandLine(string.Join(" "
 					, "\"{0}\"".format(UnrealInstance.GenerateProjectFiles)
 					, "-project=\"{0}\"".format(UnrealItem.FullPath)
 					, "-game"));
