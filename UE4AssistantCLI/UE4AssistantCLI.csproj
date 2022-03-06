@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>net50;net60</TargetFrameworks>
-    <Version>1.4.10</Version>
+    <Version>1.4.11</Version>
     <AssemblyName>ue4cli</AssemblyName>
 
     <PackAsTool>true</PackAsTool>
@@ -30,12 +30,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="ConsoleAppFramework" Version="4.0.6" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\ClipboardEx\ClipboardEx.Win32\ClipboardEx.Win32.csproj" />
+    <ProjectReference Include="..\ConsoleAppFramework\src\ConsoleAppFramework\ConsoleAppFramework.csproj" />
     <ProjectReference Include="..\SystemEx.Sleep\SystemEx.Sleep.csproj" />
     <ProjectReference Include="..\SystemEx\SystemEx.csproj" />
     <ProjectReference Include="..\UE4Assistant.Templates\UE4Assistant.Templates.csproj">

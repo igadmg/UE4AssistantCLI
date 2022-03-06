@@ -327,12 +327,12 @@ namespace UE4AssistantCLI
 			string remoteFile = Path.Combine(savedDiffPath, string.Format("{0}.Remote.uasset", fileName));
 			string resultFile = Path.Combine(savedDiffPath, string.Format("{0}.Result.uasset", fileName));
 
-			Utilities.ExecuteCommandLine(string.Format("git show :1:./{0} | git lfs smudge > {1}", file, baseFile));
-			Utilities.ExecuteCommandLine(string.Format("git show :2:./{0} | git lfs smudge > {1}", file, localFile));
-			Utilities.ExecuteCommandLine(string.Format("git show :3:./{0} | git lfs smudge > {1}", file, remoteFile));
-			Utilities.ExecuteCommandLine(string.Format("git show :1:./{0} | git lfs smudge > {1}", file, resultFile));
+			Utilities.RequireExecuteCommandLine(string.Format("git show :1:./{0} | git lfs smudge > {1}", file, baseFile));
+			Utilities.RequireExecuteCommandLine(string.Format("git show :2:./{0} | git lfs smudge > {1}", file, localFile));
+			Utilities.RequireExecuteCommandLine(string.Format("git show :3:./{0} | git lfs smudge > {1}", file, remoteFile));
+			Utilities.RequireExecuteCommandLine(string.Format("git show :1:./{0} | git lfs smudge > {1}", file, resultFile));
 
-			Utilities.ExecuteCommandLine(Utilities.EscapeCommandLineArgs(
+			Utilities.RequireExecuteCommandLine(Utilities.EscapeCommandLineArgs(
 				UnrealInstance.UE4EditorPath, UnrealItem.FullPath, "-diff", remoteFile, localFile, baseFile, resultFile));
 
 			var baseMd5 = Utilities.CalculateMD5(baseFile);

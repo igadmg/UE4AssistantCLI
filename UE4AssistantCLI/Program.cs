@@ -1,4 +1,7 @@
 ﻿using ConsoleAppFramework;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -12,43 +15,75 @@ using SystemEx;
 using SystemEx.Sleep;
 using UE4Assistant;
 using Template = UE4Assistant.Template;
+using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace UE4AssistantCLI
 {
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
 	class Program
 	{
+		public class ConsoleLogger : ILogger
+		{
+			public class Provider : ILoggerProvider
+			{
+				public ILogger CreateLogger(string categoryName) => new ConsoleLogger();
+
+				public void Dispose()
+				{
+				}
+			}
+
+			readonly LogLevel minimumLogLevel;
+
+			public ConsoleLogger(LogLevel minimumLogLevel = LogLevel.Information)
+				=> this.minimumLogLevel = minimumLogLevel;
+
+			public IDisposable BeginScope<TState>(TState state) => DisposableLock.empty;
+			public bool IsEnabled(LogLevel logLevel) => minimumLogLevel <= logLevel;
+
+			public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+			{
+				if (minimumLogLevel > logLevel) return;
+
+				if (formatter != null)
+				{
+					var msg = formatter(state, exception);
+
+					if (!string.IsNullOrEmpty(msg))
+					{
+						Console.WriteLine(msg);
+					}
+				}
+				if (exception != null)
+				{
+					Console.Error.WriteLine(exception.Message);
+					Environment.ExitCode = exception.HResult;
+				}
+			}
+		}
+
 		static async Task<int> Main(string[] args)
 		{
-			AppDomain.CurrentDomain.AssemblyLoad += (object sender, AssemblyLoadEventArgs args) => {
-			};
-			AppDomain.CurrentDomain.AssemblyResolve += (object sender, ResolveEventArgs args) => {
-				return null;
-			};
+			//AppDomain.CurrentDomain.AssemblyLoad += (object sender, AssemblyLoadEventArgs args) => {
+			//};
+			//AppDomain.CurrentDomain.AssemblyResolve += (object sender, ResolveEventArgs args) => {
+			//	return null;
+			//};
 
-			try
-			{
-				await ConsoleApp.CreateBuilder(args)
-					.ConfigureServices((ctx, services) => {
-					})
-					.Build()
-					.AddCommands<CLI>()
-					.AddSubCommands<CLI.Add>()
-					.AddSubCommands<CLI.Uuid>()
-					.RunAsync();
-			}
-			catch (UE4AssistantException e)
-			{
-				Console.Error.WriteLine(e.Message);
-				return e.errorCode;
-			}
-			catch (Exception e)
-			{
-				Console.Error.WriteLine(e.Message);
-				return -1;
-			}
+			await ConsoleApp.CreateBuilder(args, options => {
+					options.HelpSortCommandsByFullName = true;
+				})
+				.ConfigureServices((ctx, services) => {
+					services.RemoveAll<ILoggerProvider>();
+					services.TryAddEnumerable(ServiceDescriptor.Singleton<ILoggerProvider, ConsoleLogger.Provider>());
+				})
+				.Build()
+				.AddCommands<CLI>()
+				.AddSubCommands<CLI.Add>()
+				.AddSubCommands<CLI.Uuid>()
+				.RunAsync();
 
-			return 0;
+			return Environment.ExitCode;
 		}
 
 		static IDisposable GenerateOnAdd(string path) => GenerateOnAdd(UnrealItemDescription.DetectUnrealItem(path, UnrealItemType.Project));
@@ -74,7 +109,7 @@ namespace UE4AssistantCLI
 
 		public static void AddProject(string projectname)
 		{
-			Utilities.ExecuteCommandLine("git init");
+			Utilities.RequireExecuteCommandLine("git init");
 
 			UProject project = Template.CreateProject(projectname);
 		}
@@ -284,9 +319,7 @@ namespace UE4AssistantCLI
 				setting.UE4RootPath = Path.GetFullPath(UnrealInstance.RootPath);
 				setting.ProjectFullPath = Path.GetFullPath(UnrealItem.FullPath);
 
-				var error = Utilities.ExecuteCommandLine(string.Format("\"{0}\" BuildCookRun {1}", UnrealInstance.RunUATPath, setting));
-				if (error != 0)
-					throw new ExecuteCommandLineException(error);
+				Utilities.RequireExecuteCommandLine(string.Format("\"{0}\" BuildCookRun {1}", UnrealInstance.RunUATPath, setting));
 			}
 		}
 
@@ -413,5 +446,5 @@ namespace UE4AssistantCLI
 			return JsonConvert.SerializeObject(ue4Object, Newtonsoft.Json.Formatting.Indented);
 		}
 	}
-	#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 }

@@ -10,3 +10,6 @@
 [submodule "ClipboardEx"]
 	path = ClipboardEx
 	url = git@github.com:yatagarasu25/ClipboardEx.git
+[submodule "ConsoleAppFramework"]
+	path = ConsoleAppFramework
+	url = git@github.com:yatagarasu25/ConsoleAppFramework.git
