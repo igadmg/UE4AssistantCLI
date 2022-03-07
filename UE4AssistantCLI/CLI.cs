@@ -96,7 +96,7 @@ namespace UE4AssistantCLI
 			}
 
 			[Command("set", "set project's Unreal Engine uuid identifier.")]
-			public async Task Set([Option(0, "UUID")] string uuid)
+			public async Task Set([Option(0, "engine-uuid")] string uuid)
 			{
 				UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
 				UnrealEngineInstance UnrealInstance = (UnrealItem != null)

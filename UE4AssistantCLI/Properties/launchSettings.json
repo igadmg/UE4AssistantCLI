@@ -23,14 +23,14 @@
       "commandName": "Project",
       "workingDirectory": "F:\\UnrealEngine.master"
     },
-    "ue4cli uuid set help": {
-      "commandName": "Project",
-      "commandLineArgs": "uuid set help",
-      "workingDirectory": "D:\\project\\MathExpressionTest\\Source\\MathExpressionTest"
-    },
     "ue4cli add bpfl": {
       "commandName": "Project",
       "commandLineArgs": "add bpfl",
+      "workingDirectory": "D:\\project\\MathExpressionTest\\Source\\MathExpressionTest"
+    },
+    "ue4cli uuid show": {
+      "commandName": "Project",
+      "commandLineArgs": "uuid show",
       "workingDirectory": "D:\\project\\MathExpressionTest\\Source\\MathExpressionTest"
     }
   }
