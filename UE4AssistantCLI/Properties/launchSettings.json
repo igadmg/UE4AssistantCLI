@@ -3,7 +3,7 @@
     "ue4cli build": {
       "commandName": "Project",
       "commandLineArgs": "build",
-      "workingDirectory": "D:\\project\\MathExpressionTest\\Source\\MathExpressionTest"
+      "workingDirectory": "D:\\project\\SettlerSouls"
     },
     "ue4cli uuid list": {
       "commandName": "Project",
@@ -17,7 +17,7 @@
     "ue4cli create_config": {
       "commandName": "Project",
       "commandLineArgs": "create_config",
-      "workingDirectory": "D:\\project\\MathExpressionTest\\"
+      "workingDirectory": "D:\\project\\SettlerSouls\\Source\\SettlerSouls"
     },
     "ue4cli": {
       "commandName": "Project",

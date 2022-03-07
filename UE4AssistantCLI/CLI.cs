@@ -208,7 +208,7 @@ namespace UE4AssistantCLI
 			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
 			var ProjectConfiguration = UnrealItem?.ReadConfiguration<ProjectConfiguration>();
 
-			if (BuildSettingsJson.IsNullOrWhiteSpace() && !ProjectConfiguration.DefaultBuildConfigurationFile.IsNullOrWhiteSpace())
+			if (BuildSettingsJson.IsNullOrWhiteSpace() && !(ProjectConfiguration?.DefaultBuildConfigurationFile ?? string.Empty).IsNullOrWhiteSpace())
 				BuildSettingsJson = Utilities.GetFullPath(ProjectConfiguration.DefaultBuildConfigurationFile, UnrealItem.RootPath);
 
 			var BuildSettings = LoadSettings(BuildSettingsJson, () => UnrealCookSettings.CreateBuildSettings()
@@ -236,7 +236,7 @@ namespace UE4AssistantCLI
 			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
 			var ProjectConfiguration = UnrealItem?.ReadConfiguration<ProjectConfiguration>();
 
-			if (CookSettingsJson.IsNullOrWhiteSpace() && !ProjectConfiguration.DefaultCookConfigurationFile.IsNullOrWhiteSpace())
+			if (CookSettingsJson.IsNullOrWhiteSpace() && !(ProjectConfiguration.DefaultCookConfigurationFile ?? string.Empty).IsNullOrWhiteSpace())
 				CookSettingsJson = Utilities.GetFullPath(ProjectConfiguration.DefaultCookConfigurationFile, UnrealItem.RootPath);
 
 			var CookSettings = LoadSettings(CookSettingsJson, () => UnrealCookSettings.CreateDefaultSettings()
@@ -408,9 +408,9 @@ namespace UE4AssistantCLI
 			UnrealItemDescription UnrealItem = UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project, UnrealItemType.Module);
 
 			if (UnrealItem.Type == UnrealItemType.Project)
-				Configuration.WriteConfiguration(UnrealItem.ConfigurationPath, UnrealItem.ReadConfiguration<ProjectConfiguration>());
+				Configuration.WriteConfiguration(UnrealItem.ConfigurationPath, UnrealItem.ReadConfiguration<ProjectConfiguration>() ?? new ProjectConfiguration());
 			else if (UnrealItem.Type == UnrealItemType.Module)
-				Configuration.WriteConfiguration(UnrealItem.ConfigurationPath, UnrealItem.ReadConfiguration<TemplateConfiguration>());
+				Configuration.WriteConfiguration(UnrealItem.ConfigurationPath, UnrealItem.ReadConfiguration<TemplateConfiguration>() ?? new TemplateConfiguration());
 		}
 	}
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
