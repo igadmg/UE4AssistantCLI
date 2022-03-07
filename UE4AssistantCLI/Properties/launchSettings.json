@@ -32,6 +32,11 @@
       "commandName": "Project",
       "commandLineArgs": "uuid show",
       "workingDirectory": "D:\\project\\MathExpressionTest\\Source\\MathExpressionTest"
+    },
+    "ue4cli add class": {
+      "commandName": "Project",
+      "commandLineArgs": "add class SettlerSoulsPlayerState APlayerState",
+      "workingDirectory": "D:\\project\\SettlerSouls\\Source\\SettlerSouls"
     }
   }
 }

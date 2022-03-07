@@ -89,7 +89,7 @@ namespace UE4AssistantCLI
 		static IDisposable GenerateOnAdd(string path) => GenerateOnAdd(UnrealItemDescription.DetectUnrealItem(path, UnrealItemType.Project));
 		static IDisposable GenerateOnAdd(UnrealItemDescription UnrealItem)
 		{
-			if (UnrealItem?.ReadConfiguration<ProjectConfiguration>()?.GenerateProject.onEditor ?? false)
+			if (UnrealItem?.ReadConfiguration<ProjectConfiguration>()?.GenerateProject.onAddItem ?? false)
 			{
 				return DisposableLock.Lock(() => GenerateProject(UnrealItem.RootPath));
 			}
