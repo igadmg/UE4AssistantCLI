@@ -37,6 +37,11 @@
       "commandName": "Project",
       "commandLineArgs": "add class SettlerSoulsPlayerState APlayerState",
       "workingDirectory": "D:\\project\\SettlerSouls\\Source\\SettlerSouls"
+    },
+    "ue4cli diff": {
+      "commandName": "Project",
+      "commandLineArgs": "diff C:\\Windows\\a.a D:\\project\\SettlerSouls\\Source\\SettlerSouls\\S.cpp",
+      "workingDirectory": "D:\\"
     }
   }
 }

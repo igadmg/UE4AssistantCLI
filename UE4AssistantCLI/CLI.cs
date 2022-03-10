@@ -194,8 +194,7 @@ namespace UE4AssistantCLI
 		{
 			return !fileName.IsNullOrWhiteSpace() && File.Exists(fileName)
 				? JsonConvert.DeserializeObject<T[]>(File.ReadAllText(fileName)
-					, new JsonSerializerSettings
-					{
+					, new JsonSerializerSettings {
 						ObjectCreationHandling = ObjectCreationHandling.Replace
 					})
 				: new T[] { defaultSettings() };
@@ -208,7 +207,7 @@ namespace UE4AssistantCLI
 			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
 			var ProjectConfiguration = UnrealItem?.ReadConfiguration<ProjectConfiguration>();
 
-			if (BuildSettingsJson.IsNullOrWhiteSpace() && !(ProjectConfiguration?.DefaultBuildConfigurationFile ?? string.Empty).IsNullOrWhiteSpace())
+			if (BuildSettingsJson.IsNullOrWhiteSpace() && !(ProjectConfiguration?.DefaultBuildConfigurationFile).IsNullOrWhiteSpace())
 				BuildSettingsJson = Utilities.GetFullPath(ProjectConfiguration.DefaultBuildConfigurationFile, UnrealItem.RootPath);
 
 			var BuildSettings = LoadSettings(BuildSettingsJson, () => UnrealCookSettings.CreateBuildSettings()
@@ -236,7 +235,7 @@ namespace UE4AssistantCLI
 			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
 			var ProjectConfiguration = UnrealItem?.ReadConfiguration<ProjectConfiguration>();
 
-			if (CookSettingsJson.IsNullOrWhiteSpace() && !(ProjectConfiguration.DefaultCookConfigurationFile ?? string.Empty).IsNullOrWhiteSpace())
+			if (CookSettingsJson.IsNullOrWhiteSpace() && !(ProjectConfiguration.DefaultCookConfigurationFile).IsNullOrWhiteSpace())
 				CookSettingsJson = Utilities.GetFullPath(ProjectConfiguration.DefaultCookConfigurationFile, UnrealItem.RootPath);
 
 			var CookSettings = LoadSettings(CookSettingsJson, () => UnrealCookSettings.CreateDefaultSettings()
@@ -274,11 +273,11 @@ namespace UE4AssistantCLI
 		}
 
 		[Command("diff", "Launch UE4 diff tool to diff two files.")]
-		public async Task MergeAsset([Option(0, "Left file")] string LeftFile, [Option(1, "Right file")] string RightFile)
+		public async Task DiffAsset([Option(0, "Left file")] string LeftFile, [Option(1, "Right file")] string RightFile)
 		{
-			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
-			if (UnrealItem == null) UnrealItem = UnrealItemDescription.DetectUnrealItem(Path.GetDirectoryName(LeftFile), UnrealItemType.Project);
-			if (UnrealItem == null) UnrealItem = UnrealItemDescription.DetectUnrealItem(Path.GetDirectoryName(RightFile), UnrealItemType.Project);
+			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project)
+				?? UnrealItemDescription.DetectUnrealItem(Path.GetDirectoryName(LeftFile), UnrealItemType.Project)
+				?? UnrealItemDescription.DetectUnrealItem(Path.GetDirectoryName(RightFile), UnrealItemType.Project);
 
 			if (UnrealItem == null)
 			{
@@ -288,16 +287,16 @@ namespace UE4AssistantCLI
 			UnrealEngineInstance UnrealInstance = new UnrealEngineInstance(UnrealItem);
 
 			Utilities.RequireExecuteCommandLine(Utilities.EscapeCommandLineArgs(
-				UnrealInstance.UE4EditorPath, UnrealItem.FullPath, "-diff", LeftFile, RightFile));
+				UnrealInstance.UnrealEditorPath, UnrealItem.FullPath, "-diff", LeftFile, RightFile));
 		}
 
 		[Command("merge", "Launch UE4 diff tool to merge conflict file.")]
 		public async Task MergeAsset([Option(0, "Base file")] string BaseFile, [Option(1, "Local file")] string LocalFile, [Option(2, "Remote file")] string RemoteFile, [Option(3, "Result file")] string ResultFile)
 		{
-			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
-			if (UnrealItem == null) UnrealItem = UnrealItemDescription.DetectUnrealItem(Path.GetDirectoryName(BaseFile), UnrealItemType.Project);
-			if (UnrealItem == null) UnrealItem = UnrealItemDescription.DetectUnrealItem(Path.GetDirectoryName(LocalFile), UnrealItemType.Project);
-			if (UnrealItem == null) UnrealItem = UnrealItemDescription.DetectUnrealItem(Path.GetDirectoryName(RemoteFile), UnrealItemType.Project);
+			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project)
+				?? UnrealItemDescription.DetectUnrealItem(Path.GetDirectoryName(BaseFile), UnrealItemType.Project)
+				?? UnrealItemDescription.DetectUnrealItem(Path.GetDirectoryName(LocalFile), UnrealItemType.Project)
+				?? UnrealItemDescription.DetectUnrealItem(Path.GetDirectoryName(RemoteFile), UnrealItemType.Project);
 
 			if (UnrealItem == null)
 			{
@@ -307,7 +306,7 @@ namespace UE4AssistantCLI
 			UnrealEngineInstance UnrealInstance = new UnrealEngineInstance(UnrealItem);
 
 			Utilities.RequireExecuteCommandLine(Utilities.EscapeCommandLineArgs(
-				UnrealInstance.UE4EditorPath, UnrealItem.FullPath, "-diff", RemoteFile, LocalFile, BaseFile, ResultFile));
+				UnrealInstance.UnrealEditorPath, UnrealItem.FullPath, "-diff", RemoteFile, LocalFile, BaseFile, ResultFile));
 		}
 
 		[Command("merge_lfs", "Launch UE4 diff tool to merge conflict file.")]
@@ -333,7 +332,7 @@ namespace UE4AssistantCLI
 			Utilities.RequireExecuteCommandLine(string.Format("git show :1:./{0} | git lfs smudge > {1}", file, resultFile));
 
 			Utilities.RequireExecuteCommandLine(Utilities.EscapeCommandLineArgs(
-				UnrealInstance.UE4EditorPath, UnrealItem.FullPath, "-diff", remoteFile, localFile, baseFile, resultFile));
+				UnrealInstance.UnrealEditorPath, UnrealItem.FullPath, "-diff", remoteFile, localFile, baseFile, resultFile));
 
 			var baseMd5 = Utilities.CalculateMD5(baseFile);
 			var resultMd5 = Utilities.CalculateMD5(resultFile);
