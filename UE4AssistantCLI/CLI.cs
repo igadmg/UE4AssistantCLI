@@ -275,9 +275,9 @@ namespace UE4AssistantCLI
 		[Command("diff", "Launch UE4 diff tool to diff two files.")]
 		public async Task DiffAsset([Option(0, "Left file")] string LeftFile, [Option(1, "Right file")] string RightFile)
 		{
-			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project)
-				?? UnrealItemDescription.DetectUnrealItem(Path.GetDirectoryName(LeftFile), UnrealItemType.Project)
-				?? UnrealItemDescription.DetectUnrealItem(Path.GetDirectoryName(RightFile), UnrealItemType.Project);
+			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItemExceptTemp(Directory.GetCurrentDirectory(), UnrealItemType.Project)
+				?? UnrealItemDescription.DetectUnrealItemExceptTemp(Path.GetDirectoryName(LeftFile), UnrealItemType.Project)
+				?? UnrealItemDescription.DetectUnrealItemExceptTemp(Path.GetDirectoryName(RightFile), UnrealItemType.Project);
 
 			if (UnrealItem == null)
 			{
@@ -293,10 +293,10 @@ namespace UE4AssistantCLI
 		[Command("merge", "Launch UE4 diff tool to merge conflict file.")]
 		public async Task MergeAsset([Option(0, "Base file")] string BaseFile, [Option(1, "Local file")] string LocalFile, [Option(2, "Remote file")] string RemoteFile, [Option(3, "Result file")] string ResultFile)
 		{
-			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project)
-				?? UnrealItemDescription.DetectUnrealItem(Path.GetDirectoryName(BaseFile), UnrealItemType.Project)
-				?? UnrealItemDescription.DetectUnrealItem(Path.GetDirectoryName(LocalFile), UnrealItemType.Project)
-				?? UnrealItemDescription.DetectUnrealItem(Path.GetDirectoryName(RemoteFile), UnrealItemType.Project);
+			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItemExceptTemp(Directory.GetCurrentDirectory(), UnrealItemType.Project)
+				?? UnrealItemDescription.DetectUnrealItemExceptTemp(Path.GetDirectoryName(BaseFile), UnrealItemType.Project)
+				?? UnrealItemDescription.DetectUnrealItemExceptTemp(Path.GetDirectoryName(LocalFile), UnrealItemType.Project)
+				?? UnrealItemDescription.DetectUnrealItemExceptTemp(Path.GetDirectoryName(RemoteFile), UnrealItemType.Project);
 
 			if (UnrealItem == null)
 			{
