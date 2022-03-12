@@ -273,11 +273,15 @@ namespace UE4AssistantCLI
 		}
 
 		[Command("diff", "Launch UE4 diff tool to diff two files.")]
-		public async Task DiffAsset([Option(0, "Left file")] string LeftFile, [Option(1, "Right file")] string RightFile)
+		public async Task DiffAsset([Option(0, "Left file")] string LeftFile, [Option(1, "Right file")] string RightFile
+			, [Option("plastic-source", "Optional @sourcesymbolic parameter from Plastic SCM diff to help find project folder when making diff.")] string PlasticSource = null
+			, [Option("plastic-destination", "Optional @destinationsymbolic parameter from Plastic SCM diff to help find project folder when making diff.")] string PlasticDestination = null)
 		{
 			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItemExceptTemp(Directory.GetCurrentDirectory(), UnrealItemType.Project)
 				?? UnrealItemDescription.DetectUnrealItemExceptTemp(Path.GetDirectoryName(LeftFile), UnrealItemType.Project)
-				?? UnrealItemDescription.DetectUnrealItemExceptTemp(Path.GetDirectoryName(RightFile), UnrealItemType.Project);
+				?? UnrealItemDescription.DetectUnrealItemExceptTemp(Path.GetDirectoryName(RightFile), UnrealItemType.Project)
+				?? UnrealItemDescription.DetectUnrealItemExceptTemp(Path.GetDirectoryName(PlasticSource.GetFilenameFromPlasticRev()), UnrealItemType.Project)
+				?? UnrealItemDescription.DetectUnrealItemExceptTemp(Path.GetDirectoryName(PlasticDestination.GetFilenameFromPlasticRev()), UnrealItemType.Project);
 
 			if (UnrealItem == null)
 			{
@@ -304,6 +308,9 @@ namespace UE4AssistantCLI
 			}
 
 			UnrealEngineInstance UnrealInstance = new UnrealEngineInstance(UnrealItem);
+
+			if (!File.Exists(ResultFile))
+				File.Copy(LocalFile, ResultFile);
 
 			Utilities.RequireExecuteCommandLine(Utilities.EscapeCommandLineArgs(
 				UnrealInstance.UnrealEditorPath, UnrealItem.FullPath, "-diff", RemoteFile, LocalFile, BaseFile, ResultFile));
