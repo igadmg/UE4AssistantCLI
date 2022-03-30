@@ -42,6 +42,11 @@
       "commandName": "Project",
       "commandLineArgs": "diff C:\\Windows\\a.a D:\\project\\SettlerSouls\\Source\\SettlerSouls\\S.cpp",
       "workingDirectory": "D:\\"
+    },
+    "ue4cli add module DebugEx": {
+      "commandName": "Project",
+      "commandLineArgs": "add module DebugEx",
+      "workingDirectory": "D:\\Pixelynx\\Globant-Dev\\PixelynxClient\\Plugins\\UnrealEngineEx\\Source"
     }
   }
 }
