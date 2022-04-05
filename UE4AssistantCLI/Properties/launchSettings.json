@@ -43,10 +43,10 @@
       "commandLineArgs": "diff C:\\Windows\\a.a D:\\project\\SettlerSouls\\Source\\SettlerSouls\\S.cpp",
       "workingDirectory": "D:\\"
     },
-    "ue4cli add module DebugEx": {
+    "ue4cli cook Cook.json --dump > Cook.json ": {
       "commandName": "Project",
-      "commandLineArgs": "add module DebugEx",
-      "workingDirectory": "D:\\Pixelynx\\Globant-Dev\\PixelynxClient\\Plugins\\UnrealEngineEx\\Source"
+      "commandLineArgs": "cook Cook.json --dump > Cook.json ",
+      "workingDirectory": "D:\\Pixelynx\\Globant-Dev_Binary\\PixelynxClient"
     }
   }
 }
