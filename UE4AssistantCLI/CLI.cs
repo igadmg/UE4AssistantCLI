@@ -66,6 +66,26 @@ namespace UE4AssistantCLI
 			}
 		}
 
+		[Command("log")]
+		public class Log : ConsoleAppBase
+		{
+			[Command("project", "open project log file.")]
+			public async Task ProjectLog()
+			{
+				UnrealItemDescription UnrealItem = UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
+
+				Utilities.ExecuteOpenFile(UnrealItem.ProjectLogPath);
+			}
+
+			[Command("build", "open build log file.")]
+			public async Task ProjectLog()
+			{
+				UnrealItemDescription UnrealItem = UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
+
+				Utilities.ExecuteOpenFile(UnrealItem.BuildLogs);
+			}
+		}
+
 		[Command("uuid")]
 		public class Uuid : ConsoleAppBase
 		{
