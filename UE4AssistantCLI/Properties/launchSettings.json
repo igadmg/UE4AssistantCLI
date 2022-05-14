@@ -1,10 +1,5 @@
 {
   "profiles": {
-    "ue4cli build": {
-      "commandName": "Project",
-      "commandLineArgs": "build",
-      "workingDirectory": "D:\\project\\SettlerSouls"
-    },
     "ue4cli uuid list": {
       "commandName": "Project",
       "commandLineArgs": "uuid list"
@@ -42,6 +37,16 @@
       "commandName": "Project",
       "commandLineArgs": "diff C:\\Windows\\a.a D:\\project\\SettlerSouls\\Source\\SettlerSouls\\S.cpp",
       "workingDirectory": "D:\\"
+    },
+    "ue4cli cook Cook.json --dump > Cook.json ": {
+      "commandName": "Project",
+      "commandLineArgs": "cook Cook.json --dump > Cook.json ",
+      "workingDirectory": "D:\\Pixelynx\\Globant-Dev_Binary\\PixelynxClient"
+    },
+    "ue4cli log": {
+      "commandName": "Project",
+      "commandLineArgs": "log",
+      "workingDirectory": "D:\\Pixelynx\\Globant-Dev\\PixelynxClient"
     }
   }
 }
