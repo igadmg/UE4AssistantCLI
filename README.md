@@ -36,3 +36,113 @@ Commands:
   uuid set <GUID>                               Set project's Unreal Engine uuid identifier.
   uuid show                                     Show project's Unreal Engine uuid identifier.
   version                                       Display ue4cli tool version.
+```
+
+## Setup tool
+
+`ue4cli` tool can be easely installed from nuget with `dotnet tool install -g ue4cli` command (will install globally).
+
+## Source generation commands.
+
+Two types of `add` commands:
+1. Plugin/Module generation - create code plugin or module with minimal required files. `add plugin` - generate plugin in `Plugins/name` folder and add it to `.uproject` file. `add module` - generate module in current folder.
+1. Source generation - `add bpfl`, `add class`, `add dataasset`, `add interface`, `add tablerow` - automaticaly add source and header files based on current directory and source folder structure (headers are put to `Public`, source files are put to `Private` if these folders exist).
+
+## Management commands.
+Various commands usefull in day to day work. They can be used form any path inside project folder tree.
+1. `generate` - regenerate solution and project files.
+1. `code` - open code editor (can autogenertate project if set by config, default off)
+1. `editor` - open Unreal Engine editor (can autobuild project if set by config, default off)
+
+## Build/Cook commands.
+1. `build` and `cook` commands are supplied with json configuration file. json configuration file can be generated with `ue4cli build --dump` command. Json config contains various flags passed to `BuildCookRun` RunAU command.
+
+```
+    [StringParameter("project")] public string ProjectFullPath = null;
+		[StringParameter("target")] public string Target = null;
+		[StringParameter("platform")] public string Platform = DefaultPlatformName;
+		[StringParameter("cookflavor")] public string CookFlavor = null;
+		[StringParameter("clientconfig")] public string ClientConfig;
+		[StringParameter("serverconfig")] public string ServerConfig;
+		[StringParameter("ddc")] public string DDC;
+		[BoolParameter("skipbuildeditor")] public bool? SkipBuildEditor = null;
+		[BoolParameter("P4", "noP4")] public bool? UseP4 = null;
+		[BoolParameter("cook")] public bool? Cook = null;
+		[BoolParameter("allmaps")] public bool? AllMaps = null;
+		[BoolParameter("client", "noclient")] public bool? Client = null;
+		[BoolParameter("server", "noserver")] public bool? Server = null;
+		[BoolParameter("build")] public bool? Build = null;
+		[BoolParameter("stage")] public bool? Stage = null;
+		[BoolParameter("pak")] public bool? Pak = null;
+		[BoolParameter("archive")] public bool? Archive = null;
+		[BoolParameter("package")] public bool? Package = null;
+		[BoolParameter("compressed")] public bool? Compressed = null;
+		[BoolParameter("NoXGE")] public bool? NoXGE = null;
+		[BoolParameter("NoFASTBuild")] public bool? NoFASTBuild = null;
+		[BoolParameter("utf8output")] public bool? Utf8Output = null;
+		[BoolParameter("unversionedcookedcontent")] public bool? UnversionedCookedContent = null;
+		[BoolParameter("generatepatch")] public bool? GeneratePatch = null;
+		[StringParameter("createreleaseversion")] public string CreateReleaseVersion;
+		[StringParameter("basedonreleaseversion")] public string BasedOnReleaseVersion;
+		[StringParameter("archivedirectory")] public string ArchiveDirectory;
+		[StringListParameter("map")] public string[] Maps;
+		[StringListParameter("CookCultures")] public string[] CookCultures;
+```
+
+- `StringParameter` - adds -param={value} if field is not null or empty.
+- `BoolParameter` - adds -param or -noparam (or none) if enbaled or disabled.
+- `StringListParameter` - adds -param={v1}+{v2}+...+{vn} if not null or mepty.
+
+## Config commands.
+1. `create_config` - create `.ue4a` config file inside `Project` or `Module` folder. Different configs for each type. Run this command to create local config file.
+  - `Project`: 
+```
+{
+	"UE4RootPath": "<path to UE Efitro (for source builds) null for store builds.>",
+	"GenerateProject": {   // should run generate command on these commands
+		"onAddItem": true, // add *
+		"onCode": true,    // code
+		"onEditor": false, // editor
+		"onBuild": false,  // build
+		"onCook": false    // cook
+	},
+	"InterfaceSuffix": "Interface",       // suffix added to `add interface` type names
+	"FunctionLibrarySuffix": "Statics",   // suffix added to `add bpfl` type names
+	"DefaultBuildConfigurationFile": "Build.json",   // default configuration for `build` command
+	"DefaultCookConfigurationFile": "Cook.json",     // default configuration for `cook` command
+	"JsonIndentation": {   // json formatting options for generated files.
+		"IndentationChar": "\t",
+		"IndentationLevel": 1
+	}
+}
+```
+  - `Module`: these options are passed directly source code templates.
+```
+{
+  "pchHeader": null,  // should generate PCH include string, and pch name.
+  "finalHeader": "MyProject.final.h", // should generate final include header in source files, and it's name.
+  "locTextNamespaceName": "MyProject" // should generate LOCTEXT_NAMESPACE define/undef pair and it's value.
+}
+```
+
+## Blueprint Diff/Merge commands.
+Thesee commands run project assosiated Unreal Engine in diff or merge mode. Can be used form source control tools. How and if `Merge` works in unknown. Diff is only usefull to me.
+1. `diff` - run diff mode.
+1. `merge` - run merge mode. 
+Diff command have special flags for use from plastic SCM. Needed to guess project folder correctly.
+
+### Plastic SCM diff/merge command.
+1. `diff` - `ue4cli diff "@sourcefile" "@destinationfile" -plastic-source "@sourcesymbolic" -plastic-destination "@destinationsymbolic"`
+1. `merge` - `ue4cli merge "@basefile" "@destinationfile" "@sourcefile" "@output"`
+
+## Engine UUID manipulation commands.
+When working with source engine build it cna be usefull to set one UUID for engine association across all developer computers. That can be easely done with
+`ue4cli uuid set {1842737E-4FB8-4CF3-A097-AD89D06349D8}`
+1. `uuid list` - list registered Unreal Engine uuid identifiers.
+1. `uuid set <GUID>` - set project's Unreal Engine uuid identifier for current folder.
+1. `uuid show` - show projects uuid.
+
+## Other commands.
+
+1. `log` command cnab used to open either `project` or `build` (engine) log folder.
+1. `pch_cleanup` command will scan build logs and find .pch complaints and delete that files.
