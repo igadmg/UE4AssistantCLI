@@ -69,7 +69,7 @@ namespace UE4AssistantCLI
 		[Command("log")]
 		public class Log : ConsoleAppBase
 		{
-			[Command("project", "Open project log file.")]
+			[Command("project", "Open project log folder.")]
 			public async Task ProjectLog()
 			{
 				UnrealItemDescription UnrealItem = UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
@@ -77,7 +77,7 @@ namespace UE4AssistantCLI
 				Utilities.ExecuteOpenFile(UnrealItem.ProjectLogPath);
 			}
 
-			[Command("build", "Open build log file.")]
+			[Command("build", "Open build log folder.")]
 			public async Task ProjectLog()
 			{
 				UnrealItemDescription UnrealItem = UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
