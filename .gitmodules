@@ -13,3 +13,6 @@
 [submodule "ConsoleAppFramework"]
 	path = ConsoleAppFramework
 	url = git@github.com:yatagarasu25/ConsoleAppFramework.git
+[submodule "UE4Assistant.Specifier"]
+	path = UE4Assistant.Specifier
+	url = git@github.com:yatagarasu25/UE4Assistant.Specifier.git

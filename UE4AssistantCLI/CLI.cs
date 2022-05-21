@@ -78,11 +78,11 @@ namespace UE4AssistantCLI
 			}
 
 			[Command("build", "open build log file.")]
-			public async Task ProjectLog()
+			public async Task BuildLog()
 			{
 				UnrealItemDescription UnrealItem = UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
 
-				Utilities.ExecuteOpenFile(UnrealItem.BuildLogs);
+				Utilities.ExecuteOpenFile(UnrealItem.BuildLogPath);
 			}
 		}
 

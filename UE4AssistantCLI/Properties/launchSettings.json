@@ -43,10 +43,10 @@
       "commandLineArgs": "cook Cook.json --dump > Cook.json ",
       "workingDirectory": "D:\\Pixelynx\\Globant-Dev_Binary\\PixelynxClient"
     },
-    "ue4cli log": {
+    "ue4cli log build": {
       "commandName": "Project",
-      "commandLineArgs": "log",
-      "workingDirectory": "D:\\Pixelynx\\Globant-Dev\\PixelynxClient"
+      "commandLineArgs": "log build",
+      "workingDirectory": "E:\\project\\DeOrbeNovo"
     }
   }
 }
