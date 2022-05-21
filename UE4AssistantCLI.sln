@@ -17,9 +17,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SystemEx.Sleep", "SystemEx.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleAppFramework", "ConsoleAppFramework\src\ConsoleAppFramework\ConsoleAppFramework.csproj", "{0FDEF1B7-5926-4E4F-867F-34B607769164}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UE4AssistantCLI.UI", "UE4AssistantCLI.UI\UE4AssistantCLI.UI.csproj", "{5B2F54EB-8B61-4C8D-BEA0-8302415B0DCD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UE4AssistantCLI.UI", "UE4AssistantCLI.UI\UE4AssistantCLI.UI.csproj", "{5B2F54EB-8B61-4C8D-BEA0-8302415B0DCD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UE4Assistant.Specifier", "UE4Assistant.Specifier\UE4Assistant.Specifier.csproj", "{DD6AC44C-BB3B-4195-85FC-C2902BCCF109}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UE4Assistant.Specifier", "UE4Assistant.Specifier\UE4Assistant.Specifier.csproj", "{DD6AC44C-BB3B-4195-85FC-C2902BCCF109}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UE4Assistant.Specifier.Tests", "UE4Assistant.Specifier\Tests\UE4Assistant.Specifier.Tests.csproj", "{C9B65883-93EC-48D0-A053-E20A83A1D4CB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +65,10 @@ Global
 		{DD6AC44C-BB3B-4195-85FC-C2902BCCF109}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DD6AC44C-BB3B-4195-85FC-C2902BCCF109}.Release|Any CPU.ActiveCfg = Debug|Any CPU
 		{DD6AC44C-BB3B-4195-85FC-C2902BCCF109}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{C9B65883-93EC-48D0-A053-E20A83A1D4CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9B65883-93EC-48D0-A053-E20A83A1D4CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9B65883-93EC-48D0-A053-E20A83A1D4CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9B65883-93EC-48D0-A053-E20A83A1D4CB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

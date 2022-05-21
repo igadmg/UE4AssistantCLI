@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
-using UE4Assistant.Specifier;
+using UE4Assistant;
 
 namespace UE4AssistantCLI.UI
 {
@@ -412,8 +412,8 @@ namespace UE4AssistantCLI.UI
 				return values;
 			}
 		}
-
-		internal class GroupPropertyDescriptor : BasePropertyDescriptor
+#if false
+	internal class GroupPropertyDescriptor : BasePropertyDescriptor
 		{
 			protected SpecifierParameterModel value_;
 			protected SpecifierParameterModel defaultvalue_;
@@ -518,4 +518,5 @@ namespace UE4AssistantCLI.UI
 				Editor.ItemsSource = values_;
 			}
 		}
+#endif
 }
