@@ -1,9 +1,7 @@
 using DynamicDescriptors;
-using System.Reflection.Metadata;
-using System.Reflection;
+using System.Drawing.Design;
 using SystemEx;
 using UE4Assistant;
-using System.Drawing.Design;
 
 namespace UE4AssistantCLI.UI;
 
@@ -11,7 +9,7 @@ public partial class FormMacroEditor : Form
 {
 	string str;
 	Specifier specifier;
-	SpecifierTypeDescriptor so;
+	DynamicTypeDescriptor so;
 
 	public FormMacroEditor(string str)
 	{
@@ -26,34 +24,27 @@ public partial class FormMacroEditor : Form
 		tabControlPages.SizeMode = TabSizeMode.Fixed;
 
 		comboBoxMacro.Items.Clear();
-		comboBoxMacro.Items.AddRange(SpecifierSchema.ReadAvailableTags().ToArray());
+		comboBoxMacro.Items.AddRange(SpecifierSchema.ReadAvailableTags().Cast<object>().ToArray());
 
 		Specifier.TryParse(str.tokenize(), out specifier);
-		var model = SpecifierSchema.ReadSpecifierModel(specifier.tag.name);
 
 		comboBoxMacro.SelectedIndex = comboBoxMacro.Items.Cast<TagModel>().ToList().FindIndex(i => i.name == specifier.tag.name);
 
-		//var items = model.parameters.Where(p => p.group.IsNullOrWhiteSpace()).ToDictionary(p => p.name, p => (object)p);
-		var groups = model.parameters
-			.GroupBy(p => p.group
-				, LambdaComparer.Create(
-					(string a, string b) => a.IsNullOrWhiteSpace() || b.IsNullOrWhiteSpace() ? -1 : string.Compare(a, b))
-			);
-		var items = groups.ToDictionary(g => g.Key.IsNullOrWhiteSpace() ? g.First().name : g.Key, g => g.ToArray());
-
+		var items = specifier.ToModelDictionary("parameters");
 		var dso_items = items.ToDictionary(i => i.Key
 			, i => i.Value.Length == 1
 				? (specifier.data.GetValueOrDefault(i.Value[0].name, i.Value[0].DefaultValue), i.Value[0].Type)
-				: (i.Value.Select(i => i.name).FirstOrDefault(i => specifier.data.ContainsKey(i), string.Empty), typeof(string))
+				: (i.Value.Select(i => i.name).FirstOrDefault(i => specifier.data.ContainsKey(i), i.Value[0].name), typeof(string))
 			);
-		var dso = DynamicDescriptor.CreateFromDictionary(dso_items);
+
+		so = DynamicDescriptor.CreateFromDictionary(dso_items);
 
 		foreach (var item in items)
 		{
-			var dp = dso.GetDynamicProperty(item.Key);
 			var ri = item.Value[0];
+			var dp = so.GetDynamicProperty(item.Key)
+				.SetCategory(ri.category);
 
-			dp.SetCategory(ri.category);
 			if (ri.group.IsNullOrWhiteSpace())
 			{
 				if (ri.Type == typeof(bool))
@@ -64,13 +55,8 @@ public partial class FormMacroEditor : Form
 				dp.SetConverter(new StandardValuesStringConverter(item.Value.Select(i => i.name)));
 			}
 		}
-		//	items.ToDictionary(i => i.Key, i => i.Value.Item1)
-		//	, items.ToDictionary(i => i.Key, i => i.Value.Item2));
-		//dso.GetDynamicProperty("").SetPropertyOrder
 
-		so = new SpecifierTypeDescriptor(model.parameters);
-		so.FromDictionary(specifier.data);
-		propertyGridSpecifier.SelectedObject = dso;
+		propertyGridSpecifier.SelectedObject = so;
 	}
 
 	private void comboBoxMacro_SelectedIndexChanged(object sender, EventArgs e)
@@ -80,6 +66,40 @@ public partial class FormMacroEditor : Form
 
 	private void propertyGridSpecifier_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
 	{
-		so.ToDictionary(specifier.data);
+		var collection = specifier.model.collections["parameters"];
+		foreach (var p in so.GetDynamicProperties())
+		{
+			var v = p.GetValue(so);
+			var sp = collection.Find(mp => mp.name == p.Name);
+
+			if (!sp.IsEmpty)
+			{
+				if (!Equals(v, sp.DefaultValue))
+				{
+					specifier.data[p.Name] = sp.type.IsNullOrWhiteSpace() ? null : v;
+				}
+				else
+				{
+					specifier.data.Remove(p.Name); 
+				}
+			}
+			else
+			{
+				var group = collection.FindAll(mp => mp.group == p.Name);
+				foreach (var i in group.Skip(1))
+				{
+					if (Equals(v, i.name))
+					{
+						specifier.data[i.name] = null;
+					}
+					else
+					{
+						specifier.data.Remove(i.name);
+					}
+				}
+			}
+		}
+
+		textBoxResult.Text = specifier.ToString();
 	}
 }

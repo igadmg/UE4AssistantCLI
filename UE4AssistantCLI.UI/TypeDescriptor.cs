@@ -11,7 +11,7 @@ namespace UE4AssistantCLI.UI
 		public override void PaintValue(PaintValueEventArgs e)
 		{
 			var rect = e.Bounds;
-			rect.Inflate(-1, -1);
+			//rect.Inflate(-2, -2);
 			ControlPaint.DrawCheckBox(e.Graphics, rect, ButtonState.Flat | (((bool)e.Value) ? ButtonState.Checked : ButtonState.Normal));
 		}
 	}
@@ -41,9 +41,10 @@ namespace UE4AssistantCLI.UI
 			var categories = new HashSet<string>();
 			var properties = new List<BasePropertyDescriptor>();
 			var groups = new Dictionary<string, List<SpecifierParameterModel>>();
-			foreach (SpecifierParameterModel parameter in model_)
+			foreach (SpecifierParameterModel pm in model_)
 			{
-				parameter.category = !parameter.category.IsNullOrWhiteSpace() ? parameter.category : "Common";
+				var parameter = pm.FixCategory("Common");
+
 				if (!parameter.group.IsNullOrWhiteSpace())
 				{
 					groups.GetOrAdd(parameter.group, k => new List<SpecifierParameterModel>()).Add(parameter);
@@ -216,8 +217,8 @@ namespace UE4AssistantCLI.UI
 		}
 
 		public override void FromDictionary(Dictionary<string, object> values)
-			=> values_.FirstOrDefault(v => values.ContainsKey(v.name))
-				?.Also(v => value_ = v.name);
+			=> values_.FirstOrDefault(v => values.ContainsKey(v.name), values_[0])
+				.Also(v => value_ = v.name);
 
 		public override Dictionary<string, object> ToDictionary(Dictionary<string, object> values)
 		{

@@ -35,7 +35,7 @@ partial class FormMacroEditor
 			this.tabPage1 = new System.Windows.Forms.TabPage();
 			this.propertyGridSpecifier = new System.Windows.Forms.PropertyGrid();
 			this.tabPage2 = new System.Windows.Forms.TabPage();
-			this.textBoxSpecifier = new System.Windows.Forms.TextBox();
+			this.textBoxResult = new System.Windows.Forms.TextBox();
 			this.tabControlPages.SuspendLayout();
 			this.tabPage1.SuspendLayout();
 			this.SuspendLayout();
@@ -110,26 +110,26 @@ partial class FormMacroEditor
 			this.tabPage2.Location = new System.Drawing.Point(4, 27);
 			this.tabPage2.Name = "tabPage2";
 			this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-			this.tabPage2.Size = new System.Drawing.Size(401, 556);
+			this.tabPage2.Size = new System.Drawing.Size(401, 527);
 			this.tabPage2.TabIndex = 1;
 			this.tabPage2.Text = "tabPage2";
 			this.tabPage2.UseVisualStyleBackColor = true;
 			// 
-			// textBoxSpecifier
+			// textBoxResult
 			// 
-			this.textBoxSpecifier.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+			this.textBoxResult.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.textBoxSpecifier.Location = new System.Drawing.Point(16, 40);
-			this.textBoxSpecifier.Name = "textBoxSpecifier";
-			this.textBoxSpecifier.Size = new System.Drawing.Size(409, 23);
-			this.textBoxSpecifier.TabIndex = 4;
+			this.textBoxResult.Location = new System.Drawing.Point(16, 40);
+			this.textBoxResult.Name = "textBoxResult";
+			this.textBoxResult.Size = new System.Drawing.Size(409, 23);
+			this.textBoxResult.TabIndex = 4;
 			// 
 			// FormMacroEditor
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(433, 639);
-			this.Controls.Add(this.textBoxSpecifier);
+			this.Controls.Add(this.textBoxResult);
 			this.Controls.Add(this.tabControlPages);
 			this.Controls.Add(this.label1);
 			this.Controls.Add(this.buttonApply);
@@ -153,5 +153,5 @@ partial class FormMacroEditor
 	private TabPage tabPage2;
 	private TabPage tabPage1;
 	private PropertyGrid propertyGridSpecifier;
-	private TextBox textBoxSpecifier;
+	private TextBox textBoxResult;
 }
