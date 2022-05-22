@@ -1,522 +1,269 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
+﻿using System.ComponentModel;
+using System.Drawing.Design;
+using SystemEx;
 using UE4Assistant;
 
 namespace UE4AssistantCLI.UI
 {
-		public class SpecifierCustomTypeDescriptor : ICustomTypeDescriptor
+	public class CheckboxBoolEditor : UITypeEditor
+	{
+		public override bool GetPaintValueSupported(System.ComponentModel.ITypeDescriptorContext context) => true;
+		public override void PaintValue(PaintValueEventArgs e)
 		{
-			public List<SpecifierParameterModel> model_ = null;
-			protected AttributeCollection attributes_;
-			protected PropertyDescriptorCollection properties_;
+			var rect = e.Bounds;
+			rect.Inflate(-1, -1);
+			ControlPaint.DrawCheckBox(e.Graphics, rect, ButtonState.Flat | (((bool)e.Value) ? ButtonState.Checked : ButtonState.Normal));
+		}
+	}
 
-			public SpecifierCustomTypeDescriptor(List<SpecifierParameterModel> model)
-			{
-				model_ = model;
+	public class SpecifierTypeDescriptor : ICustomTypeDescriptor
+	{
+		public List<SpecifierParameterModel> model_ = null;
 
-				var attributes = new List<Attribute>();
-				var categories = new HashSet<string>();
-				var properties = new List<BasePropertyDescriptor>();
-				var groups = new Dictionary<string, List<SpecifierParameterModel>>();
-				foreach (SpecifierParameterModel parameter in model_)
-				{
-					if (!string.IsNullOrWhiteSpace(parameter.group))
-					{
-						List<SpecifierParameterModel> group;
-						if (!groups.TryGetValue(parameter.group, out group))
-						{
-							group = new List<SpecifierParameterModel>();
-							groups.Add(parameter.group, group);
-						}
-						group.Add(parameter);
-					}
-					else
-					{
-						List<Attribute> propertyAttributes = new List<Attribute>();
-						propertyAttributes.Add(new CategoryAttribute(!string.IsNullOrWhiteSpace(parameter.category) ? parameter.category : "Common"));
-						categories.Add(!string.IsNullOrWhiteSpace(parameter.category) ? parameter.category : "Common");
+		protected AttributeCollection attributes_;
+		protected PropertyDescriptorCollection properties_;
 
-						if (string.IsNullOrWhiteSpace(parameter.type))
-						{
-							properties.Add(
-								new FlagPropertyDescriptor(GetType(), parameter.name, propertyAttributes)
-								.SetDefaultValue(false));
-						}
-						else if (parameter.type.ToLower().Equals("string"))
-						{
-							properties.Add(
-								new StringPropertyDescriptor(GetType(), parameter.name, propertyAttributes)
-								.SetDefaultValue(""));
-						}
-						else if (parameter.type.ToLower().Equals("bool"))
-						{
-							properties.Add(
-								new BoolPropertyDescriptor(GetType(), parameter.name, propertyAttributes)
-								.SetDefaultValue(false));
-						}
-						else if (parameter.type.ToLower().Equals("integer"))
-						{
-							properties.Add(
-								new IntegerPropertyDescriptor(GetType(), parameter.name, propertyAttributes)
-								.SetDefaultValue(null));
-						}
-					}
-				}
+		List<Attribute> CreateAttributes(SpecifierParameterModel parameter, params Attribute[] attributes)
+		{
+			List<Attribute> propertyAttributes = new List<Attribute>();
+			propertyAttributes.Add(new BrowsableAttribute(true));
+			propertyAttributes.Add(new CategoryAttribute(parameter.category));
+			propertyAttributes.AddRange(attributes);
 
-				foreach (var group in groups)
-				{
-					var parameter = group.Value[0];
-
-					List<Attribute> propertyAttributes = new List<Attribute>();
-					propertyAttributes.Add(new CategoryAttribute(!string.IsNullOrWhiteSpace(parameter.category) ? parameter.category : "Common"));
-					propertyAttributes.Add(new EditorAttribute(typeof(GroupPropertyEditor), typeof(GroupPropertyEditor)));
-					categories.Add(!string.IsNullOrWhiteSpace(parameter.category) ? parameter.category : "Common");
-
-					properties.Add(new GroupPropertyDescriptor(GetType(), group.Key, propertyAttributes).SetDefaultValue(parameter, group.Value));
-				}
-
-				var categoriesModel = SpecifierSchema.ReadAvaliableCategories();
-				foreach (var category in categories)
-				{
-					if (categoriesModel.TryGetValue(category, out int order))
-					{
-						attributes.Add(new CategoryOrderAttribute(category, order));
-					}
-				}
-
-				attributes_ = new AttributeCollection(attributes.ToArray());
-				properties_ = new PropertyDescriptorCollection(properties.ToArray());
-			}
-
-			public AttributeCollection GetAttributes()
-			{
-				return attributes_;
-			}
-
-			public string GetClassName()
-			{
-				return GetType().Name;
-			}
-
-			public string GetComponentName()
-			{
-				throw new NotImplementedException();
-			}
-
-			public TypeConverter GetConverter()
-			{
-				return null;
-			}
-
-			public EventDescriptor GetDefaultEvent()
-			{
-				throw new NotImplementedException();
-			}
-
-			public PropertyDescriptor GetDefaultProperty()
-			{
-				throw new NotImplementedException();
-			}
-
-			public object GetEditor(Type editorBaseType)
-			{
-				throw new NotImplementedException();
-			}
-
-			public EventDescriptorCollection GetEvents()
-			{
-				throw new NotImplementedException();
-			}
-
-			public EventDescriptorCollection GetEvents(Attribute[] attributes)
-			{
-				throw new NotImplementedException();
-			}
-
-			public PropertyDescriptorCollection GetProperties()
-			{
-				return properties_;
-			}
-
-			public PropertyDescriptorCollection GetProperties(Attribute[] attributes)
-			{
-				throw new NotImplementedException();
-			}
-
-			public object GetPropertyOwner(PropertyDescriptor pd)
-			{
-				return this;
-			}
-
-			public void FromDictionary(Dictionary<string, object> values)
-			{
-				foreach (BasePropertyDescriptor pd in properties_)
-				{
-					pd.FromDictionary(values);
-				}
-			}
-
-			public Dictionary<string, object> ToDictionary()
-			{
-				Dictionary<string, object> values = new Dictionary<string, object>();
-
-				foreach (BasePropertyDescriptor pd in properties_)
-				{
-					pd.ToDictionary(values);
-				}
-
-				return values;
-			}
+			return propertyAttributes;
 		}
 
-		internal abstract class BasePropertyDescriptor : PropertyDescriptor
+		public SpecifierTypeDescriptor(List<SpecifierParameterModel> model)
 		{
-			Type componentType_;
-			Type propertyType_;
+			model_ = model;
 
-			public BasePropertyDescriptor(Type componentType, string name, Type propertyType, params Attribute[] attributes)
-				: base(name, attributes)
+			var attributes = new List<Attribute>();
+			var categories = new HashSet<string>();
+			var properties = new List<BasePropertyDescriptor>();
+			var groups = new Dictionary<string, List<SpecifierParameterModel>>();
+			foreach (SpecifierParameterModel parameter in model_)
 			{
-				componentType_ = componentType;
-				propertyType_ = propertyType;
-			}
-
-			public override Type ComponentType { get { return componentType_; } }
-			public override bool IsReadOnly { get { return false; } }
-			public override Type PropertyType { get { return propertyType_; } }
-
-			public override bool ShouldSerializeValue(object component) { return false; }
-
-			public virtual void FromDictionary(Dictionary<string, object> values)
-			{
-			}
-
-			public virtual Dictionary<string, object> ToDictionary(Dictionary<string, object> values)
-			{
-				return values;
-			}
-		}
-
-		internal class FlagPropertyDescriptor : BasePropertyDescriptor
-		{
-			protected bool isSet_;
-			protected bool defaultIsSet_;
-
-			public FlagPropertyDescriptor(Type componentType, string name, List<Attribute> attributes)
-				: base(componentType, name, typeof(bool), attributes.ToArray())
-			{
-			}
-
-			public FlagPropertyDescriptor SetDefaultValue(bool isSet)
-			{
-				defaultIsSet_ = isSet;
-				isSet_ = isSet;
-
-				return this;
-			}
-
-			public override bool CanResetValue(object component) { return true; }
-
-			public override void ResetValue(object component)
-			{
-				isSet_ = defaultIsSet_;
-			}
-
-			public override object GetValue(object component)
-			{
-				return isSet_;
-			}
-
-			public override void SetValue(object component, object value)
-			{
-				isSet_ = (bool)value;
-			}
-
-			public override void FromDictionary(Dictionary<string, object> values)
-			{
-				isSet_ = values.ContainsKey(Name);
-			}
-
-			public override Dictionary<string, object> ToDictionary(Dictionary<string, object> values)
-			{
-				if (isSet_)
+				parameter.category = !parameter.category.IsNullOrWhiteSpace() ? parameter.category : "Common";
+				if (!parameter.group.IsNullOrWhiteSpace())
 				{
-					values.Add(Name, null);
+					groups.GetOrAdd(parameter.group, k => new List<SpecifierParameterModel>()).Add(parameter);
 				}
-
-				return values;
-			}
-		}
-
-		internal class StringPropertyDescriptor : BasePropertyDescriptor
-		{
-			protected string value_;
-			protected string defaultValue_;
-
-			public StringPropertyDescriptor(Type componentType, string name, List<Attribute> attributes)
-				: base(componentType, name, typeof(string), attributes.ToArray())
-			{
-			}
-
-			public StringPropertyDescriptor SetDefaultValue(string value)
-			{
-				value_ = value;
-				defaultValue_ = value;
-
-				return this;
-			}
-
-			public override bool CanResetValue(object component) { return true; }
-
-			public override void ResetValue(object component)
-			{
-				value_ = defaultValue_;
-			}
-
-			public override object GetValue(object component)
-			{
-				return value_;
-			}
-
-			public override void SetValue(object component, object value)
-			{
-				value_ = (string)value;
-			}
-
-			public override void FromDictionary(Dictionary<string, object> values)
-			{
-				if (values.TryGetValue(Name, out object v))
+				else
 				{
-					value_ = v as string;
+					List<Attribute> propertyAttributes = CreateAttributes(parameter);
+					if (parameter.type.IsNullOrWhiteSpace() || parameter.type == "bool")
+						propertyAttributes.Add(new EditorAttribute(typeof(CheckboxBoolEditor), typeof(UITypeEditor)));
+					categories.Add(parameter.category);
+
+					properties.Add(parameter.type switch {
+						"string" => new BasePropertyDescriptor<string>(GetType(), propertyAttributes, parameter.name),
+						"bool" => new BasePropertyDescriptor<bool>(GetType(), propertyAttributes, parameter.name),
+						"integer" => new BasePropertyDescriptor<int>(GetType(), propertyAttributes, parameter.name),
+						_ => new FlagPropertyDescriptor(GetType(), propertyAttributes, parameter.name),
+					});
 				}
 			}
 
-			public override Dictionary<string, object> ToDictionary(Dictionary<string, object> values)
+			foreach (var group in groups)
 			{
-				if (!string.IsNullOrWhiteSpace(value_))
-				{
-					values.Add(Name, value_);
-				}
+				var parameter = group.Value[0];
 
-				return values;
-			}
-		}
+				List<Attribute> propertyAttributes = CreateAttributes(parameter, new TypeConverterAttribute(typeof(GroupPropertyEditor)));
+				categories.Add(parameter.category);
 
-		internal class BoolPropertyDescriptor : BasePropertyDescriptor
-		{
-			protected bool value_;
-			protected bool defaultValue_;
-
-			public BoolPropertyDescriptor(Type componentType, string name, List<Attribute> attributes)
-				: base(componentType, name, typeof(bool), attributes.ToArray())
-			{
+				properties.Add(new GroupPropertyDescriptor(GetType(), group.Key, propertyAttributes, group.Value));
 			}
 
-			public BoolPropertyDescriptor SetDefaultValue(bool value)
-			{
-				value_ = value;
-				defaultValue_ = value;
 
-				return this;
-			}
-
-			public override bool CanResetValue(object component) { return true; }
-
-			public override void ResetValue(object component)
-			{
-				value_ = defaultValue_;
-			}
-
-			public override object GetValue(object component)
-			{
-				return value_;
-			}
-
-			public override void SetValue(object component, object value)
-			{
-				value_ = (bool)value;
-			}
-
-			public override void FromDictionary(Dictionary<string, object> values)
-			{
-				if (values.TryGetValue(Name, out object v))
-				{
-					value_ = (bool)v;
-				}
-			}
-
-			public override Dictionary<string, object> ToDictionary(Dictionary<string, object> values)
-			{
-				if (value_ != defaultValue_)
-				{
-					values.Add(Name, value_);
-				}
-
-				return values;
-			}
-		}
-
-		internal class IntegerPropertyDescriptor : BasePropertyDescriptor
-		{
-			protected int? value_;
-			protected int? defaultValue_;
-
-			public IntegerPropertyDescriptor(Type componentType, string name, List<Attribute> attributes)
-				: base(componentType, name, typeof(int?), attributes.ToArray())
-			{
-			}
-
-			public IntegerPropertyDescriptor SetDefaultValue(int? value)
-			{
-				value_ = null;
-				defaultValue_ = value;
-
-				return this;
-			}
-
-			public override bool CanResetValue(object component) { return true; }
-
-			public override void ResetValue(object component)
-			{
-				value_ = null;
-			}
-
-			public override object GetValue(object component)
-			{
-				return value_;
-			}
-
-			public override void SetValue(object component, object value)
-			{
-				value_ = (int?)value;
-			}
-
-			public override void FromDictionary(Dictionary<string, object> values)
-			{
-				if (values.TryGetValue(Name, out object v))
-				{
-					value_ = (int)v;
-				}
-			}
-
-			public override Dictionary<string, object> ToDictionary(Dictionary<string, object> values)
-			{
-				if (value_ != defaultValue_)
-				{
-					values.Add(Name, value_);
-				}
-
-				return values;
-			}
-		}
 #if false
-	internal class GroupPropertyDescriptor : BasePropertyDescriptor
-		{
-			protected SpecifierParameterModel value_;
-			protected SpecifierParameterModel defaultvalue_;
-			public List<SpecifierParameterModel> values_;
-
-			public GroupPropertyDescriptor(Type componentType, string name, List<Attribute> attributes)
-				: base(componentType, name, typeof(string), attributes.ToArray())
+			var categoriesModel = SpecifierSchema.ReadAvaliableCategories();
+			foreach (var category in categories)
 			{
-			}
-
-			public GroupPropertyDescriptor SetDefaultValue(SpecifierParameterModel value, List<SpecifierParameterModel> values)
-			{
-				defaultvalue_ = value;
-				value_ = value;
-				values_ = values;
-
-				return this;
-			}
-
-			public override bool CanResetValue(object component) { return true; }
-
-			public override void ResetValue(object component)
-			{
-				value_ = defaultvalue_;
-			}
-
-			public override object GetValue(object component)
-			{
-				return value_.name;
-			}
-
-			public override void SetValue(object component, object value)
-			{
-				value_ = values_.Find(i => i.name == (string)value);
-			}
-
-			public override void FromDictionary(Dictionary<string, object> values)
-			{
-				foreach (var v in values_)
+				if (categoriesModel.TryGetValue(category, out int order))
 				{
-					if (values.TryGetValue(v.name, out object o))
-					{
-						value_ = v;
-						break;
-					}
+					//attributes.Add(new CategoryOrderAttribute(category, order));
 				}
 			}
-
-			public override Dictionary<string, object> ToDictionary(Dictionary<string, object> values)
-			{
-				if (value_.type != "empty")
-				{
-					values.Add(value_.name, value_.type == "bool" ? (object)true : null);
-				}
-
-				return values;
-			}
-		}
-
-		public class GroupPropertyEditor : TypeEditor<System.Windows.Controls.ComboBox>
-		{
-			List<SpecifierParameterModel> values_;
-
-			public GroupPropertyEditor()
-			{
-			}
-
-			protected override void SetValueDependencyProperty()
-			{
-				ValueProperty = System.Windows.Controls.ComboBox.SelectedValueProperty;
-			}
-
-			protected override System.Windows.Controls.ComboBox CreateEditor()
-			{
-				return new PropertyGridEditorComboBox();
-			}
-
-			protected override void ResolveValueBinding(PropertyItem propertyItem)
-			{
-				if (propertyItem.PropertyDescriptor is GroupPropertyDescriptor pd)
-				{
-					Editor.ItemsSource = pd.values_.Select(v => v.name);
-				}
-
-				base.ResolveValueBinding(propertyItem);
-			}
-
-			protected override void SetControlProperties(PropertyItem propertyItem)
-			{
-				/*
-				Editor.DisplayMemberPath = "DisplayName";
-				Editor.SelectedValuePath = "Value";
-				if (propertyItem != null)
-				{
-					Editor.IsEnabled = !propertyItem.IsReadOnly;
-				}
-				*/
-			}
-
-			private void SetItemsSource()
-			{
-				Editor.ItemsSource = values_;
-			}
-		}
 #endif
+
+			attributes_ = new AttributeCollection(attributes.ToArray());
+			properties_ = new PropertyDescriptorCollection(properties.ToArray());
+		}
+
+		public AttributeCollection GetAttributes() => attributes_;
+		public string GetClassName() => GetType().Name;
+		public string GetComponentName() => null;
+		public TypeConverter GetConverter() => null;
+		public EventDescriptor GetDefaultEvent() => null;
+		public PropertyDescriptor GetDefaultProperty() => null;
+		public object GetEditor(Type editorBaseType) => null;
+		public EventDescriptorCollection GetEvents() => null;
+		public EventDescriptorCollection GetEvents(Attribute[]? attributes) => null;
+
+		public PropertyDescriptorCollection GetProperties() => properties_;
+
+		public PropertyDescriptorCollection GetProperties(Attribute[]? attributes)
+			=> new PropertyDescriptorCollection(
+				GetProperties().Cast<BasePropertyDescriptor>()
+					.Where(p => p.Attributes.Cast<Attribute>().Any(v => attributes.Contains(v)))
+					.ToArray());
+
+		public object? GetPropertyOwner(PropertyDescriptor? pd) => this;
+
+		public void FromDictionary(Dictionary<string, object> values)
+		{
+			foreach (BasePropertyDescriptor pd in properties_)
+			{
+				pd.FromDictionary(values);
+			}
+		}
+
+		public Dictionary<string, object> ToDictionary(Dictionary<string, object> values)
+		{
+			foreach (BasePropertyDescriptor pd in properties_)
+			{
+				pd.ToDictionary(values);
+			}
+
+			return values;
+		}
+	}
+
+	internal abstract class BasePropertyDescriptor : PropertyDescriptor
+	{
+		Type componentType_;
+		Type propertyType_;
+
+		public BasePropertyDescriptor(Type componentType, string name, Type propertyType, params Attribute[] attributes)
+			: base(name, attributes)
+		{
+			componentType_ = componentType;
+			propertyType_ = propertyType;
+		}
+
+		public override Type ComponentType { get { return componentType_; } }
+		public override bool IsReadOnly { get { return false; } }
+		public override Type PropertyType { get { return propertyType_; } }
+
+		public override bool ShouldSerializeValue(object component) { return false; }
+
+		public virtual void FromDictionary(Dictionary<string, object> values) {}
+		public virtual Dictionary<string, object> ToDictionary(Dictionary<string, object> values) => values;
+	}
+
+	internal class BasePropertyDescriptor<T> : BasePropertyDescriptor
+	{
+		protected T value_;
+		protected T defaultValue_ = default;
+
+		public BasePropertyDescriptor(Type componentType, List<Attribute> attributes, string name)
+			: base(componentType, name, typeof(T), attributes.ToArray())
+		{
+		}
+
+		public BasePropertyDescriptor<T> SetDefaultValue(T value)
+		{
+			value_ = value;
+			defaultValue_ = value;
+
+			return this;
+		}
+
+		public override bool CanResetValue(object component) { return true; }
+
+		public override void ResetValue(object component)
+		{
+			value_ = defaultValue_;
+		}
+
+		public override object GetValue(object component)
+		{
+			return value_;
+		}
+
+		public override void SetValue(object component, object value)
+		{
+			value_ = (T)value;
+		}
+
+		public override void FromDictionary(Dictionary<string, object> values)
+		{
+			if (values.TryGetValue(Name, out object v))
+			{
+				value_ = (T)v;
+			}
+		}
+
+		public override Dictionary<string, object> ToDictionary(Dictionary<string, object> values)
+		{
+			if (!Equals(value_, defaultValue_))
+			{
+				values[Name] = value_;
+			}
+
+			return values;
+		}
+	}
+
+	internal class GroupPropertyDescriptor : BasePropertyDescriptor<string>
+	{
+		public List<SpecifierParameterModel> values_;
+
+		public GroupPropertyDescriptor(Type componentType, string name, List<Attribute> attributes, List<SpecifierParameterModel> values)
+			: base(componentType, attributes, name)
+		{
+			values_ = values;
+		}
+
+		public override void FromDictionary(Dictionary<string, object> values)
+			=> values_.FirstOrDefault(v => values.ContainsKey(v.name))
+				?.Also(v => value_ = v.name);
+
+		public override Dictionary<string, object> ToDictionary(Dictionary<string, object> values)
+		{
+			if (Equals(value_, defaultValue_))
+			{
+				values[Name] = value_;
+			}
+
+			return values;
+		}
+	}
+
+	internal class FlagPropertyDescriptor : BasePropertyDescriptor<bool>
+	{
+		public FlagPropertyDescriptor(Type componentType, List<Attribute> attributes, string name)
+			: base(componentType, attributes, name)
+		{
+		}
+
+		public override void FromDictionary(Dictionary<string, object> values)
+		{
+			value_ = values.ContainsKey(Name);
+		}
+
+		public override Dictionary<string, object> ToDictionary(Dictionary<string, object> values)
+		{
+			if (value_)
+				values[Name] = true;
+
+			return values;
+		}
+	}
+
+
+
+	public class GroupPropertyEditor : StringConverter
+	{
+		public override bool GetStandardValuesSupported(ITypeDescriptorContext? context)
+		{
+			return true;
+		}
+
+		public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext? context)
+		{
+			var gtd = (GroupPropertyDescriptor)context.PropertyDescriptor;
+			return new StandardValuesCollection(gtd.values_.Select(v => v.name).ToList());
+		}
+	}
 }

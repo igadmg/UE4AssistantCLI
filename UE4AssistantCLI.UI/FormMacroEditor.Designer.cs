@@ -33,24 +33,29 @@ partial class FormMacroEditor
 			this.label1 = new System.Windows.Forms.Label();
 			this.tabControlPages = new System.Windows.Forms.TabControl();
 			this.tabPage1 = new System.Windows.Forms.TabPage();
+			this.propertyGridSpecifier = new System.Windows.Forms.PropertyGrid();
 			this.tabPage2 = new System.Windows.Forms.TabPage();
-			this.propertyGrid1 = new System.Windows.Forms.PropertyGrid();
+			this.textBoxSpecifier = new System.Windows.Forms.TextBox();
 			this.tabControlPages.SuspendLayout();
 			this.tabPage1.SuspendLayout();
 			this.SuspendLayout();
 			// 
-			// comboBox1
+			// comboBoxMacro
 			// 
+			this.comboBoxMacro.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.comboBoxMacro.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.comboBoxMacro.FormattingEnabled = true;
 			this.comboBoxMacro.Location = new System.Drawing.Point(125, 11);
-			this.comboBoxMacro.Name = "comboBox1";
-			this.comboBoxMacro.Size = new System.Drawing.Size(322, 23);
+			this.comboBoxMacro.Name = "comboBoxMacro";
+			this.comboBoxMacro.Size = new System.Drawing.Size(215, 23);
 			this.comboBoxMacro.TabIndex = 0;
-			this.comboBoxMacro.SelectedValueChanged += new System.EventHandler(this.comboBoxMacro_SelectedValueChanged);
+			this.comboBoxMacro.SelectedIndexChanged += new System.EventHandler(this.comboBoxMacro_SelectedIndexChanged);
 			// 
 			// buttonApply
 			// 
-			this.buttonApply.Location = new System.Drawing.Point(453, 11);
+			this.buttonApply.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.buttonApply.Location = new System.Drawing.Point(346, 11);
 			this.buttonApply.Name = "buttonApply";
 			this.buttonApply.Size = new System.Drawing.Size(75, 23);
 			this.buttonApply.TabIndex = 1;
@@ -66,51 +71,65 @@ partial class FormMacroEditor
 			this.label1.TabIndex = 2;
 			this.label1.Text = "Select Macro";
 			// 
-			// tabControl1
+			// tabControlPages
 			// 
+			this.tabControlPages.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.tabControlPages.Appearance = System.Windows.Forms.TabAppearance.FlatButtons;
 			this.tabControlPages.Controls.Add(this.tabPage1);
 			this.tabControlPages.Controls.Add(this.tabPage2);
-			this.tabControlPages.Location = new System.Drawing.Point(12, 40);
-			this.tabControlPages.Name = "tabControl1";
+			this.tabControlPages.Location = new System.Drawing.Point(12, 69);
+			this.tabControlPages.Name = "tabControlPages";
 			this.tabControlPages.SelectedIndex = 0;
-			this.tabControlPages.Size = new System.Drawing.Size(516, 398);
+			this.tabControlPages.Size = new System.Drawing.Size(409, 558);
 			this.tabControlPages.TabIndex = 3;
 			// 
 			// tabPage1
 			// 
-			this.tabPage1.Controls.Add(this.propertyGrid1);
+			this.tabPage1.Controls.Add(this.propertyGridSpecifier);
 			this.tabPage1.Location = new System.Drawing.Point(4, 27);
 			this.tabPage1.Name = "tabPage1";
 			this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-			this.tabPage1.Size = new System.Drawing.Size(508, 367);
+			this.tabPage1.Size = new System.Drawing.Size(401, 527);
 			this.tabPage1.TabIndex = 0;
 			this.tabPage1.Text = "tabPage1";
 			this.tabPage1.UseVisualStyleBackColor = true;
+			// 
+			// propertyGridSpecifier
+			// 
+			this.propertyGridSpecifier.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.propertyGridSpecifier.Location = new System.Drawing.Point(3, 3);
+			this.propertyGridSpecifier.Name = "propertyGridSpecifier";
+			this.propertyGridSpecifier.Size = new System.Drawing.Size(395, 521);
+			this.propertyGridSpecifier.TabIndex = 0;
+			this.propertyGridSpecifier.PropertyValueChanged += new System.Windows.Forms.PropertyValueChangedEventHandler(this.propertyGridSpecifier_PropertyValueChanged);
 			// 
 			// tabPage2
 			// 
 			this.tabPage2.Location = new System.Drawing.Point(4, 27);
 			this.tabPage2.Name = "tabPage2";
 			this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-			this.tabPage2.Size = new System.Drawing.Size(373, 232);
+			this.tabPage2.Size = new System.Drawing.Size(401, 556);
 			this.tabPage2.TabIndex = 1;
 			this.tabPage2.Text = "tabPage2";
 			this.tabPage2.UseVisualStyleBackColor = true;
 			// 
-			// propertyGrid1
+			// textBoxSpecifier
 			// 
-			this.propertyGrid1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.propertyGrid1.Location = new System.Drawing.Point(3, 3);
-			this.propertyGrid1.Name = "propertyGrid1";
-			this.propertyGrid1.Size = new System.Drawing.Size(502, 361);
-			this.propertyGrid1.TabIndex = 0;
+			this.textBoxSpecifier.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.textBoxSpecifier.Location = new System.Drawing.Point(16, 40);
+			this.textBoxSpecifier.Name = "textBoxSpecifier";
+			this.textBoxSpecifier.Size = new System.Drawing.Size(409, 23);
+			this.textBoxSpecifier.TabIndex = 4;
 			// 
 			// FormMacroEditor
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(540, 450);
+			this.ClientSize = new System.Drawing.Size(433, 639);
+			this.Controls.Add(this.textBoxSpecifier);
 			this.Controls.Add(this.tabControlPages);
 			this.Controls.Add(this.label1);
 			this.Controls.Add(this.buttonApply);
@@ -133,5 +152,6 @@ partial class FormMacroEditor
 	private TabControl tabControlPages;
 	private TabPage tabPage2;
 	private TabPage tabPage1;
-	private PropertyGrid propertyGrid1;
+	private PropertyGrid propertyGridSpecifier;
+	private TextBox textBoxSpecifier;
 }

@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DynamicDescriptors\src\DynamicDescriptors\DynamicDescriptors.csproj" />
     <ProjectReference Include="..\UE4Assistant.Specifier\UE4Assistant.Specifier.csproj" />
   </ItemGroup>
 

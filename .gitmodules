@@ -16,3 +16,6 @@
 [submodule "UE4Assistant.Specifier"]
 	path = UE4Assistant.Specifier
 	url = git@github.com:yatagarasu25/UE4Assistant.Specifier.git
+[submodule "DynamicDescriptors"]
+	path = DynamicDescriptors
+	url = git@github.com:yatagarasu25/DynamicDescriptors.git
