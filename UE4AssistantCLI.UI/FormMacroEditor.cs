@@ -1,4 +1,5 @@
 using DynamicDescriptors;
+using System.ComponentModel;
 using System.Drawing.Design;
 using SystemEx;
 using UE4Assistant;
@@ -30,32 +31,9 @@ public partial class FormMacroEditor : Form
 
 		comboBoxMacro.SelectedIndex = comboBoxMacro.Items.Cast<TagModel>().ToList().FindIndex(i => i.name == specifier.tag.name);
 
-		var items = specifier.ToModelDictionary("parameters");
-		var dso_items = items.ToDictionary(i => i.Key
-			, i => i.Value.Length == 1
-				? (specifier.data.GetValueOrDefault(i.Value[0].name, i.Value[0].DefaultValue), i.Value[0].Type)
-				: (i.Value.Select(i => i.name).FirstOrDefault(i => specifier.data.ContainsKey(i), i.Value[0].name), typeof(string))
-			);
+		so = SpecializerTypeDescriptor.Create(specifier);
 
-		so = DynamicDescriptor.CreateFromDictionary(dso_items);
-
-		foreach (var item in items)
-		{
-			var ri = item.Value[0];
-			var dp = so.GetDynamicProperty(item.Key)
-				.SetCategory(ri.category);
-
-			if (ri.group.IsNullOrWhiteSpace())
-			{
-				if (ri.Type == typeof(bool))
-					dp.SetEditor(typeof(UITypeEditor), new CheckboxBoolEditor());
-			}
-			else
-			{
-				dp.SetConverter(new StandardValuesStringConverter(item.Value.Select(i => i.name)));
-			}
-		}
-
+		propertyGridSpecifier.PropertyTabs.AddTabType(typeof(MetaPropertyTab), PropertyTabScope.Static);
 		propertyGridSpecifier.SelectedObject = so;
 	}
 

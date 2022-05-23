@@ -9,6 +9,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\Members.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Members.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\DynamicDescriptors\src\DynamicDescriptors\DynamicDescriptors.csproj" />
     <ProjectReference Include="..\UE4Assistant.Specifier\UE4Assistant.Specifier.csproj" />
   </ItemGroup>
