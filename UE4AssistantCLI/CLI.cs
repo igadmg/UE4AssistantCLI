@@ -69,7 +69,7 @@ namespace UE4AssistantCLI
 		[Command("log")]
 		public class Log : ConsoleAppBase
 		{
-			[Command("project", "open project log file.")]
+			[Command("project", "Open project log folder.")]
 			public async Task ProjectLog()
 			{
 				UnrealItemDescription UnrealItem = UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
@@ -77,7 +77,7 @@ namespace UE4AssistantCLI
 				Utilities.ExecuteOpenFile(UnrealItem.ProjectLogPath);
 			}
 
-			[Command("build", "open build log file.")]
+			[Command("build", "Open build log file.")]
 			public async Task BuildLog()
 			{
 				UnrealItemDescription UnrealItem = UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
@@ -89,7 +89,7 @@ namespace UE4AssistantCLI
 		[Command("uuid")]
 		public class Uuid : ConsoleAppBase
 		{
-			[Command("list", "list registered Unreal Engine uuid identifiers.")]
+			[Command("list", "List registered Unreal Engine uuid identifiers.")]
 			public async Task List()
 			{
 				var availableBuilds = UnrealEngineInstance.FindAvailableBuilds();
@@ -100,7 +100,7 @@ namespace UE4AssistantCLI
 				}
 			}
 
-			[Command("show", "show project's Unreal Engine uuid identifier.")]
+			[Command("show", "Show project's Unreal Engine uuid identifier.")]
 			public async Task Show()
 			{
 				UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
@@ -115,7 +115,7 @@ namespace UE4AssistantCLI
 				}
 			}
 
-			[Command("set", "set project's Unreal Engine uuid identifier.")]
+			[Command("set", "Set project's Unreal Engine uuid identifier.")]
 			public async Task Set([Option(0, "engine-uuid")] string uuid)
 			{
 				UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
