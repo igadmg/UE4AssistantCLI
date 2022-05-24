@@ -1,7 +1,6 @@
 ﻿using DynamicDescriptors;
 using System.ComponentModel;
 using System.Drawing.Design;
-using System.Xml.Linq;
 using SystemEx;
 using UE4Assistant;
 
@@ -18,27 +17,63 @@ namespace UE4AssistantCLI.UI
 		}
 	}
 
-	public class SpecializerTypeDescriptor : DynamicTypeDescriptor
+#if false
+	public class SpeсifierTypeDescriptor : DictionaryTypeDescriptor
 	{
-		public Specifier specifier;
+		private const string DefaultSectionName = "parameters";
 
-		public SpecializerTypeDescriptor(ICustomTypeDescriptor parent)
-			: base(parent)
+		public SpeсifierTypeDescriptor(IDictionary<string, object> data) : base(data) { }
+		public SpeсifierTypeDescriptor(IDictionary<string, (object, Type)> data) : base(data) { }
+
+		public SpeсifierTypeDescriptor(Specifier specifier)
+			: base(specifier.Let(ToTypeDescriptionDictionary))
 		{
 		}
 
-		public static SpecializerTypeDescriptor Create(Specifier specifier)
+		private static Dictionary<string, (object, Type, Attribute[])> ToTypeDescriptionDictionary(Specifier specifier)
+			=> specifier.GroupProperties(DefaultSectionName).ToDictionary(i => i.Key
+				, i => i.Count() == 1
+					? (specifier.data.GetValueOrDefault(i.First().name, i.First().DefaultValue), i.First().Type, GetAttributes(i.First()))
+					: (i.Select(i => i.name).FirstOrDefault(i => specifier.data.ContainsKey(i), i.First().name), typeof(string), GetAttributes(i.First()))
+				);
+
+		private static Attribute[] GetAttributes(SpecifierParameterModel i)
 		{
-			var items = specifier.ToModelDictionary("parameters");
-			var dso_items = ToTypeDescriptionDictionary(specifier, items);
+			var result = new List<Attribute>();
+			result.Add(new CategoryAttribute(i.category));
 
-			var so = new SpecializerTypeDescriptor(new DictionaryTypeDescriptor(dso_items));
-			so.specifier = specifier;
-
-			foreach (var item in items)
+			if (i.group.IsNullOrWhiteSpace())
 			{
-				var ri = item.Value[0];
-				var dp = so.GetDynamicProperty(item.Key)
+				if (i.Type == typeof(bool))
+					result.Add(new EditorAttribute(typeof(CheckboxBoolEditor), typeof(UITypeEditor)));
+			}
+			else
+			{
+				// ERROR NOT DOABLE unreasonable effort.
+				//result.Add(new TypeConverterAttribute(i.type));
+				//dp.SetConverter(new StandardValuesStringConverter(item.Value.Select(i => i.name)));
+			}
+
+			return result.ToArray();
+		}
+	}
+#endif
+
+	public class SpecializerTypeDescriptor : DynamicTypeDescriptor
+	{
+		private const string DefaultSectionName = "parameters";
+
+		public Specifier specifier;
+
+		public SpecializerTypeDescriptor(Specifier specifier)
+			: base(new DictionaryTypeDescriptor(ToTypeDescriptionDictionary(specifier, DefaultSectionName)))
+		{
+			this.specifier = specifier;
+
+			foreach (var item in specifier.GroupProperties(DefaultSectionName))
+			{
+				var ri = item.First();
+				var dp = GetDynamicProperty(item.Key)
 					.SetCategory(ri.category);
 
 				if (ri.group.IsNullOrWhiteSpace())
@@ -48,34 +83,28 @@ namespace UE4AssistantCLI.UI
 				}
 				else
 				{
-					dp.SetConverter(new StandardValuesStringConverter(item.Value.Select(i => i.name)));
+					dp.SetConverter(new StandardValuesStringConverter(item.Select(i => i.name)));
 				}
 			}
-
-			return so;
 		}
 
 		public PropertyDescriptorCollection GetProperties(string name)
 		{
-			var items = specifier.ToModelDictionary(name);
-			var dso_items = ToTypeDescriptionDictionary(specifier, items);
+			var items = specifier.GroupProperties(name);
+			var dso_items = ToTypeDescriptionDictionary(specifier, name);
 
-			foreach (var pair in dso_items)
-			{		
+			return new PropertyDescriptorCollection(dso_items.Select(pair => {
 				var propertyDescriptor = new DynamicPropertyDescriptor(
-					new DictionaryPropertyDescriptor(dso_items, pair.Key, pair.Value.Item2));
-				//propertyDescriptor.AddValueChanged(this, (s, e) => OnPropertyChanged(pair.Key));
-				//_propertyDescriptors.Add(propertyDescriptor);
-			}
-
-			return new PropertyDescriptorCollection(null, true);
+					ValuePropertyDescriptor.Dynamic(pair.Key, pair.Value.Item1, pair.Value.Item2));
+				return propertyDescriptor;
+			}).ToArray(), true);
 		}
 
-		private static Dictionary<string, (object, Type)> ToTypeDescriptionDictionary(Specifier specifier, Dictionary<string, SpecifierParameterModel[]> items)
-			=> items.ToDictionary(i => i.Key
-				, i => i.Value.Length == 1
-					? (specifier.data.GetValueOrDefault(i.Value[0].name, i.Value[0].DefaultValue), i.Value[0].Type)
-					: (i.Value.Select(i => i.name).FirstOrDefault(i => specifier.data.ContainsKey(i), i.Value[0].name), typeof(string))
+		private static Dictionary<string, (object, Type)> ToTypeDescriptionDictionary(Specifier specifier, string name)
+			=> specifier.GroupProperties(name).ToDictionary(i => i.Key
+				, i => i.Count() == 1
+					? (specifier.GetData(name).GetValueOrDefault(i.First().name, i.First().DefaultValue), i.First().Type)
+					: (i.Select(i => i.name).FirstOrDefault(i => specifier.GetData(name).ContainsKey(i), i.First().name), typeof(string))
 				);
 	}
 }

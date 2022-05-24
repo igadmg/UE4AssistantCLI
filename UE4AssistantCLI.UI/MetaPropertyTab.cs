@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using DynamicDescriptors;
+using System.ComponentModel;
 using System.Windows.Forms.Design;
 
 namespace UE4AssistantCLI.UI
@@ -33,17 +34,18 @@ namespace UE4AssistantCLI.UI
 		/// <returns>true if the requested interfaces are implemented</returns>
 		protected static bool InterfaceFilter(Type typeObj, Object criteriaObj) => true;
 
+		PropertyDescriptorCollection properties_ = null;
 		public override System.ComponentModel.PropertyDescriptorCollection GetProperties(object component) => this.GetProperties(component, null);
 		public override PropertyDescriptorCollection GetProperties(object component, Attribute[] attributes)
 		{
-			if (component == null)
+			if (component is SpecializerTypeDescriptor std)
 			{
-				return new PropertyDescriptorCollection(null, true);
+				if (properties_ != null) return properties_;
+				properties_ = std.GetProperties("meta");
+				return properties_;
 			}
 
-			// list of the PropertyDescriptors that will be returned
-			List<PropertyDescriptor> fields = new List<PropertyDescriptor>();
-			return new PropertyDescriptorCollection(fields.ToArray());
+			return new PropertyDescriptorCollection(null, true);
 		}
 	}
 }

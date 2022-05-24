@@ -1,4 +1,4 @@
-using DynamicDescriptors;
+﻿using DynamicDescriptors;
 using System.ComponentModel;
 using System.Drawing.Design;
 using SystemEx;
@@ -31,10 +31,11 @@ public partial class FormMacroEditor : Form
 
 		comboBoxMacro.SelectedIndex = comboBoxMacro.Items.Cast<TagModel>().ToList().FindIndex(i => i.name == specifier.tag.name);
 
-		so = SpecializerTypeDescriptor.Create(specifier);
+		so = new SpecializerTypeDescriptor(specifier);
 
 		propertyGridSpecifier.PropertyTabs.AddTabType(typeof(MetaPropertyTab), PropertyTabScope.Static);
 		propertyGridSpecifier.SelectedObject = so;
+		//propertyGridSpecifier.SelectedObject = new SpeсifierTypeDescriptor(specifier);
 	}
 
 	private void comboBoxMacro_SelectedIndexChanged(object sender, EventArgs e)
@@ -44,8 +45,14 @@ public partial class FormMacroEditor : Form
 
 	private void propertyGridSpecifier_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
 	{
-		var collection = specifier.model.collections["parameters"];
-		foreach (var p in so.GetDynamicProperties())
+		bool tabSelected = propertyGridSpecifier.SelectedTab is MetaPropertyTab;
+		var cn = tabSelected ? "meta" : "parameters";
+		var collection = specifier.model.collections[cn];
+		var data = specifier.GetData(cn);
+
+		foreach (var p in tabSelected
+			? propertyGridSpecifier.SelectedTab.GetProperties(so).Cast<DynamicPropertyDescriptor>()
+			: so.GetDynamicProperties())
 		{
 			var v = p.GetValue(so);
 			var sp = collection.Find(mp => mp.name == p.Name);
@@ -54,11 +61,11 @@ public partial class FormMacroEditor : Form
 			{
 				if (!Equals(v, sp.DefaultValue))
 				{
-					specifier.data[p.Name] = sp.type.IsNullOrWhiteSpace() ? null : v;
+					data[p.Name] = sp.type.IsNullOrWhiteSpace() ? null : v;
 				}
 				else
 				{
-					specifier.data.Remove(p.Name); 
+					data.Remove(p.Name); 
 				}
 			}
 			else
@@ -68,11 +75,11 @@ public partial class FormMacroEditor : Form
 				{
 					if (Equals(v, i.name))
 					{
-						specifier.data[i.name] = null;
+						data[i.name] = null;
 					}
 					else
 					{
-						specifier.data.Remove(i.name);
+						data.Remove(i.name);
 					}
 				}
 			}

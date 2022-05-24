@@ -25,6 +25,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UE4Assistant.Specifier.Test
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DynamicDescriptors", "DynamicDescriptors\src\DynamicDescriptors\DynamicDescriptors.csproj", "{27C48F4D-072C-41F4-803D-BD72CCE7771B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{45C7797C-4232-4551-9134-1EFA3C3C1898}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,6 +77,10 @@ Global
 		{27C48F4D-072C-41F4-803D-BD72CCE7771B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{27C48F4D-072C-41F4-803D-BD72CCE7771B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{27C48F4D-072C-41F4-803D-BD72CCE7771B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{45C7797C-4232-4551-9134-1EFA3C3C1898}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{45C7797C-4232-4551-9134-1EFA3C3C1898}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{45C7797C-4232-4551-9134-1EFA3C3C1898}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{45C7797C-4232-4551-9134-1EFA3C3C1898}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
