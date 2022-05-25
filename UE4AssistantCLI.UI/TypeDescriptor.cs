@@ -61,16 +61,14 @@ namespace UE4AssistantCLI.UI
 
 	public class SpecializerTypeDescriptor : DynamicTypeDescriptor
 	{
-		private const string DefaultSectionName = "parameters";
-
 		public Specifier specifier;
 
 		public SpecializerTypeDescriptor(Specifier specifier)
-			: base(new DictionaryTypeDescriptor(ToTypeDescriptionDictionary(specifier, DefaultSectionName)))
+			: base(new DictionaryTypeDescriptor(ToTypeDescriptionDictionary(specifier)))
 		{
 			this.specifier = specifier;
 
-			foreach (var item in specifier.GroupProperties(DefaultSectionName))
+			foreach (var item in specifier.GroupProperties(""))
 			{
 				var ri = item.First();
 				var dp = GetDynamicProperty(item.Key)
@@ -95,12 +93,13 @@ namespace UE4AssistantCLI.UI
 
 			return new PropertyDescriptorCollection(dso_items.Select(pair => {
 				var propertyDescriptor = new DynamicPropertyDescriptor(
-					ValuePropertyDescriptor.Dynamic(pair.Key, pair.Value.Item1, pair.Value.Item2));
+					new DictionaryPropertyDescriptor(specifier.GetData(name), pair.Key, pair.Value.Item2));
+				propertyDescriptor.SetValue(this, pair.Value.Item1);
 				return propertyDescriptor;
 			}).ToArray(), true);
 		}
 
-		private static Dictionary<string, (object, Type)> ToTypeDescriptionDictionary(Specifier specifier, string name)
+		private static Dictionary<string, (object, Type)> ToTypeDescriptionDictionary(Specifier specifier, string name = "")
 			=> specifier.GroupProperties(name).ToDictionary(i => i.Key
 				, i => i.Count() == 1
 					? (specifier.GetData(name).GetValueOrDefault(i.First().name, i.First().DefaultValue), i.First().Type)

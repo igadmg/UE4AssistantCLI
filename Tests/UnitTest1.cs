@@ -11,9 +11,9 @@ public class Tests
     {
         var str = "UFUNCTION(Category = \"sdfsd\", BlueprintPure, meta=(DefaultToSelf = \"Object\"))";
 
-        if (Specifier.TryParse(str.tokenize(), out var specifier))
+        if (Specifier.TryParse(str, out var specifier))
         {
-            var so = new SpeсifierTypeDescriptor(specifier);
+            //var so = new SpeсifierTypeDescriptor(specifier);
         }
     }
 
