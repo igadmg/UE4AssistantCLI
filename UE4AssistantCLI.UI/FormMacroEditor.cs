@@ -81,7 +81,13 @@ public partial class FormMacroEditor : Form
 
 	private void comboBoxMacro_SelectedIndexChanged(object sender, EventArgs e)
 	{
+		var tag = (TagModel)comboBoxMacro.SelectedItem;
 
+		if (tag.type == "specifier")
+		{
+			if (specifier_.type != tag.ToString())
+				specifier = Specifier.Create(tag);
+		}
 	}
 
 	private void propertyGridSpecifier_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
