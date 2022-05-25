@@ -56,6 +56,9 @@ public partial class FormMacroEditor : Form
 			}
 
 			propertyGridSpecifier.SelectedObject = so;
+
+			propertyGridSpecifier.PropertyTabs.Clear(PropertyTabScope.Component);
+			propertyGridSpecifier.PropertyTabs.AddTabType(typeof(MetaPropertyTab), PropertyTabScope.Component);
 		}
 	}
 
@@ -73,8 +76,6 @@ public partial class FormMacroEditor : Form
 
 		comboBoxMacro.Items.Clear();
 		comboBoxMacro.Items.AddRange(SpecifierSchema.ReadAvailableTags().Cast<object>().ToArray());
-
-		propertyGridSpecifier.PropertyTabs.AddTabType(typeof(MetaPropertyTab), PropertyTabScope.Static);
 
 		specifier = specifier_;
 	}

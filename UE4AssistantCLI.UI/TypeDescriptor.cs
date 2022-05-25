@@ -70,32 +70,22 @@ namespace UE4AssistantCLI.UI
 
 			foreach (var item in specifier.GroupProperties(""))
 			{
-				var ri = item.First();
-				var dp = GetDynamicProperty(item.Key)
-					.SetCategory(ri.category);
-
-				if (ri.group.IsNullOrWhiteSpace())
-				{
-					if (ri.Type == typeof(bool))
-						dp.SetEditor(typeof(UITypeEditor), new CheckboxBoolEditor());
-				}
-				else
-				{
-					dp.SetConverter(new StandardValuesStringConverter(item.Select(i => i.name)));
-				}
+				var dp = GetDynamicProperty(item.Key);
+				DecorateProperty(dp, item);
 			}
 		}
 
 		public PropertyDescriptorCollection GetProperties(string name)
 		{
-			var items = specifier.GroupProperties(name);
+			var items = specifier.GroupProperties(name).ToDictionary(g => g.Key, g => g);
 			var dso_items = ToTypeDescriptionDictionary(specifier, name);
 
 			return new PropertyDescriptorCollection(dso_items.Select(pair => {
-				var propertyDescriptor = new DynamicPropertyDescriptor(
+				var dp = new DynamicPropertyDescriptor(
 					new DictionaryPropertyDescriptor(specifier.GetData(name), pair.Key, pair.Value.Item2));
-				propertyDescriptor.SetValue(this, pair.Value.Item1);
-				return propertyDescriptor;
+				dp.SetValue(this, pair.Value.Item1);
+				DecorateProperty(dp, items[dp.Name]);
+				return dp;
 			}).ToArray(), true);
 		}
 
@@ -105,5 +95,21 @@ namespace UE4AssistantCLI.UI
 					? (specifier.GetData(name).GetValueOrDefault(i.First().name, i.First().DefaultValue), i.First().Type)
 					: (i.Select(i => i.name).FirstOrDefault(i => specifier.GetData(name).ContainsKey(i), i.First().name), typeof(string))
 				);
+
+		private static void DecorateProperty(DynamicPropertyDescriptor dp, IEnumerable<SpecifierParameterModel> items)
+		{
+			var ri = items.First();
+			dp.SetCategory(ri.category);
+
+			if (ri.group.IsNullOrWhiteSpace())
+			{
+				if (ri.Type == typeof(bool))
+					dp.SetEditor(typeof(UITypeEditor), new CheckboxBoolEditor());
+			}
+			else
+			{
+				dp.SetConverter(new StandardValuesStringConverter(items.Select(i => i.name)));
+			}
+		}
 	}
 }
