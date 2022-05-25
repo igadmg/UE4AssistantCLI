@@ -3,9 +3,27 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net6.0-windows</TargetFramework>
-
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
+
+    <Version>1.4.24</Version>
+    <AssemblyName>ue4cli-ui</AssemblyName>
+
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>$(AssemblyName)</ToolCommandName>
+
+    <PackageId>$(AssemblyName)</PackageId>
+    <PackageVersion>$(Version)</PackageVersion>
+    <PackageOutputPath>./nupkg</PackageOutputPath>
+
+    <Authors>Igor Karatayev</Authors>
+    <Description>Command line UI tools for Unreal Engine</Description>
+    <Copyright>Igor Karatayev</Copyright>
+    <PackageTags>unreal engine;</PackageTags>
+    <PackageProjectUrl>https://github.com/yatagarasu25/UE4AssistantCLI</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/yatagarasu25/UE4AssistantCLI</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <ItemGroup>

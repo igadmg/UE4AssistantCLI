@@ -7,9 +7,9 @@
     <AssemblyName>ue4cli</AssemblyName>
 
     <PackAsTool>true</PackAsTool>
-    <ToolCommandName>ue4cli</ToolCommandName>
+    <ToolCommandName>$(AssemblyName)</ToolCommandName>
 
-    <PackageId>ue4cli</PackageId>
+    <PackageId>$(AssemblyName)</PackageId>
     <PackageVersion>$(Version)</PackageVersion>
     <PackageOutputPath>./nupkg</PackageOutputPath>
 
