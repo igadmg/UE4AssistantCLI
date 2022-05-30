@@ -320,6 +320,7 @@ namespace UE4AssistantCLI
 				setting.UE4RootPath = Path.GetFullPath(UnrealInstance.RootPath);
 				setting.ProjectFullPath = Path.GetFullPath(UnrealItem.FullPath);
 
+				UnrealInstance.Setup();
 				Utilities.RequireExecuteCommandLine(string.Format("\"{0}\" BuildCookRun {1}", UnrealInstance.RunUATPath, setting));
 			}
 		}
@@ -344,6 +345,7 @@ namespace UE4AssistantCLI
 				setting.ProjectFullPath = Path.GetFullPath(setting.ProjectFullPath);
 				setting.ArchiveDirectory = Path.GetFullPath(setting.ArchiveDirectory);
 
+				UnrealInstance.Setup();
 				Utilities.RequireExecuteCommandLine(string.Format("\"{0}\" BuildCookRun {1}", UnrealInstance.RunUATPath, setting));
 			}
 		}
