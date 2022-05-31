@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>net50;net60</TargetFrameworks>
-    <Version>1.4.25</Version>
+    <Version>1.4.26</Version>
     <AssemblyName>ue4cli</AssemblyName>
 
     <PackAsTool>true</PackAsTool>
