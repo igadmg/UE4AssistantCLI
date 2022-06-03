@@ -40,7 +40,7 @@ Commands:
 
 ## Setup tool
 
-`ue4cli` tool can be easely installed from nuget with `dotnet tool install -g ue4cli` command (will install globally).
+`ue4cli` tool can be easely installed from nuget with `dotnet tool install -g ue4cli` command (will install globally). And updated with `dotnet tool update -g ue4cli` command.
 
 ## Source generation commands.
 
@@ -59,39 +59,43 @@ Various commands usefull in day to day work. They can be used form any path insi
 
 ```
     [StringParameter("project")] public string ProjectFullPath = null;
-		[StringParameter("target")] public string Target = null;
-		[StringParameter("platform")] public string Platform = DefaultPlatformName;
-		[StringParameter("cookflavor")] public string CookFlavor = null;
-		[StringParameter("clientconfig")] public string ClientConfig;
-		[StringParameter("serverconfig")] public string ServerConfig;
-		[StringParameter("ddc")] public string DDC;
-		[BoolParameter("skipbuildeditor")] public bool? SkipBuildEditor = null;
-		[BoolParameter("P4", "noP4")] public bool? UseP4 = null;
-		[BoolParameter("cook")] public bool? Cook = null;
-		[BoolParameter("allmaps")] public bool? AllMaps = null;
-		[BoolParameter("client", "noclient")] public bool? Client = null;
-		[BoolParameter("server", "noserver")] public bool? Server = null;
-		[BoolParameter("build")] public bool? Build = null;
-		[BoolParameter("stage")] public bool? Stage = null;
-		[BoolParameter("pak")] public bool? Pak = null;
-		[BoolParameter("archive")] public bool? Archive = null;
-		[BoolParameter("package")] public bool? Package = null;
-		[BoolParameter("compressed")] public bool? Compressed = null;
-		[BoolParameter("NoXGE")] public bool? NoXGE = null;
-		[BoolParameter("NoFASTBuild")] public bool? NoFASTBuild = null;
-		[BoolParameter("utf8output")] public bool? Utf8Output = null;
-		[BoolParameter("unversionedcookedcontent")] public bool? UnversionedCookedContent = null;
-		[BoolParameter("generatepatch")] public bool? GeneratePatch = null;
-		[StringParameter("createreleaseversion")] public string CreateReleaseVersion;
-		[StringParameter("basedonreleaseversion")] public string BasedOnReleaseVersion;
-		[StringParameter("archivedirectory")] public string ArchiveDirectory;
-		[StringListParameter("map")] public string[] Maps;
-		[StringListParameter("CookCultures")] public string[] CookCultures;
+	[StringParameter("target")] public string Target = null;
+	[StringParameter("platform")] public string Platform = DefaultPlatformName;
+	[StringParameter("cookflavor")] public string CookFlavor = null;
+	[StringParameter("clientconfig")] public string ClientConfig;
+	[StringParameter("serverconfig")] public string ServerConfig;
+	[StringParameter("ddc")] public string DDC;
+	[BoolParameter("skipbuildeditor")] public bool? SkipBuildEditor = null;
+	[BoolParameter("P4", "noP4")] public bool? UseP4 = null;
+	[BoolParameter("cook")] public bool? Cook = null;
+	[BoolParameter("allmaps")] public bool? AllMaps = null;
+	[BoolParameter("client", "noclient")] public bool? Client = null;
+	[BoolParameter("server", "noserver")] public bool? Server = null;
+	[BoolParameter("build")] public bool? Build = null;
+	[BoolParameter("stage")] public bool? Stage = null;
+	[BoolParameter("pak")] public bool? Pak = null;
+	[BoolParameter("archive")] public bool? Archive = null;
+	[BoolParameter("package")] public bool? Package = null;
+	[BoolParameter("compressed")] public bool? Compressed = null;
+	[BoolParameter("NoXGE")] public bool? NoXGE = null;
+	[BoolParameter("NoFASTBuild")] public bool? NoFASTBuild = null;
+	[BoolParameter("utf8output")] public bool? Utf8Output = null;
+	[BoolParameter("unversionedcookedcontent")] public bool? UnversionedCookedContent = null;
+	[BoolParameter("generatepatch")] public bool? GeneratePatch = null;
+	[StringParameter("createreleaseversion")] public string CreateReleaseVersion;
+	[StringParameter("basedonreleaseversion")] public string BasedOnReleaseVersion;
+	[StringParameter("archivedirectory")] public string ArchiveDirectory;
+	[StringListParameter("map")] public string[] Maps;
+	[StringListParameter("CookCultures")] public string[] CookCultures;
 ```
 
 - `StringParameter` - adds -param={value} if field is not null or empty.
 - `BoolParameter` - adds -param or -noparam (or none) if enbaled or disabled.
 - `StringListParameter` - adds -param={v1}+{v2}+...+{vn} if not null or mepty.
+
+### Build/Cook source engine build update checking
+
+When building from source it is requrede to run `Setup.bat` or `Setup.sh` on first build or after Unreal Engine version upgrade. That step is automated in `build`/`cook` commands. Fot this automation to work, create `.ue.basecommit` file in UnrealEngine roou folder (where `Setup.bat` is located). I prefer to store git commit hash in that file. That file should be touched or updated every time Unreal Engine version is upgraded. Then on `build` step it's timestamp is compared to `.ue4dependencies` timestemp, and if it is newer or `.ue4dependencies` does not exist then `Setup.bat` or `Setup.sh` is run automaticaly.
 
 ## Config commands.
 1. `create_config` - create `.ue4a` config file inside `Project` or `Module` folder. Different configs for each type. Run this command to create local config file.
@@ -145,4 +149,4 @@ When working with source engine build it cna be usefull to set one UUID for engi
 ## Other commands.
 
 1. `log` command cnab used to open either `project` or `build` (engine) log folder.
-1. `pch_cleanup` command will scan build logs and find .pch complaints and delete that files.
+1. `pch_cleanup` command will scan build logs and find .pch complaints and delete that files (fatal error C1853). Should be run after failed build.

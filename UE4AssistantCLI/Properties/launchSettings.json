@@ -1,9 +1,5 @@
 {
   "profiles": {
-    "ue4cli uuid list": {
-      "commandName": "Project",
-      "commandLineArgs": "uuid list"
-    },
     "ue4cli uuid set": {
       "commandName": "Project",
       "commandLineArgs": "uuid set {82C7EB94-431D-A701-7959-3F845C07FADC}",
@@ -47,6 +43,11 @@
       "commandName": "Project",
       "commandLineArgs": "log build",
       "workingDirectory": "E:\\project\\DeOrbeNovo"
+    },
+    "ue4cli build": {
+      "commandName": "Project",
+      "commandLineArgs": "build",
+      "workingDirectory": "D:\\Pixelynx\\Globant-Dev\\PixelynxClient"
     }
   }
 }
