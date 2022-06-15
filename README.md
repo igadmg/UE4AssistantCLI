@@ -58,35 +58,35 @@ Various commands usefull in day to day work. They can be used form any path insi
 1. `build` and `cook` commands are supplied with json configuration file. json configuration file can be generated with `ue4cli build --dump` command. Json config contains various flags passed to `BuildCookRun` RunAU command.
 
 ```
-    [StringParameter("project")] public string ProjectFullPath = null;
-	[StringParameter("target")] public string Target = null;
-	[StringParameter("platform")] public string Platform = DefaultPlatformName;
-	[StringParameter("cookflavor")] public string CookFlavor = null;
-	[StringParameter("clientconfig")] public string ClientConfig;
-	[StringParameter("serverconfig")] public string ServerConfig;
-	[StringParameter("ddc")] public string DDC;
-	[BoolParameter("skipbuildeditor")] public bool? SkipBuildEditor = null;
-	[BoolParameter("P4", "noP4")] public bool? UseP4 = null;
-	[BoolParameter("cook")] public bool? Cook = null;
-	[BoolParameter("allmaps")] public bool? AllMaps = null;
-	[BoolParameter("client", "noclient")] public bool? Client = null;
-	[BoolParameter("server", "noserver")] public bool? Server = null;
-	[BoolParameter("build")] public bool? Build = null;
-	[BoolParameter("stage")] public bool? Stage = null;
-	[BoolParameter("pak")] public bool? Pak = null;
-	[BoolParameter("archive")] public bool? Archive = null;
-	[BoolParameter("package")] public bool? Package = null;
-	[BoolParameter("compressed")] public bool? Compressed = null;
-	[BoolParameter("NoXGE")] public bool? NoXGE = null;
-	[BoolParameter("NoFASTBuild")] public bool? NoFASTBuild = null;
-	[BoolParameter("utf8output")] public bool? Utf8Output = null;
-	[BoolParameter("unversionedcookedcontent")] public bool? UnversionedCookedContent = null;
-	[BoolParameter("generatepatch")] public bool? GeneratePatch = null;
-	[StringParameter("createreleaseversion")] public string CreateReleaseVersion;
-	[StringParameter("basedonreleaseversion")] public string BasedOnReleaseVersion;
-	[StringParameter("archivedirectory")] public string ArchiveDirectory;
-	[StringListParameter("map")] public string[] Maps;
-	[StringListParameter("CookCultures")] public string[] CookCultures;
+[StringParameter("project")] public string ProjectFullPath = null;
+[StringParameter("target")] public string Target = null;
+[StringParameter("platform")] public string Platform = DefaultPlatformName;
+[StringParameter("cookflavor")] public string CookFlavor = null;
+[StringParameter("clientconfig")] public string ClientConfig;
+[StringParameter("serverconfig")] public string ServerConfig;
+[StringParameter("ddc")] public string DDC;
+[BoolParameter("skipbuildeditor")] public bool? SkipBuildEditor = null;
+[BoolParameter("P4", "noP4")] public bool? UseP4 = null;
+[BoolParameter("cook")] public bool? Cook = null;
+[BoolParameter("allmaps")] public bool? AllMaps = null;
+[BoolParameter("client", "noclient")] public bool? Client = null;
+[BoolParameter("server", "noserver")] public bool? Server = null;
+[BoolParameter("build")] public bool? Build = null;
+[BoolParameter("stage")] public bool? Stage = null;
+[BoolParameter("pak")] public bool? Pak = null;
+[BoolParameter("archive")] public bool? Archive = null;
+[BoolParameter("package")] public bool? Package = null;
+[BoolParameter("compressed")] public bool? Compressed = null;
+[BoolParameter("NoXGE")] public bool? NoXGE = null;
+[BoolParameter("NoFASTBuild")] public bool? NoFASTBuild = null;
+[BoolParameter("utf8output")] public bool? Utf8Output = null;
+[BoolParameter("unversionedcookedcontent")] public bool? UnversionedCookedContent = null;
+[BoolParameter("generatepatch")] public bool? GeneratePatch = null;
+[StringParameter("createreleaseversion")] public string CreateReleaseVersion;
+[StringParameter("basedonreleaseversion")] public string BasedOnReleaseVersion;
+[StringParameter("archivedirectory")] public string ArchiveDirectory;
+[StringListParameter("map")] public string[] Maps;
+[StringListParameter("CookCultures")] public string[] CookCultures;
 ```
 
 - `StringParameter` - adds -param={value} if field is not null or empty.

@@ -234,11 +234,11 @@ namespace UE4AssistantCLI
 				, () => UnrealItem.Type == UnrealItemType.Engine
 					? null : UnrealCookSettings.CreateBuildSettings()
 				.Also(s => {
-					if (ProjectConfiguration == null)
-						return;
-
-					s.UE4RootPath = ProjectConfiguration.UE4RootPath;
-				}));
+					if (ProjectConfiguration != null) s.UE4RootPath = ProjectConfiguration.UE4RootPath;
+					s.Platform ??= UnrealCookSettings.DefaultPlatformName;
+				}))
+				.Select(s => s.Also(_ => _.Platform ??= UnrealCookSettings.DefaultPlatformName))
+				.ToArray();
 
 			if (dump)
 			{
@@ -262,11 +262,10 @@ namespace UE4AssistantCLI
 
 			var CookSettings = LoadSettings(CookSettingsJson, () => UnrealCookSettings.CreateDefaultSettings()
 				.Also(s => {
-					if (ProjectConfiguration == null)
-						return;
-
-					s.UE4RootPath = ProjectConfiguration.UE4RootPath;
-				}));
+					if (ProjectConfiguration != null) s.UE4RootPath = ProjectConfiguration.UE4RootPath;
+				}))
+				.Select(s => s.Also(_ => _.Platform ??= UnrealCookSettings.DefaultPlatformName))
+				.ToArray();
 
 			if (dump)
 			{
