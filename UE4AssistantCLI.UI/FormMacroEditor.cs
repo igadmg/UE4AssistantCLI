@@ -62,11 +62,11 @@ public partial class FormMacroEditor : Form
 		}
 	}
 
-	public FormMacroEditor(string str)
+	public FormMacroEditor(Specifier specifier)
 	{
 		InitializeComponent();
 
-		Specifier.TryParse(str, out specifier_);
+		specifier_ = specifier;
 	}
 
 	private void FormMacroEditor_Load(object sender, EventArgs e)
@@ -94,5 +94,11 @@ public partial class FormMacroEditor : Form
 	private void propertyGridSpecifier_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
 	{
 		textBoxResult.Text = specifier.ToString();
+	}
+
+	private void buttonApply_Click(object sender, EventArgs e)
+	{
+		DialogResult = DialogResult.OK;
+		Close();
 	}
 }

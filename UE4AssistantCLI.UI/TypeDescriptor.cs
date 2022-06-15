@@ -1,21 +1,21 @@
-﻿using DynamicDescriptors;
+﻿namespace UE4AssistantCLI.UI;
+
+using DynamicDescriptors;
 using System.ComponentModel;
 using System.Drawing.Design;
 using SystemEx;
 using UE4Assistant;
 
-namespace UE4AssistantCLI.UI
+public class CheckboxBoolEditor : UITypeEditor
 {
-	public class CheckboxBoolEditor : UITypeEditor
+	public override bool GetPaintValueSupported(System.ComponentModel.ITypeDescriptorContext context) => true;
+	public override void PaintValue(PaintValueEventArgs e)
 	{
-		public override bool GetPaintValueSupported(System.ComponentModel.ITypeDescriptorContext context) => true;
-		public override void PaintValue(PaintValueEventArgs e)
-		{
-			var rect = e.Bounds;
-			//rect.Inflate(-2, -2);
-			ControlPaint.DrawCheckBox(e.Graphics, rect, ButtonState.Flat | (((bool)e.Value) ? ButtonState.Checked : ButtonState.Normal));
-		}
+		var rect = e.Bounds;
+		//rect.Inflate(-2, -2);
+		ControlPaint.DrawCheckBox(e.Graphics, rect, ButtonState.Flat | (((bool)e.Value) ? ButtonState.Checked : ButtonState.Normal));
 	}
+}
 
 #if false
 	public class SpeсifierTypeDescriptor : DictionaryTypeDescriptor
@@ -59,57 +59,56 @@ namespace UE4AssistantCLI.UI
 	}
 #endif
 
-	public class SpecializerTypeDescriptor : DynamicTypeDescriptor
+public class SpecializerTypeDescriptor : DynamicTypeDescriptor
+{
+	public Specifier specifier;
+
+	public SpecializerTypeDescriptor(Specifier specifier)
+		: base(new DictionaryTypeDescriptor(ToTypeDescriptionDictionary(specifier)))
 	{
-		public Specifier specifier;
+		this.specifier = specifier;
 
-		public SpecializerTypeDescriptor(Specifier specifier)
-			: base(new DictionaryTypeDescriptor(ToTypeDescriptionDictionary(specifier)))
+		foreach (var item in specifier.GroupProperties(""))
 		{
-			this.specifier = specifier;
-
-			foreach (var item in specifier.GroupProperties(""))
-			{
-				var dp = GetDynamicProperty(item.Key);
-				DecorateProperty(dp, item);
-			}
+			var dp = GetDynamicProperty(item.Key);
+			DecorateProperty(dp, item);
 		}
+	}
 
-		public PropertyDescriptorCollection GetProperties(string name)
+	public PropertyDescriptorCollection GetProperties(string name)
+	{
+		var items = specifier.GroupProperties(name).ToDictionary(g => g.Key, g => g);
+		var dso_items = ToTypeDescriptionDictionary(specifier, name);
+
+		return new PropertyDescriptorCollection(dso_items.Select(pair => {
+			var dp = new DynamicPropertyDescriptor(
+				new DictionaryPropertyDescriptor(specifier.GetData(name), pair.Key, pair.Value.Item2));
+			dp.SetValue(this, pair.Value.Item1);
+			DecorateProperty(dp, items[dp.Name]);
+			return dp;
+		}).ToArray(), true);
+	}
+
+	private static Dictionary<string, (object, Type)> ToTypeDescriptionDictionary(Specifier specifier, string name = "")
+		=> specifier.GroupProperties(name).ToDictionary(i => i.Key
+			, i => i.Count() == 1
+				? (specifier.GetData(name).GetValueOrDefault(i.First().name, i.First().DefaultValue), i.First().Type)
+				: (i.Select(i => i.name).FirstOrDefault(i => specifier.GetData(name).ContainsKey(i), i.First().name), typeof(string))
+			);
+
+	private static void DecorateProperty(DynamicPropertyDescriptor dp, IEnumerable<SpecifierParameterModel> items)
+	{
+		var ri = items.First();
+		dp.SetCategory(ri.category);
+
+		if (ri.group.IsNullOrWhiteSpace())
 		{
-			var items = specifier.GroupProperties(name).ToDictionary(g => g.Key, g => g);
-			var dso_items = ToTypeDescriptionDictionary(specifier, name);
-
-			return new PropertyDescriptorCollection(dso_items.Select(pair => {
-				var dp = new DynamicPropertyDescriptor(
-					new DictionaryPropertyDescriptor(specifier.GetData(name), pair.Key, pair.Value.Item2));
-				dp.SetValue(this, pair.Value.Item1);
-				DecorateProperty(dp, items[dp.Name]);
-				return dp;
-			}).ToArray(), true);
+			if (ri.Type == typeof(bool))
+				dp.SetEditor(typeof(UITypeEditor), new CheckboxBoolEditor());
 		}
-
-		private static Dictionary<string, (object, Type)> ToTypeDescriptionDictionary(Specifier specifier, string name = "")
-			=> specifier.GroupProperties(name).ToDictionary(i => i.Key
-				, i => i.Count() == 1
-					? (specifier.GetData(name).GetValueOrDefault(i.First().name, i.First().DefaultValue), i.First().Type)
-					: (i.Select(i => i.name).FirstOrDefault(i => specifier.GetData(name).ContainsKey(i), i.First().name), typeof(string))
-				);
-
-		private static void DecorateProperty(DynamicPropertyDescriptor dp, IEnumerable<SpecifierParameterModel> items)
+		else
 		{
-			var ri = items.First();
-			dp.SetCategory(ri.category);
-
-			if (ri.group.IsNullOrWhiteSpace())
-			{
-				if (ri.Type == typeof(bool))
-					dp.SetEditor(typeof(UITypeEditor), new CheckboxBoolEditor());
-			}
-			else
-			{
-				dp.SetConverter(new StandardValuesStringConverter(items.Select(i => i.name)));
-			}
+			dp.SetConverter(new StandardValuesStringConverter(items.Select(i => i.name)));
 		}
 	}
 }

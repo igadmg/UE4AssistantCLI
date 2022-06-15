@@ -61,6 +61,7 @@ partial class FormMacroEditor
 			this.buttonApply.TabIndex = 1;
 			this.buttonApply.Text = "Apply";
 			this.buttonApply.UseVisualStyleBackColor = true;
+			this.buttonApply.Click += new System.EventHandler(this.buttonApply_Click);
 			// 
 			// label1
 			// 
