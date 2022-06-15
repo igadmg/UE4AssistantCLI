@@ -325,6 +325,14 @@ namespace UE4AssistantCLI
 			}
 		}
 
+		public static async Task BuildEngine(string path)
+		{
+			using var SleepGuard = new PreventSleepGuard();
+
+			UnrealItemDescription UnrealItem = UnrealItemDescription.RequireUnrealItem(path, UnrealItemType.Engine);
+
+		}
+
 		public static async Task CookProject(string path, UnrealCookSettings[] CookSettings)
 		{
 			using var SleepGuard = new PreventSleepGuard();

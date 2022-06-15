@@ -224,13 +224,15 @@ namespace UE4AssistantCLI
 		public async Task BuildProject([Option(0, "build settings json file name")] string BuildSettingsJson = null
 			, [Option("dump", "Dump configuration file to the console.")] bool dump = false)
 		{
-			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
+			UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project, UnrealItemType.Engine);
 			var ProjectConfiguration = UnrealItem?.ReadConfiguration<ProjectConfiguration>();
 
 			if (BuildSettingsJson.IsNullOrWhiteSpace() && !(ProjectConfiguration?.DefaultBuildConfigurationFile).IsNullOrWhiteSpace())
 				BuildSettingsJson = Utilities.GetFullPath(ProjectConfiguration.DefaultBuildConfigurationFile, UnrealItem.RootPath);
 
-			var BuildSettings = LoadSettings(BuildSettingsJson, () => UnrealCookSettings.CreateBuildSettings()
+			var BuildSettings = LoadSettings(BuildSettingsJson
+				, () => UnrealItem.Type == UnrealItemType.Engine
+					? null : UnrealCookSettings.CreateBuildSettings()
 				.Also(s => {
 					if (ProjectConfiguration == null)
 						return;
