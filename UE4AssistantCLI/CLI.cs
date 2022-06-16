@@ -103,30 +103,29 @@ namespace UE4AssistantCLI
 			[Command("show", "Show project's Unreal Engine uuid identifier.")]
 			public async Task Show()
 			{
-				UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
+				UnrealItemDescription UnrealItem
+					= UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project, UnrealItemType.Engine);
 
-				if (UnrealItem != null)
-				{
-					Console.WriteLine(new UnrealEngineInstance(UnrealItem).Uuid);
-				}
-				else
-				{
-					Console.WriteLine(new UnrealEngineInstance(Directory.GetCurrentDirectory()).Uuid);
-				}
+				Console.WriteLine(new UnrealEngineInstance(UnrealItem).Uuid);
 			}
 
 			[Command("set", "Set project's Unreal Engine uuid identifier.")]
-			public async Task Set([Option(0, "engine-uuid")] string uuid)
+			public async Task Set([Option(0, "engine-uuid")] string uuid = null)
 			{
-				UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
-				UnrealEngineInstance UnrealInstance = (UnrealItem != null)
-					? new UnrealEngineInstance(UnrealItem)
-					: new UnrealEngineInstance(Directory.GetCurrentDirectory());
+				uuid ??= Guid.NewGuid().ToString();
 
-				var Uuid = new Guid(uuid);
-				UnrealEngineInstance.SetUserUnrealEngineBuilds(Uuid.ToString("B").ToUpper(), UnrealInstance.RootPath);
+				UnrealItemDescription UnrealItem = UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project, UnrealItemType.Engine);
 
-				if (UnrealItem != null)
+				try
+				{
+					UnrealEngineInstance UnrealInstance = new UnrealEngineInstance(UnrealItem);
+
+					var Uuid = new Guid(uuid);
+					UnrealEngineInstance.SetUserUnrealEngineBuilds(Uuid.ToString("B").ToUpper(), UnrealInstance.RootPath);
+				}
+				catch {}
+
+				if (UnrealItem.Type == UnrealItemType.Project)
 				{
 					UProject project = UProject.Load(UnrealItem.FullPath);
 					project.EngineAssociation = uuid;
@@ -237,7 +236,7 @@ namespace UE4AssistantCLI
 					if (ProjectConfiguration != null) s.UE4RootPath = ProjectConfiguration.UE4RootPath;
 					s.Platform ??= UnrealCookSettings.DefaultPlatformName;
 				}))
-				.Select(s => s.Also(_ => _.Platform ??= UnrealCookSettings.DefaultPlatformName))
+				.Select(s => s.IfValid(_ => _.Platform ??= UnrealCookSettings.DefaultPlatformName))
 				.ToArray();
 
 			if (dump)
@@ -246,7 +245,10 @@ namespace UE4AssistantCLI
 			}
 			else
 			{
-				await Program.BuildProject(Directory.GetCurrentDirectory(), BuildSettings);
+				if (UnrealItem.Type == UnrealItemType.Project)
+					await Program.BuildProject(UnrealItem.RootPath, BuildSettings);
+				if (UnrealItem.Type == UnrealItemType.Engine)
+					await Program.BuildEngine(UnrealItem.RootPath);
 			}
 		}
 
@@ -264,7 +266,7 @@ namespace UE4AssistantCLI
 				.Also(s => {
 					if (ProjectConfiguration != null) s.UE4RootPath = ProjectConfiguration.UE4RootPath;
 				}))
-				.Select(s => s.Also(_ => _.Platform ??= UnrealCookSettings.DefaultPlatformName))
+				.Select(s => s.IfValid(_ => _.Platform ??= UnrealCookSettings.DefaultPlatformName))
 				.ToArray();
 
 			if (dump)
@@ -273,7 +275,7 @@ namespace UE4AssistantCLI
 			}
 			else
 			{
-				await Program.CookProject(Directory.GetCurrentDirectory(), CookSettings);
+				await Program.CookProject(UnrealItem.RootPath, CookSettings);
 			}
 		}
 

@@ -321,7 +321,7 @@ namespace UE4AssistantCLI
 				setting.ProjectFullPath = Path.GetFullPath(UnrealItem.FullPath);
 
 				UnrealInstance.Setup();
-				Utilities.RequireExecuteCommandLine(string.Format("\"{0}\" BuildCookRun {1}", UnrealInstance.RunUATPath, setting));
+				Utilities.RequireExecuteCommandLine($@"""{UnrealInstance.RunUATSh}"" BuildCookRun {setting}");
 			}
 		}
 
@@ -329,8 +329,14 @@ namespace UE4AssistantCLI
 		{
 			using var SleepGuard = new PreventSleepGuard();
 
-			UnrealItemDescription UnrealItem = UnrealItemDescription.RequireUnrealItem(path, UnrealItemType.Engine);
+			UnrealItemDescription ui = UnrealItemDescription.RequireUnrealItem(path, UnrealItemType.Engine);
+			var uei = new UnrealEngineInstance(ui.RootPath);
 
+			uei.Setup();
+			Utilities.RequireExecuteCommandLine(
+				$@"""{uei.BuildSh}"" UnrealHeaderTool {UnrealCookSettings.DefaultPlatformName} Development -SkipBuild");
+			Utilities.RequireExecuteCommandLine(
+				$@"""{uei.RunUBTSh}"" {uei.EditorBuildTarget} {UnrealCookSettings.DefaultPlatformName} Development");
 		}
 
 		public static async Task CookProject(string path, UnrealCookSettings[] CookSettings)
@@ -354,7 +360,7 @@ namespace UE4AssistantCLI
 				setting.ArchiveDirectory = Path.GetFullPath(setting.ArchiveDirectory);
 
 				UnrealInstance.Setup();
-				Utilities.RequireExecuteCommandLine(string.Format("\"{0}\" BuildCookRun {1}", UnrealInstance.RunUATPath, setting));
+				Utilities.RequireExecuteCommandLine($@"""{UnrealInstance.RunUATSh}"" BuildCookRun {setting}");
 			}
 		}
 

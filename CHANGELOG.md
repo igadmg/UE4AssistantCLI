@@ -1,3 +1,10 @@
+## 1.4.28
+
+1. `build` command can be run in engine folder and will build developmnet editor.
+1. `uuid show`\`uuid set` now workd correctly in engine folder.
+1. `uuid set` will generate new guid if no parameter set
+1. create `.ue.needsetup` to force run of Unreal Engine Setup.bat script one time.
+
 ## 1.4.27
 
 1. Set Platform to default value (current platform) if it is not set in `build`/`cook` configuration.
