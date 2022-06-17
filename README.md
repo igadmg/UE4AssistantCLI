@@ -45,7 +45,9 @@ Commands:
 ## Source generation commands.
 
 Two types of `add` commands:
-1. Plugin/Module generation - create code plugin or module with minimal required files. `add plugin` - generate plugin in `Plugins/name` folder and add it to `.uproject` file. `add module` - generate module in current folder.
+1. Plugin/Module generation - create code plugin or module with minimal required files.
+    - `add plugin` - generate plugin in `Plugins/name` folder and add it to `.uproject` file. If plugin already exist command will just add it to the project. (works only for local plugins)
+    - `add module` - generate module in current folder. Will add module to `.uproject` or to `.uplugin` but not add to `.Build.cs` scripts.
 1. Source generation - `add bpfl`, `add class`, `add dataasset`, `add interface`, `add tablerow` - automaticaly add source and header files based on current directory and source folder structure (headers are put to `Public`, source files are put to `Private` if these folders exist).
 
 ## Management commands.
@@ -55,7 +57,69 @@ Various commands usefull in day to day work. They can be used form any path insi
 1. `editor` - open Unreal Engine editor (can autobuild project if set by config, default off)
 
 ## Build/Cook commands.
-1. `build` and `cook` commands are supplied with json configuration file. json configuration file can be generated with `ue4cli build --dump` command. Json config contains various flags passed to `BuildCookRun` RunAU command.
+1. `build` and `cook` commands are supplied with json configuration file. json configuration file can be generated with `ue4cli build --dump` command. Json config contains various flags passed to `BuildCookRun` RunAU command. Both commands will check the existance of `.ue.needsetup` in source engine root or compare timestamp of `.ue.basecommit` with `.ue4dependencies` timestamp. In any of these cases `Setup.bat` script would be run (if source is not destributed via git it help to automate engine recompile after version upgrade)
+1. `build` command if run in unreal engine folder will build engine from source. It will use UAT to build "Build Tools" fist and then use UBT to build Editor target. As I beleive that is the minimum to launch editor.
+
+### Build/Cook source engine build update checking
+
+When building from source it is requrede to run `Setup.bat` or `Setup.sh` on first build or after Unreal Engine version upgrade. That step is automated in `build`/`cook` commands. Fot this automation to work, create `.ue.basecommit` file in UnrealEngine roou folder (where `Setup.bat` is located). I prefer to store git commit hash in that file. That file should be touched or updated every time Unreal Engine version is upgraded. Then on `build` step it's timestamp is compared to `.ue4dependencies` timestemp, and if it is newer or `.ue4dependencies` does not exist then `Setup.bat` or `Setup.sh` is run automaticaly.
+
+## Config commands.
+1. `create_config` - create `.ue4a` config file inside `Project` or `Module` folder. Different configs for each type. Run this command to create local config file.
+    - `Project`: 
+```
+{
+	"UE4RootPath": "<path to UE Editor (for source builds) null for store builds.>",
+	"GenerateProject": {   // should run generate command on these commands
+		"onAddItem": true, // add *
+		"onCode": true,    // code
+		"onEditor": false, // editor
+		"onBuild": false,  // build
+		"onCook": false    // cook
+	},
+	"InterfaceSuffix": "Interface",       // suffix added to `add interface` type names
+	"FunctionLibrarySuffix": "Statics",   // suffix added to `add bpfl` type names
+	"DefaultBuildConfigurationFile": "Build.json",   // default configuration for `build` command
+	"DefaultCookConfigurationFile": "Cook.json",     // default configuration for `cook` command
+	"JsonIndentation": {   // json formatting options for generated files.
+		"IndentationChar": "\t",
+		"IndentationLevel": 1
+	}
+}
+```
+    - `Module`: these options are passed directly source code templates.
+```
+{
+  "pchHeader": null,  // should generate PCH include string, and pch name.
+  "finalHeader": "MyProject.final.h", // should generate final include header in source files, and it's name.
+  "locTextNamespaceName": "MyProject" // should generate LOCTEXT_NAMESPACE define/undef pair and it's value.
+}
+```
+
+## Blueprint Diff/Merge commands.
+Thesee commands run project assosiated Unreal Engine in diff or merge mode. Can be used form source control tools. How and if `Merge` works in unknown. Diff is only usefull to me.
+1. `diff` - run diff mode.
+1. `merge` - run merge mode. 
+Diff command have special flags for use from plastic SCM. Needed to guess project folder correctly.
+
+### Plastic SCM diff/merge command.
+1. `diff` - `ue4cli diff "@sourcefile" "@destinationfile" -plastic-source "@sourcesymbolic" -plastic-destination "@destinationsymbolic"`
+1. `merge` - `ue4cli merge "@basefile" "@destinationfile" "@sourcefile" "@output"`
+
+## Engine UUID manipulation commands.
+When working with source engine build it cna be usefull to set one UUID for engine association across all developer computers. That can be easely done with
+`ue4cli uuid set {1842737E-4FB8-4CF3-A097-AD89D06349D8}`
+1. `uuid list` - list registered Unreal Engine uuid identifiers.
+1. `uuid set <GUID>` - set project's Unreal Engine uuid identifier for current folder. Can be run without GUID parameter to set auto-generated guid. If run in engine folder will register engine instance or set engine guid.
+1. `uuid show` - show projects uuid.
+
+## Other commands.
+
+1. `log` command cnab used to open either `project` or `build` (engine) log folder.
+1. `pch_cleanup` command will scan build logs and find .pch complaints and delete that files (fatal error C1853). Should be run after failed build.
+
+# Appengix
+## Project Build/Cook configuration
 
 ```
 [StringParameter("project")] public string ProjectFullPath = null;
@@ -92,61 +156,3 @@ Various commands usefull in day to day work. They can be used form any path insi
 - `StringParameter` - adds -param={value} if field is not null or empty.
 - `BoolParameter` - adds -param or -noparam (or none) if enbaled or disabled.
 - `StringListParameter` - adds -param={v1}+{v2}+...+{vn} if not null or mepty.
-
-### Build/Cook source engine build update checking
-
-When building from source it is requrede to run `Setup.bat` or `Setup.sh` on first build or after Unreal Engine version upgrade. That step is automated in `build`/`cook` commands. Fot this automation to work, create `.ue.basecommit` file in UnrealEngine roou folder (where `Setup.bat` is located). I prefer to store git commit hash in that file. That file should be touched or updated every time Unreal Engine version is upgraded. Then on `build` step it's timestamp is compared to `.ue4dependencies` timestemp, and if it is newer or `.ue4dependencies` does not exist then `Setup.bat` or `Setup.sh` is run automaticaly.
-
-## Config commands.
-1. `create_config` - create `.ue4a` config file inside `Project` or `Module` folder. Different configs for each type. Run this command to create local config file.
-  - `Project`: 
-```
-{
-	"UE4RootPath": "<path to UE Efitro (for source builds) null for store builds.>",
-	"GenerateProject": {   // should run generate command on these commands
-		"onAddItem": true, // add *
-		"onCode": true,    // code
-		"onEditor": false, // editor
-		"onBuild": false,  // build
-		"onCook": false    // cook
-	},
-	"InterfaceSuffix": "Interface",       // suffix added to `add interface` type names
-	"FunctionLibrarySuffix": "Statics",   // suffix added to `add bpfl` type names
-	"DefaultBuildConfigurationFile": "Build.json",   // default configuration for `build` command
-	"DefaultCookConfigurationFile": "Cook.json",     // default configuration for `cook` command
-	"JsonIndentation": {   // json formatting options for generated files.
-		"IndentationChar": "\t",
-		"IndentationLevel": 1
-	}
-}
-```
-  - `Module`: these options are passed directly source code templates.
-```
-{
-  "pchHeader": null,  // should generate PCH include string, and pch name.
-  "finalHeader": "MyProject.final.h", // should generate final include header in source files, and it's name.
-  "locTextNamespaceName": "MyProject" // should generate LOCTEXT_NAMESPACE define/undef pair and it's value.
-}
-```
-
-## Blueprint Diff/Merge commands.
-Thesee commands run project assosiated Unreal Engine in diff or merge mode. Can be used form source control tools. How and if `Merge` works in unknown. Diff is only usefull to me.
-1. `diff` - run diff mode.
-1. `merge` - run merge mode. 
-Diff command have special flags for use from plastic SCM. Needed to guess project folder correctly.
-
-### Plastic SCM diff/merge command.
-1. `diff` - `ue4cli diff "@sourcefile" "@destinationfile" -plastic-source "@sourcesymbolic" -plastic-destination "@destinationsymbolic"`
-1. `merge` - `ue4cli merge "@basefile" "@destinationfile" "@sourcefile" "@output"`
-
-## Engine UUID manipulation commands.
-When working with source engine build it cna be usefull to set one UUID for engine association across all developer computers. That can be easely done with
-`ue4cli uuid set {1842737E-4FB8-4CF3-A097-AD89D06349D8}`
-1. `uuid list` - list registered Unreal Engine uuid identifiers.
-1. `uuid set <GUID>` - set project's Unreal Engine uuid identifier for current folder.
-1. `uuid show` - show projects uuid.
-
-## Other commands.
-
-1. `log` command cnab used to open either `project` or `build` (engine) log folder.
-1. `pch_cleanup` command will scan build logs and find .pch complaints and delete that files (fatal error C1853). Should be run after failed build.

@@ -36,8 +36,8 @@
     },
     "ue4cli build": {
       "commandName": "Project",
-      "commandLineArgs": "build",
-      "workingDirectory": "E:\\project\\DeOrbeNovo"
+      "commandLineArgs": "editor",
+      "workingDirectory": "F:\\UnrealEngine.release\\Engine\\Build\\BatchFiles"
     },
     "ue4cli cook CookServer.json ": {
       "commandName": "Project",

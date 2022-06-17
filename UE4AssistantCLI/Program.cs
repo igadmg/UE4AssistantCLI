@@ -346,7 +346,7 @@ namespace UE4AssistantCLI
 
 			uei.Setup();
 			Utilities.RequireExecuteCommandLine(
-				$@"""{uei.BuildSh}"" UnrealHeaderTool {UnrealCookSettings.DefaultPlatformName} Development -SkipBuild");
+				$@"""{uei.RunUATSh}"" BuildGraph -target=""Build Tools {UnrealCookSettings.DefaultPlatformName}"" -script={uei.BuildPath.AsLinuxPath()}/InstalledEngineBuild.xml");
 			Utilities.RequireExecuteCommandLine(
 				$@"""{uei.RunUBTSh}"" {uei.EditorBuildTarget} {UnrealCookSettings.DefaultPlatformName} Development");
 		}
