@@ -120,17 +120,29 @@ namespace UE4AssistantCLI
 			UnrealItemDescription UnrealItem = UnrealItemDescription.RequireUnrealItem(path, UnrealItemType.Project);
 
 			using var GenerateOnAddGuard = GenerateOnAdd(UnrealItem);
+
+			UPlugin plugin = null;
 			string pluginDirectory = Path.Combine(UnrealItem.RootPath, "Plugins", pluginname);
-			if (Directory.Exists(pluginDirectory))
+			if (!Directory.Exists(pluginDirectory))
 			{
-				throw new UE4AssistantException($"\"{pluginDirectory}\" should not exist.");
+				Directory.CreateDirectory(pluginDirectory);
+				plugin = new UPlugin(pluginname);
+				plugin.RootPath = pluginDirectory;
+				plugin.Save(JsonIndentation.ReadFromSettings(path));
+
+				AddModule(pluginDirectory, pluginname);
+			}
+			else
+			{
+				plugin = UPlugin.Load(Directory.GetFiles(pluginDirectory, "*.uplugin").First());
 			}
 
-			Directory.CreateDirectory(pluginDirectory);
-			UPlugin plugin = new UPlugin();
-			plugin.Save(Path.Combine(pluginDirectory, pluginname + ".uplugin"), JsonIndentation.ReadFromSettings(path));
+			var project = UProject.Load(UnrealItem.FullPath);
 
-			AddModule(pluginDirectory, pluginname);
+			var pi = project.Plugins.Find(x => x.Name == plugin.Name)
+				?? new UPluginItem { Name = plugin.Name }.Also(_ => project.Plugins.Add(_));
+			pi.Enabled = true;
+			project.Save(JsonIndentation.ReadFromSettings(path));
 		}
 
 		public static void AddModule(string path, string modulename)
@@ -138,28 +150,28 @@ namespace UE4AssistantCLI
 			UnrealItemDescription UnrealItem = UnrealItemDescription.RequireUnrealItem(path, UnrealItemType.Project, UnrealItemType.Plugin);
 
 			using var GenerateOnAddGuard = GenerateOnAdd(UnrealItem);
-			string itemFullPath = UnrealItem.FullPath;
+
 			if (UnrealItem.Type == UnrealItemType.Plugin)
 			{
-				var plugin = UPlugin.Load(itemFullPath);
+				var plugin = UPlugin.Load(UnrealItem.FullPath);
 
 				var module = new UModuleItem();
 				module.Name = modulename;
 				Template.CreateModule(plugin.RootPath, module.Name);
 				plugin.Modules.Add(module);
 
-				plugin.Save(itemFullPath, JsonIndentation.ReadFromSettings(path));
+				plugin.Save(JsonIndentation.ReadFromSettings(path));
 			}
 			else if (UnrealItem.Type == UnrealItemType.Project)
 			{
-				var project = UProject.Load(itemFullPath);
+				var project = UProject.Load(UnrealItem.FullPath);
 
 				var module = new UModuleItem();
 				module.Name = modulename;
 				Template.CreateModule(project.RootPath, module.Name);
 				project.Modules.Add(module);
 
-				project.Save(itemFullPath, JsonIndentation.ReadFromSettings(path));
+				project.Save(JsonIndentation.ReadFromSettings(path));
 			}
 		}
 

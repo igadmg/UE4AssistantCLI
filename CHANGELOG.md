@@ -1,3 +1,7 @@
+## 1.4.29
+
+1. `add plugin` now not only create plugin but also add it to uproject. If plugin already exist just add it to uproject.
+
 ## 1.4.28
 
 1. `build` command can be run in engine folder and will build developmnet editor.

@@ -4,9 +4,11 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net6.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
-    <ImplicitUsings>enable</ImplicitUsings>
 
-    <Version>1.4.24</Version>
+	<ImplicitUsings>enable</ImplicitUsings>
+	<Nullable>enable</Nullable>
+
+    <Version>1.5.0</Version>
     <AssemblyName>ue4cli-ui</AssemblyName>
 
     <PackAsTool>true</PackAsTool>

@@ -14,11 +14,6 @@
       "commandName": "Project",
       "workingDirectory": "F:\\UnrealEngine.master"
     },
-    "ue4cli add bpfl": {
-      "commandName": "Project",
-      "commandLineArgs": "add bpfl",
-      "workingDirectory": "D:\\project\\MathExpressionTest\\Source\\MathExpressionTest"
-    },
     "ue4cli uuid show": {
       "commandName": "Project",
       "commandLineArgs": "uuid show",
@@ -47,6 +42,11 @@
     "ue4cli cook CookServer.json ": {
       "commandName": "Project",
       "commandLineArgs": "cook CookServer.json",
+      "workingDirectory": "D:\\Pixelynx\\Globant-Dev\\PixelynxClient"
+    },
+    "ue4cli add plugin": {
+      "commandName": "Project",
+      "commandLineArgs": "add plugin ALSPluginCommunity",
       "workingDirectory": "D:\\Pixelynx\\Globant-Dev\\PixelynxClient"
     }
   }

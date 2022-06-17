@@ -25,7 +25,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UE4Assistant.Specifier.Test
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DynamicDescriptors", "DynamicDescriptors\src\DynamicDescriptors\DynamicDescriptors.csproj", "{27C48F4D-072C-41F4-803D-BD72CCE7771B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{45C7797C-4232-4551-9134-1EFA3C3C1898}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "Tests\Tests.csproj", "{45C7797C-4232-4551-9134-1EFA3C3C1898}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibGit2Sharp", "libgit2sharp\LibGit2Sharp\LibGit2Sharp.csproj", "{849C9A0A-DB06-4FFF-BE28-E55C37D6B843}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -67,8 +69,8 @@ Global
 		{5B2F54EB-8B61-4C8D-BEA0-8302415B0DCD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{DD6AC44C-BB3B-4195-85FC-C2902BCCF109}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DD6AC44C-BB3B-4195-85FC-C2902BCCF109}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DD6AC44C-BB3B-4195-85FC-C2902BCCF109}.Release|Any CPU.ActiveCfg = Debug|Any CPU
-		{DD6AC44C-BB3B-4195-85FC-C2902BCCF109}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{DD6AC44C-BB3B-4195-85FC-C2902BCCF109}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD6AC44C-BB3B-4195-85FC-C2902BCCF109}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C9B65883-93EC-48D0-A053-E20A83A1D4CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C9B65883-93EC-48D0-A053-E20A83A1D4CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C9B65883-93EC-48D0-A053-E20A83A1D4CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -81,6 +83,10 @@ Global
 		{45C7797C-4232-4551-9134-1EFA3C3C1898}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{45C7797C-4232-4551-9134-1EFA3C3C1898}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{45C7797C-4232-4551-9134-1EFA3C3C1898}.Release|Any CPU.Build.0 = Release|Any CPU
+		{849C9A0A-DB06-4FFF-BE28-E55C37D6B843}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{849C9A0A-DB06-4FFF-BE28-E55C37D6B843}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{849C9A0A-DB06-4FFF-BE28-E55C37D6B843}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{849C9A0A-DB06-4FFF-BE28-E55C37D6B843}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

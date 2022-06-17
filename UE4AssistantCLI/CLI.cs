@@ -129,7 +129,7 @@ namespace UE4AssistantCLI
 				{
 					UProject project = UProject.Load(UnrealItem.FullPath);
 					project.EngineAssociation = uuid;
-					project.Save(UnrealItem.FullPath, JsonIndentation.ReadFromSettings(Directory.GetCurrentDirectory()));
+					project.Save(JsonIndentation.ReadFromSettings(Directory.GetCurrentDirectory()));
 				}
 			}
 		}

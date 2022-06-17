@@ -7,9 +7,6 @@ using UE4Assistant;
 
 static class Program
 {
-	private static Specifier specifier;
-	private static Form mainForm;
-
 	[DllImport("kernel32.dll", SetLastError = true)]
 	[return: MarshalAs(UnmanagedType.Bool)]
 	static extern bool AllocConsole();
@@ -33,12 +30,13 @@ static class Program
 	[STAThread]
 	static void Main()
 	{
-		// To customize application configuration such as set high DPI settings or default font,
-		// see https://aka.ms/applicationconfiguration.
 		ApplicationConfiguration.Initialize();
 		AllocConsole();
 
 		Console.SetIn(new StringReader("	UPROPERTY(Category = \"Default\", VisibleAnywhere, BlueprintReadOnly) int i = 0;\n"));
+
+		if (!SpecifierSchema.HaveBenuiSpecifiers)
+			SpecifierSchema.UpdateBenuiSpecifiers();
 
 		ConsoleApp.CreateBuilder(Environment.GetCommandLineArgs().Skip(1)
 				, options => {
@@ -54,7 +52,7 @@ static class Program
 			.Let(specifier => new FormMacroEditor(specifier.s)
 				.Also(_ => {
 					_.FormClosed += (object? sender, FormClosedEventArgs e) => {
-						var form = (FormMacroEditor)sender;
+						var form = (FormMacroEditor)sender!;
 						if (form.DialogResult == DialogResult.OK)
 						{
 							str = str

@@ -7,7 +7,7 @@ namespace UE4AssistantCLI.UI;
 
 public partial class FormMacroEditor : Form
 {
-	DynamicTypeDescriptor so;
+	DynamicTypeDescriptor? so = null;
 	Specifier specifier_;
 
 	public Specifier specifier {
@@ -16,10 +16,10 @@ public partial class FormMacroEditor : Form
 			var cn = tabSelected ? "meta" : "parameters";
 			var collection = specifier_.model.collections[cn];
 
-			var data = new Dictionary<string, object>();
+			var data = new Dictionary<string, object?>();
 			foreach (var p in tabSelected
-				? propertyGridSpecifier.SelectedTab.GetProperties(so).Cast<DynamicPropertyDescriptor>()
-				: so.GetDynamicProperties())
+				? propertyGridSpecifier.SelectedTab.GetProperties(so!).Cast<DynamicPropertyDescriptor>()
+				: so!.GetDynamicProperties())
 			{
 				var v = p.GetValue(so);
 				var sp = collection.Find(mp => mp.name == p.Name);

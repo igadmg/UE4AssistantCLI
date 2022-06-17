@@ -19,7 +19,7 @@ namespace UE4AssistantCLI.UI
 		public override Bitmap Bitmap
 			=> new Bitmap(
 				Image.FromStream(
-					typeof(MetaPropertyTab).Assembly.GetManifestResourceStream($"UE4AssistantCLI.UI.Resources.Members.png")
+					typeof(MetaPropertyTab).Assembly.GetManifestResourceStream($"UE4AssistantCLI.UI.Resources.Members.png")!
 			));
 
 		/// <summary>
@@ -32,11 +32,11 @@ namespace UE4AssistantCLI.UI
 		/// used to filter implemented interfaces in a type
 		/// </summary>
 		/// <returns>true if the requested interfaces are implemented</returns>
-		protected static bool InterfaceFilter(Type typeObj, Object criteriaObj) => true;
+		protected static bool InterfaceFilter(Type typeObj, object criteriaObj) => true;
 
-		PropertyDescriptorCollection properties_ = null;
-		public override System.ComponentModel.PropertyDescriptorCollection GetProperties(object component) => this.GetProperties(component, null);
-		public override PropertyDescriptorCollection GetProperties(object component, Attribute[] attributes)
+		PropertyDescriptorCollection? properties_ = null;
+		public override PropertyDescriptorCollection GetProperties(object component) => GetProperties(component, null);
+		public override PropertyDescriptorCollection GetProperties(object component, Attribute[]? attributes)
 		{
 			if (component is SpecializerTypeDescriptor std)
 			{
