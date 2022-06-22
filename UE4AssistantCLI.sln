@@ -27,8 +27,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DynamicDescriptors", "Dynam
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "Tests\Tests.csproj", "{45C7797C-4232-4551-9134-1EFA3C3C1898}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibGit2Sharp", "libgit2sharp\LibGit2Sharp\LibGit2Sharp.csproj", "{849C9A0A-DB06-4FFF-BE28-E55C37D6B843}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,10 +81,6 @@ Global
 		{45C7797C-4232-4551-9134-1EFA3C3C1898}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{45C7797C-4232-4551-9134-1EFA3C3C1898}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{45C7797C-4232-4551-9134-1EFA3C3C1898}.Release|Any CPU.Build.0 = Release|Any CPU
-		{849C9A0A-DB06-4FFF-BE28-E55C37D6B843}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{849C9A0A-DB06-4FFF-BE28-E55C37D6B843}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{849C9A0A-DB06-4FFF-BE28-E55C37D6B843}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{849C9A0A-DB06-4FFF-BE28-E55C37D6B843}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

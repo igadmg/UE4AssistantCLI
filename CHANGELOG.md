@@ -1,3 +1,8 @@
+## 1.4.30
+
+1. Moved `pch_cleanup` under `fix` subcommand.
+1. Added `fix dll_load` command will scan run logs and find if some dlls failed to load and delete them so they can be recompiled.
+
 ## 1.4.29
 
 1. `add plugin` now not only create plugin but also add it to uproject. If plugin already exist just add it to uproject.

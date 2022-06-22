@@ -80,6 +80,7 @@ namespace UE4AssistantCLI
 				.Build()
 				.AddCommands<CLI>()
 				.AddSubCommands<CLI.Add>()
+				.AddSubCommands<CLI.Fix>()
 				.AddSubCommands<CLI.Log>()
 				.AddSubCommands<CLI.Uuid>()
 				.RunAsync();

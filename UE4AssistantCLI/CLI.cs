@@ -66,6 +66,54 @@ namespace UE4AssistantCLI
 			}
 		}
 
+		[Command("fix")]
+		public class Fix : ConsoleAppBase
+		{
+			[Command("all", "Fix all possible errors .")]
+			public async Task All()
+			{
+				await DllLoad();
+				await PCHCleanup();
+			}
+
+			[Command("dll_load", "Fix `Failed to load dll` errors .")]
+			public async Task DllLoad()
+			{
+				UnrealItemDescription UnrealItem = UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
+
+				Console.WriteLine($"==> {UnrealItem.ProjectLogFile}");
+				var dllLoadFiles = new HashSet<string>(Utilities.ParseDllLoadErrors(File.ReadAllText(UnrealItem.ProjectLogFile)));
+
+				var rootPath = UnrealItem.RootPath.AsLinuxPath();
+				foreach (var dllFile in dllLoadFiles.Select(f => f.AsLinuxPath()))
+				{
+					if (!dllFile.StartsWith(rootPath))
+						continue;
+
+					Console.WriteLine(dllFile);
+					File.Delete(dllFile);
+				}
+			}
+
+			[Command("pch_cleanup", "Cleanup PCH file errors.")]
+			public async Task PCHCleanup()
+			{
+				UnrealItemDescription UnrealItem = UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
+
+				foreach (var buildLog in UnrealItem.BuildLogs)
+				{
+					Console.WriteLine($"==> {buildLog}");
+					var pchFiles = new HashSet<string>(Utilities.ParsePCHFilesErrors(File.ReadAllText(buildLog)));
+
+					foreach (var pchFile in pchFiles)
+					{
+						Console.WriteLine(pchFiles);
+						File.Delete(pchFile);
+					}
+				}
+			}
+		}
+
 		[Command("log")]
 		public class Log : ConsoleAppBase
 		{
@@ -410,26 +458,6 @@ namespace UE4AssistantCLI
 			// TODO: implement
 		}
 #endif
-
-		[Command("pch_cleanup", "Cleanup PCH file errors.")]
-		public async Task<int> PCHCleanup()
-		{
-			UnrealItemDescription UnrealItem = UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
-
-			foreach (var buildLog in UnrealItem.BuildLogs)
-			{
-				Console.WriteLine("==> {buildLog}");
-				var pchFiles = new HashSet<string>(Utilities.ParsePCHFilesErrors(File.ReadAllText(buildLog)));
-
-				foreach (var pchFile in pchFiles)
-				{
-					Console.WriteLine(pchFiles);
-					File.Delete(pchFile);
-				}
-			}
-
-			return 0;
-		}
 
 		[Command("create_config", "Create new or update old template config in current project or module.")]
 		public async Task CreateConfig()
