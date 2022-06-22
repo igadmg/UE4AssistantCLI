@@ -29,11 +29,6 @@
       "commandLineArgs": "diff C:\\Windows\\a.a D:\\project\\SettlerSouls\\Source\\SettlerSouls\\S.cpp",
       "workingDirectory": "D:\\"
     },
-    "ue4cli log build": {
-      "commandName": "Project",
-      "commandLineArgs": "log build",
-      "workingDirectory": "E:\\project\\DeOrbeNovo"
-    },
     "ue4cli build": {
       "commandName": "Project",
       "commandLineArgs": "editor",
@@ -47,6 +42,11 @@
     "ue4cli add plugin": {
       "commandName": "Project",
       "commandLineArgs": "add plugin ALSPluginCommunity",
+      "workingDirectory": "D:\\Pixelynx\\Globant-Dev\\PixelynxClient"
+    },
+    "ue4cli fix all": {
+      "commandName": "Project",
+      "commandLineArgs": "fix all",
       "workingDirectory": "D:\\Pixelynx\\Globant-Dev\\PixelynxClient"
     }
   }
