@@ -69,14 +69,14 @@ namespace UE4AssistantCLI
 		[Command("fix")]
 		public class Fix : ConsoleAppBase
 		{
-			[Command("all", "Fix all possible errors .")]
+			[Command("all", "Fix all possible errors.")]
 			public async Task All()
 			{
 				await DllLoad();
 				await PCHCleanup();
 			}
 
-			[Command("dll_load", "Fix `Failed to load dll` errors .")]
+			[Command("dll_load", "Fix `Failed to load dll` errors.")]
 			public async Task DllLoad()
 			{
 				UnrealItemDescription UnrealItem = UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
