@@ -6,6 +6,8 @@
 ## 1.4.29
 
 1. `add plugin` now not only create plugin but also add it to uproject. If plugin already exist just add it to uproject.
+1. `editor` command in engine source folder will open Unreal Engine editor without project.
+1. `build` command will also build "Build Tools" for platform before building an editor.
 
 ## 1.4.28
 

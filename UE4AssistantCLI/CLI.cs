@@ -222,14 +222,23 @@ namespace UE4AssistantCLI
 		[Command("editor", "Open UE4 Editor for current project.")]
 		public async Task OpenEditor()
 		{
-			UnrealItemDescription UnrealItem = UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
+			UnrealItemDescription UnrealItem =
+				UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project, UnrealItemType.Engine);
 
-			if (UnrealItem.ReadConfiguration<ProjectConfiguration>()?.GenerateProject.onEditor ?? false)
+			if (UnrealItem.Type == UnrealItemType.Project)
 			{
-				await GenerateProject();
-			}
+				if (UnrealItem.ReadConfiguration<ProjectConfiguration>()?.GenerateProject.onEditor ?? false)
+				{
+					await GenerateProject();
+				}
 
-			Utilities.ExecuteOpenFile(UnrealItem.FullPath);
+				Utilities.ExecuteOpenFile(UnrealItem.FullPath);
+			}
+			else if (UnrealItem.Type == UnrealItemType.Engine)
+			{
+				var uei = new UnrealEngineInstance(UnrealItem.RootPath);
+				Utilities.ExecuteOpenFile(uei.UnrealEditorPath);
+			}
 		}
 
 		[Command("code", "Open Source Code Editor for current project.")]
