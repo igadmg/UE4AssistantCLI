@@ -24,11 +24,6 @@
       "commandLineArgs": "add class SettlerSoulsPlayerState APlayerState",
       "workingDirectory": "D:\\project\\SettlerSouls\\Source\\SettlerSouls"
     },
-    "ue4cli diff": {
-      "commandName": "Project",
-      "commandLineArgs": "diff C:\\Windows\\a.a D:\\project\\SettlerSouls\\Source\\SettlerSouls\\S.cpp",
-      "workingDirectory": "D:\\"
-    },
     "ue4cli build": {
       "commandName": "Project",
       "commandLineArgs": "build",
@@ -47,6 +42,11 @@
     "ue4cli fix all": {
       "commandName": "Project",
       "commandLineArgs": "fix all",
+      "workingDirectory": "D:\\Pixelynx\\Globant-Dev\\PixelynxClient"
+    },
+    "ue4cli run": {
+      "commandName": "Project",
+      "commandLineArgs": "run CompileAllBlueprints -msg=\"hello world\" random parameters here",
       "workingDirectory": "D:\\Pixelynx\\Globant-Dev\\PixelynxClient"
     }
   }

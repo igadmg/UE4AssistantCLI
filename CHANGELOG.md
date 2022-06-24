@@ -1,3 +1,7 @@
+## 1.4.31
+
+1. Added 'run' command to run commandlets. Can be used like 'ue4cli run CompileAllBlueprints' also can be followe by commandlet parameters.
+
 ## 1.4.30
 
 1. Moved `pch_cleanup` under `fix` subcommand.

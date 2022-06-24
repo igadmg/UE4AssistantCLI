@@ -34,6 +34,7 @@ Commands:
   log project                                   Open project log folder.
   merge [Base] [Local] [Remote] [Result]        Launch UE4 diff tool to merge conflict file.
   merge_lfs <File>                              Launch UE4 diff tool to merge conflict file. Works for Git LFS conflict files.
+  run <Commandlet> [parameters]                 Run commandlet.
   uuid list                                     List registered Unreal Engine uuid identifiers.
   uuid set <GUID>                               Set project's Unreal Engine uuid identifier.
   uuid show                                     Show project's Unreal Engine uuid identifier.

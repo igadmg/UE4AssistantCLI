@@ -258,6 +258,16 @@ namespace UE4AssistantCLI
 			Utilities.ExecuteOpenFile(solutionFile);
 		}
 
+		[Command("run", "Run commandlet.")]
+		public async Task RunCommandlet([Option(0)] string commandlet, [Option(1)] params string[] parameters)
+		{
+			UnrealItemDescription UnrealItem = UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
+			UnrealEngineInstance UnrealInstance = new UnrealEngineInstance(UnrealItem);
+
+			Utilities.RequireExecuteCommandLine(Utilities.EscapeCommandLineArgs(
+				new[] { UnrealInstance.UnrealCmdPath, UnrealItem.FullPath, $"-run={commandlet}" }.Concat(parameters)));
+		}
+
 		[Command("get_ue_root", "Get UE root of associated UE build.")]
 		public async Task GetUERoot([Option(0, "project name")] string ProjectName = null)
 		{

@@ -70,14 +70,15 @@ namespace UE4AssistantCLI
 			//	return null;
 			//};
 
-			await ConsoleApp.CreateBuilder(args, options => {
+			await ConsoleApp.CreateFromHostBuilder(Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder()
+					.ConfigureServices((ctx, services) => {
+						services.RemoveAll<ILoggerProvider>();
+						services.TryAddEnumerable(ServiceDescriptor.Singleton<ILoggerProvider, ConsoleLogger.Provider>());
+					})
+				, args, options => {
+					options.StrictOption = false;
 					options.HelpSortCommandsByFullName = true;
 				})
-				.ConfigureServices((ctx, services) => {
-					services.RemoveAll<ILoggerProvider>();
-					services.TryAddEnumerable(ServiceDescriptor.Singleton<ILoggerProvider, ConsoleLogger.Provider>());
-				})
-				.Build()
 				.AddCommands<CLI>()
 				.AddSubCommands<CLI.Add>()
 				.AddSubCommands<CLI.Fix>()
