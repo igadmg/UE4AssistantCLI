@@ -303,7 +303,7 @@ namespace UE4AssistantCLI
 					if (ProjectConfiguration != null) s.UE4RootPath = ProjectConfiguration.UE4RootPath;
 					s.Platform ??= UnrealCookSettings.DefaultPlatformName;
 				}))
-				.Select(s => s.IfValid(_ => _.Platform ??= UnrealCookSettings.DefaultPlatformName))
+				.Select(s => s?.Also(_ => _.Platform ??= UnrealCookSettings.DefaultPlatformName))
 				.ToArray();
 
 			if (dump)
@@ -333,7 +333,7 @@ namespace UE4AssistantCLI
 				.Also(s => {
 					if (ProjectConfiguration != null) s.UE4RootPath = ProjectConfiguration.UE4RootPath;
 				}))
-				.Select(s => s.IfValid(_ => _.Platform ??= UnrealCookSettings.DefaultPlatformName))
+				.Select(s => s?.Also(_ => _.Platform ??= UnrealCookSettings.DefaultPlatformName))
 				.ToArray();
 
 			if (dump)

@@ -325,7 +325,7 @@ namespace UE4AssistantCLI
 
 			UnrealItemDescription UnrealItem = UnrealItemDescription.RequireUnrealItem(path, UnrealItemType.Project);
 
-			foreach (var setting in BuildSettings)
+			foreach (var setting in BuildSettings.Select(s => UnrealItem.SanitizeSettings(s)))
 			{
 				UnrealEngineInstance UnrealInstance;
 				try { UnrealInstance = new UnrealEngineInstance(setting.UE4RootPath); }
@@ -359,7 +359,7 @@ namespace UE4AssistantCLI
 
 			UnrealItemDescription UnrealItem = UnrealItemDescription.RequireUnrealItem(path, UnrealItemType.Project);
 
-			foreach (var setting in CookSettings)
+			foreach (var setting in CookSettings.Select(s => UnrealItem.SanitizeSettings(s)))
 			{
 				UnrealEngineInstance UnrealInstance;
 				try { UnrealInstance = new UnrealEngineInstance(setting.UE4RootPath); }

@@ -1,3 +1,7 @@
+## 1.4.32
+
+1. Finally fixed relative path handling for engine and packaged builds. Now all path are relative to corresponding unreal project ite (module, project or engine root).
+
 ## 1.4.31
 
 1. Added 'run' command to run commandlets. Can be used like 'ue4cli run CompileAllBlueprints' also can be followe by commandlet parameters.

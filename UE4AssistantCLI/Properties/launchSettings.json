@@ -31,8 +31,8 @@
     },
     "ue4cli cook CookServer.json ": {
       "commandName": "Project",
-      "commandLineArgs": "cook CookServer.json",
-      "workingDirectory": "D:\\Pixelynx\\Globant-Dev\\PixelynxClient"
+      "commandLineArgs": "cook",
+      "workingDirectory": "D:\\Pixelynx\\Globant-Dev\\PixelynxClient\\Packages\\Windows"
     },
     "ue4cli add plugin": {
       "commandName": "Project",
