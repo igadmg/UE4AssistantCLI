@@ -19,3 +19,9 @@
 [submodule "DynamicDescriptors"]
 	path = DynamicDescriptors
 	url = git@github.com:yatagarasu25/DynamicDescriptors.git
+[submodule "WheatConsole"]
+	path = WheatConsole
+	url = git@github.com:yatagarasu25/WheatConsole.git
+[submodule "ANSIConsole"]
+	path = ANSIConsole
+	url = git@github.com:yatagarasu25/ANSIConsole.git
