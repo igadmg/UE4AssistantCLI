@@ -319,7 +319,7 @@ namespace UE4AssistantCLI
 			}
 		}
 
-		public static async Task BuildProject(string path, UnrealCookSettings[] BuildSettings)
+		public static async Task BuildProject(string path, UnrealCookSettings[] BuildSettings, Action<string> contentFn = null)
 		{
 			using var SleepGuard = new PreventSleepGuard();
 
@@ -335,11 +335,11 @@ namespace UE4AssistantCLI
 				setting.ProjectFullPath = Path.GetFullPath(UnrealItem.FullPath);
 
 				UnrealInstance.Setup();
-				Utilities.RequireExecuteCommandLine($@"""{UnrealInstance.RunUATSh}"" BuildCookRun {setting}");
+				Utilities.RequireExecuteCommandLine($@"""{UnrealInstance.RunUATSh}"" BuildCookRun {setting}", contentFn);
 			}
 		}
 
-		public static async Task BuildEngine(string path)
+		public static async Task BuildEngine(string path, Action<string> contentFn = null)
 		{
 			using var SleepGuard = new PreventSleepGuard();
 
@@ -348,12 +348,12 @@ namespace UE4AssistantCLI
 
 			uei.Setup();
 			Utilities.RequireExecuteCommandLine(
-				$@"""{uei.RunUATSh}"" BuildGraph -target=""Build Tools {UnrealCookSettings.DefaultPlatformName}"" -script={uei.BuildPath.AsLinuxPath()}/InstalledEngineBuild.xml");
+				$@"""{uei.RunUATSh}"" BuildGraph -target=""Build Tools {UnrealCookSettings.DefaultPlatformName}"" -script={uei.BuildPath.AsLinuxPath()}/InstalledEngineBuild.xml", contentFn);
 			Utilities.RequireExecuteCommandLine(
-				$@"""{uei.RunUBTSh}"" {uei.EditorBuildTarget} {UnrealCookSettings.DefaultPlatformName} Development");
+				$@"""{uei.RunUBTSh}"" {uei.EditorBuildTarget} {UnrealCookSettings.DefaultPlatformName} Development", contentFn);
 		}
 
-		public static async Task CookProject(string path, UnrealCookSettings[] CookSettings)
+		public static async Task CookProject(string path, UnrealCookSettings[] CookSettings, Action<string> contentFn = null)
 		{
 			using var SleepGuard = new PreventSleepGuard();
 
@@ -374,7 +374,7 @@ namespace UE4AssistantCLI
 				setting.ArchiveDirectory = Path.GetFullPath(setting.ArchiveDirectory);
 
 				UnrealInstance.Setup();
-				Utilities.RequireExecuteCommandLine($@"""{UnrealInstance.RunUATSh}"" BuildCookRun {setting}");
+				Utilities.RequireExecuteCommandLine($@"""{UnrealInstance.RunUATSh}"" BuildCookRun {setting}", contentFn);
 			}
 		}
 

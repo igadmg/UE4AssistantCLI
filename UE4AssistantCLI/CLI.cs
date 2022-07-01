@@ -342,7 +342,9 @@ namespace UE4AssistantCLI
 			}
 			else
 			{
-				await Program.CookProject(UnrealItem.RootPath, CookSettings);
+				await Program.CookProject(UnrealItem.RootPath, CookSettings, str => {
+					Console.WriteLine(str);
+				});
 			}
 		}
 
