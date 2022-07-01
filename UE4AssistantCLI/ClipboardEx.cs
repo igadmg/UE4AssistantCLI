@@ -1,28 +1,26 @@
 ﻿using ClipboardEx.Win32;
-using System;
 
-namespace UE4AssistantCLI
+namespace UE4AssistantCLI;
+
+public static class ClipboardEx
 {
-	public static class ClipboardEx
-	{
-		public static string GetConsoleOrClipboardText()
-			=> GetConsoleOrClipboardText(out bool fromClipboard);
+	public static string GetConsoleOrClipboardText()
+		=> GetConsoleOrClipboardText(out bool fromClipboard);
 
-		public static string GetConsoleOrClipboardText(out bool fromClipboard)
+	public static string GetConsoleOrClipboardText(out bool fromClipboard)
+	{
+		if (Console.IsInputRedirected)
 		{
-			if (Console.IsInputRedirected)
+			fromClipboard = false;
+			return Console.In.ReadToEnd();
+		}
+		else
+		{
+			using (var clipboard = new Clipboard())
 			{
-				fromClipboard = false;
-				return Console.In.ReadToEnd();
-			}
-			else
-			{
-				using (var clipboard = new Clipboard())
-				{
-					string text = clipboard.Text;
-					fromClipboard = text != null;
-					return fromClipboard ? text : Console.In.ReadToEnd();
-				}
+				string text = clipboard.Text;
+				fromClipboard = text != null;
+				return fromClipboard ? text : Console.In.ReadToEnd();
 			}
 		}
 	}
