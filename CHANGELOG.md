@@ -1,3 +1,7 @@
+## 1.5.2
+
+1. Fixed ConsoleColors output to ANSI console. Also fixed MacOS color output. 
+
 ## 1.5.0
 
 1. Added simple color output for `build` and `cook` commands.
