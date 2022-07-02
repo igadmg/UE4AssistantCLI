@@ -306,9 +306,13 @@ class CLI : ConsoleAppBase
 		else
 		{
 			if (UnrealItem.Type == UnrealItemType.Project)
-				await Program.BuildProject(UnrealItem.RootPath, BuildSettings);
+				await Program.BuildProject(UnrealItem.RootPath, BuildSettings, str => {
+					UnrealLogPrinter.WriteLine(str);
+				});
 			if (UnrealItem.Type == UnrealItemType.Engine)
-				await Program.BuildEngine(UnrealItem.RootPath);
+				await Program.BuildEngine(UnrealItem.RootPath, str => {
+					UnrealLogPrinter.WriteLine(str);
+				});
 		}
 	}
 
@@ -336,7 +340,7 @@ class CLI : ConsoleAppBase
 		else
 		{
 			await Program.CookProject(UnrealItem.RootPath, CookSettings, str => {
-				Console.WriteLine(str);
+				UnrealLogPrinter.WriteLine(str);
 			});
 		}
 	}

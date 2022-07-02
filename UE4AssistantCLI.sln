@@ -27,6 +27,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DynamicDescriptors", "Dynam
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "Tests\Tests.csproj", "{45C7797C-4232-4551-9134-1EFA3C3C1898}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ANSIConsole", "ANSIConsole\ANSIConsole\ANSIConsole.csproj", "{8B9599D3-8200-4EEF-958F-96A85947212F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -81,6 +83,10 @@ Global
 		{45C7797C-4232-4551-9134-1EFA3C3C1898}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{45C7797C-4232-4551-9134-1EFA3C3C1898}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{45C7797C-4232-4551-9134-1EFA3C3C1898}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8B9599D3-8200-4EEF-958F-96A85947212F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8B9599D3-8200-4EEF-958F-96A85947212F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8B9599D3-8200-4EEF-958F-96A85947212F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8B9599D3-8200-4EEF-958F-96A85947212F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

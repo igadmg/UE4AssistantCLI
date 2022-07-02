@@ -1,4 +1,5 @@
-﻿using ConsoleAppFramework;
+﻿using ANSIConsole;
+using ConsoleAppFramework;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
@@ -57,6 +58,8 @@ class Program
 
 	static async Task<int> Main(string[] args)
 	{
+		using var ansi = new ANSIInitializer();
+
 		//AppDomain.CurrentDomain.AssemblyLoad += (object sender, AssemblyLoadEventArgs args) => {
 		//};
 		//AppDomain.CurrentDomain.AssemblyResolve += (object sender, ResolveEventArgs args) => {
