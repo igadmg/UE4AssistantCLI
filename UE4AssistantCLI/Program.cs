@@ -113,63 +113,69 @@ class Program
 		UProject project = Template.CreateProject(projectname);
 	}
 
-	public static void AddPlugin(string path, string pluginname)
+	public static void AddPlugin(string path, params string[] pluginnames)
 	{
 		UnrealItemDescription UnrealItem = UnrealItemDescription.RequireUnrealItem(path, UnrealItemType.Project);
 
 		using var GenerateOnAddGuard = GenerateOnAdd(UnrealItem);
 
-		UPlugin plugin = null;
-		string pluginDirectory = Path.Combine(UnrealItem.RootPath, "Plugins", pluginname);
-		if (!Directory.Exists(pluginDirectory))
+		foreach (var pluginname in pluginnames)
 		{
-			Directory.CreateDirectory(pluginDirectory);
-			plugin = new UPlugin(pluginname);
-			plugin.RootPath = pluginDirectory;
-			plugin.Save(JsonIndentation.ReadFromSettings(path));
+			UPlugin plugin = null;
+			string pluginDirectory = Path.Combine(UnrealItem.RootPath, "Plugins", pluginname);
+			if (!Directory.Exists(pluginDirectory))
+			{
+				Directory.CreateDirectory(pluginDirectory);
+				plugin = new UPlugin(pluginname);
+				plugin.RootPath = pluginDirectory;
+				plugin.Save(JsonIndentation.ReadFromSettings(path));
 
-			AddModule(pluginDirectory, pluginname);
+				AddModule(pluginDirectory, pluginname);
+			}
+			else
+			{
+				plugin = UPlugin.Load(Directory.GetFiles(pluginDirectory, "*.uplugin").First());
+			}
+
+			var project = UProject.Load(UnrealItem.FullPath);
+
+			var pi = project.Plugins.Find(x => x.Name == plugin.Name)
+				?? new UPluginItem { Name = plugin.Name }.Also(_ => project.Plugins.Add(_));
+			pi.Enabled = true;
+			project.Save(JsonIndentation.ReadFromSettings(path));
 		}
-		else
-		{
-			plugin = UPlugin.Load(Directory.GetFiles(pluginDirectory, "*.uplugin").First());
-		}
-
-		var project = UProject.Load(UnrealItem.FullPath);
-
-		var pi = project.Plugins.Find(x => x.Name == plugin.Name)
-			?? new UPluginItem { Name = plugin.Name }.Also(_ => project.Plugins.Add(_));
-		pi.Enabled = true;
-		project.Save(JsonIndentation.ReadFromSettings(path));
 	}
 
-	public static void AddModule(string path, string modulename)
+	public static void AddModule(string path, params string[] modulenames)
 	{
 		UnrealItemDescription UnrealItem = UnrealItemDescription.RequireUnrealItem(path, UnrealItemType.Project, UnrealItemType.Plugin);
 
 		using var GenerateOnAddGuard = GenerateOnAdd(UnrealItem);
 
-		if (UnrealItem.Type == UnrealItemType.Plugin)
+		foreach (var modulename in modulenames)
 		{
-			var plugin = UPlugin.Load(UnrealItem.FullPath);
+			if (UnrealItem.Type == UnrealItemType.Plugin)
+			{
+				var plugin = UPlugin.Load(UnrealItem.FullPath);
 
-			var module = new UModuleItem();
-			module.Name = modulename;
-			Template.CreateModule(plugin.RootPath, module.Name);
-			plugin.Modules.Add(module);
+				var module = new UModuleItem();
+				module.Name = modulename;
+				Template.CreateModule(plugin.RootPath, module.Name);
+				plugin.Modules.Add(module);
 
-			plugin.Save(JsonIndentation.ReadFromSettings(path));
-		}
-		else if (UnrealItem.Type == UnrealItemType.Project)
-		{
-			var project = UProject.Load(UnrealItem.FullPath);
+				plugin.Save(JsonIndentation.ReadFromSettings(path));
+			}
+			else if (UnrealItem.Type == UnrealItemType.Project)
+			{
+				var project = UProject.Load(UnrealItem.FullPath);
 
-			var module = new UModuleItem();
-			module.Name = modulename;
-			Template.CreateModule(project.RootPath, module.Name);
-			project.Modules.Add(module);
+				var module = new UModuleItem();
+				module.Name = modulename;
+				Template.CreateModule(project.RootPath, module.Name);
+				project.Modules.Add(module);
 
-			project.Save(JsonIndentation.ReadFromSettings(path));
+				project.Save(JsonIndentation.ReadFromSettings(path));
+			}
 		}
 	}
 

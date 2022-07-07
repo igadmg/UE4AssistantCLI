@@ -1,3 +1,12 @@
+## 1.5.5
+
+1. Added PlatformDenyList and AdditionalDependencies support to uproject parser.
+
+## 1.5.4
+
+1. Added ability to pass several names to `add plugin` and `add module` commands.
+1. Added more coloring to log.
+
 ## 1.5.2
 
 1. Fixed ConsoleColors output to ANSI console. Also fixed MacOS color output. 

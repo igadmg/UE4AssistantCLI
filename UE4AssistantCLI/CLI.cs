@@ -17,15 +17,15 @@ class CLI : ConsoleAppBase
 		}
 
 		[Command("plugin", "Create and add new plugin to current project.")]
-		public async Task AddPlugin([Option(0, "plugin name")] string name)
+		public async Task AddPlugin([Option(0, "plugin names")] params string[] names)
 		{
-			Program.AddPlugin(Directory.GetCurrentDirectory(), name);
+			Program.AddPlugin(Directory.GetCurrentDirectory(), names);
 		}
 
 		[Command("module", "Add new module to current project or plugin.")]
-		public async Task AddModule([Option(0, "module name")] string name)
+		public async Task AddModule([Option(0, "module names")] params string[] names)
 		{
-			Program.AddModule(Directory.GetCurrentDirectory(), name);
+			Program.AddModule(Directory.GetCurrentDirectory(), names);
 		}
 
 		[Command("class", "Add new class to current module.")]
