@@ -59,6 +59,80 @@ class CLI : ConsoleAppBase
 		}
 	}
 
+	[Command("config")]
+	public class Config : ConsoleAppBase
+	{
+		string GetConfigFileName(string path, string configFile)
+		{
+			if (File.Exists(configFile)) return configFile;
+
+			var f = Path.Combine(path, configFile);
+			if (File.Exists(f)) return f;
+
+			var UnrealItem = UnrealItemDescription.RequireUnrealItem(path, UnrealItemType.Engine, UnrealItemType.Project);
+			f = Path.Combine(UnrealItem.RootPath, configFile);
+			if (File.Exists(f)) return f;
+
+			if (UnrealItem.Type == UnrealItemType.Project)
+			{
+				foreach (var ConfigurationPath in UnrealItem.ConfigurationPaths)
+				{
+					f = Path.Combine(ConfigurationPath, configFile);
+					if (File.Exists(f)) return f;
+
+					f = Path.Combine(ConfigurationPath, configFile + ".ini");
+					if (File.Exists(f)) return f;
+
+					f = Path.Combine(ConfigurationPath, "Default" + configFile);
+					if (File.Exists(f)) return f;
+
+					f = Path.Combine(ConfigurationPath, "Default" + configFile + ".ini");
+					if (File.Exists(f)) return f;
+				}
+			}
+
+			return null;
+		}
+
+		[Command("get", "Get value from config file.")]
+		public async Task Get([Option(0)] string configFile, [Option(1)] string section, [Option(2)] string key)
+		{
+			string filename = GetConfigFileName(Directory.GetCurrentDirectory(), configFile);
+
+			if (filename.IsNullOrWhiteSpace())
+				throw new UE4AssistantException($"Can't find configuration file '{configFile}'.");
+
+			var config = new ConfigFile(filename);
+
+			var s = config[section];
+			if (s == null) throw new UE4AssistantException($"Can't find section '{section}' in file '{filename}'.");
+
+			var v = s.lines.Find(l => l.key == key);
+			if (v.key.IsNullOrWhiteSpace()) throw new UE4AssistantException($"Can't find key '{key}' in section '{section}' in file '{filename}'.");
+
+			Console.WriteLine(v.value);
+		}
+
+		[Command("set", "Set value in config file.")]
+		public async Task Set([Option(0)] string configFile, [Option(1)] string section, [Option(2)] string key, [Option(3)] string value = null)
+		{
+			if (value == null && Console.In.Peek() != -1)
+				value = Console.ReadLine();
+
+			string filename = GetConfigFileName(Directory.GetCurrentDirectory(), configFile);
+
+			if (filename.IsNullOrWhiteSpace())
+				throw new UE4AssistantException($"Can't find configuration file '{configFile}'.");
+
+			var config = new ConfigFile(filename);
+
+			var s = config[section] ?? config.AddSection(section);
+			s[key] = value;
+
+			config.Save(filename);
+		}
+	}
+
 	[Command("fix")]
 	public class Fix : ConsoleAppBase
 	{
@@ -72,7 +146,7 @@ class CLI : ConsoleAppBase
 		[Command("dll_load", "Fix `Failed to load dll` errors.")]
 		public async Task DllLoad()
 		{
-			UnrealItemDescription UnrealItem = UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
+			var UnrealItem = UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
 
 			Console.WriteLine($"==> {UnrealItem.ProjectLogFile}");
 			var dllLoadFiles = new HashSet<string>(Utilities.ParseDllLoadErrors(File.ReadAllText(UnrealItem.ProjectLogFile)));
@@ -91,7 +165,7 @@ class CLI : ConsoleAppBase
 		[Command("pch_cleanup", "Cleanup PCH file errors.")]
 		public async Task PCHCleanup()
 		{
-			UnrealItemDescription UnrealItem = UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
+			var UnrealItem = UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
 
 			foreach (var buildLog in UnrealItem.BuildLogs)
 			{
@@ -113,7 +187,7 @@ class CLI : ConsoleAppBase
 		[Command("project", "Open project log folder.")]
 		public async Task ProjectLog()
 		{
-			UnrealItemDescription UnrealItem = UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
+			var UnrealItem = UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
 
 			Utilities.ExecuteOpenFile(UnrealItem.ProjectLogPath);
 		}
@@ -121,7 +195,7 @@ class CLI : ConsoleAppBase
 		[Command("build", "Open build log file.")]
 		public async Task BuildLog()
 		{
-			UnrealItemDescription UnrealItem = UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
+			var UnrealItem = UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
 
 			Utilities.ExecuteOpenFile(UnrealItem.BuildLogPath);
 		}
@@ -144,8 +218,7 @@ class CLI : ConsoleAppBase
 		[Command("show", "Show project's Unreal Engine uuid identifier.")]
 		public async Task Show()
 		{
-			UnrealItemDescription UnrealItem
-				= UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project, UnrealItemType.Engine);
+			var UnrealItem = UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project, UnrealItemType.Engine);
 
 			Console.WriteLine(new UnrealEngineInstance(UnrealItem).Uuid);
 		}
@@ -155,11 +228,11 @@ class CLI : ConsoleAppBase
 		{
 			uuid ??= Guid.NewGuid().ToString();
 
-			UnrealItemDescription UnrealItem = UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project, UnrealItemType.Engine);
+			var UnrealItem = UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project, UnrealItemType.Engine);
 
 			try
 			{
-				UnrealEngineInstance UnrealInstance = new UnrealEngineInstance(UnrealItem);
+				var UnrealInstance = new UnrealEngineInstance(UnrealItem);
 
 				var Uuid = new Guid(uuid);
 				UnrealEngineInstance.SetUserUnrealEngineBuilds(Uuid.ToString("B").ToUpper(), UnrealInstance.RootPath);
@@ -178,14 +251,14 @@ class CLI : ConsoleAppBase
 	[Command("init", "Initialize working environment, create Libraries.sln.")]
 	public async Task InitProject([Option(0, "UE4 version")] string UE4Version = null)
 	{
-		UnrealItemDescription UnrealItem = UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
+		var UnrealItem = UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
 		Program.InitProject(UnrealItem.RootPath, UE4Version ?? "");
 	}
 
 	[Command("clean", "Clean project and plugins from build files.")]
 	public async Task CleanProject()
 	{
-		UnrealItemDescription UnrealItem = UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
+		var UnrealItem = UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
 
 		Console.WriteLine("Cleaning in {0}.", UnrealItem.RootPath);
 
@@ -215,8 +288,7 @@ class CLI : ConsoleAppBase
 	[Command("editor", "Open UE4 Editor for current project.")]
 	public async Task OpenEditor()
 	{
-		UnrealItemDescription UnrealItem =
-			UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project, UnrealItemType.Engine);
+		var UnrealItem = UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project, UnrealItemType.Engine);
 
 		if (UnrealItem.Type == UnrealItemType.Project)
 		{
@@ -237,7 +309,7 @@ class CLI : ConsoleAppBase
 	[Command("code", "Open Source Code Editor for current project.")]
 	public async Task OpenCode()
 	{
-		UnrealItemDescription UnrealItem = UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
+		var UnrealItem = UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
 
 		if (UnrealItem.ReadConfiguration<ProjectConfiguration>()?.GenerateProject.onCode ?? false)
 		{
@@ -254,8 +326,8 @@ class CLI : ConsoleAppBase
 	[Command("run", "Run commandlet.")]
 	public async Task RunCommandlet([Option(0)] string commandlet, [Option(1)] params string[] parameters)
 	{
-		UnrealItemDescription UnrealItem = UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
-		UnrealEngineInstance UnrealInstance = new UnrealEngineInstance(UnrealItem);
+		var UnrealItem = UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
+		var UnrealInstance = new UnrealEngineInstance(UnrealItem);
 
 		Utilities.RequireExecuteCommandLine(Utilities.EscapeCommandLineArgs(
 			new[] { UnrealInstance.UnrealCmdPath, UnrealItem.FullPath, $"-run={commandlet}" }.Concat(parameters)));
@@ -264,7 +336,7 @@ class CLI : ConsoleAppBase
 	[Command("get_ue_root", "Get UE root of associated UE build.")]
 	public async Task GetUERoot([Option(0, "project name")] string ProjectName = null)
 	{
-		UnrealItemDescription UnrealItem = UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), ProjectName ?? "", UnrealItemType.Project);
+		var UnrealItem = UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), ProjectName ?? "", UnrealItemType.Project);
 
 		Console.WriteLine(new UnrealEngineInstance(UnrealItem).RootPath);
 	}
@@ -283,7 +355,7 @@ class CLI : ConsoleAppBase
 	public async Task BuildProject([Option(0, "build settings json file name")] string BuildSettingsJson = null
 		, [Option("dump", "Dump configuration file to the console.")] bool dump = false)
 	{
-		UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project, UnrealItemType.Engine);
+		var UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project, UnrealItemType.Engine);
 		var ProjectConfiguration = UnrealItem?.ReadConfiguration<ProjectConfiguration>();
 
 		if (BuildSettingsJson.IsNullOrWhiteSpace() && !(ProjectConfiguration?.DefaultBuildConfigurationFile).IsNullOrWhiteSpace())
@@ -320,7 +392,7 @@ class CLI : ConsoleAppBase
 	public async Task CookProject([Option(0, "cook settings json file name")] string CookSettingsJson = null
 		, [Option("dump", "Dump configuration file config to console.")] bool dump = false)
 	{
-		UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
+		var UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
 		var ProjectConfiguration = UnrealItem?.ReadConfiguration<ProjectConfiguration>();
 
 		if (CookSettingsJson.IsNullOrWhiteSpace() && !(ProjectConfiguration.DefaultCookConfigurationFile).IsNullOrWhiteSpace())
@@ -366,7 +438,7 @@ class CLI : ConsoleAppBase
 		, [Option("plastic-source", "Optional @sourcesymbolic parameter from Plastic SCM diff to help find project folder when making diff.")] string PlasticSource = null
 		, [Option("plastic-destination", "Optional @destinationsymbolic parameter from Plastic SCM diff to help find project folder when making diff.")] string PlasticDestination = null)
 	{
-		UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItemExceptTemp(Directory.GetCurrentDirectory(), UnrealItemType.Project)
+		var UnrealItem = UnrealItemDescription.DetectUnrealItemExceptTemp(Directory.GetCurrentDirectory(), UnrealItemType.Project)
 			?? UnrealItemDescription.DetectUnrealItemExceptTemp(Path.GetDirectoryName(LeftFile), UnrealItemType.Project)
 			?? UnrealItemDescription.DetectUnrealItemExceptTemp(Path.GetDirectoryName(RightFile), UnrealItemType.Project)
 			?? UnrealItemDescription.DetectUnrealItemExceptTemp(Path.GetDirectoryName(PlasticSource.GetFilenameFromPlasticRev()), UnrealItemType.Project)
@@ -377,7 +449,7 @@ class CLI : ConsoleAppBase
 			throw new RequireUnrealItemException(Directory.GetCurrentDirectory(), UnrealItemType.Project);
 		}
 
-		UnrealEngineInstance UnrealInstance = new UnrealEngineInstance(UnrealItem);
+		var UnrealInstance = new UnrealEngineInstance(UnrealItem);
 
 		Utilities.RequireExecuteCommandLine(Utilities.EscapeCommandLineArgs(
 			UnrealInstance.UnrealEditorPath, UnrealItem.FullPath, "-diff", LeftFile, RightFile));
@@ -386,7 +458,7 @@ class CLI : ConsoleAppBase
 	[Command("merge", "Launch UE4 diff tool to merge conflict file.")]
 	public async Task MergeAsset([Option(0, "Base file")] string BaseFile, [Option(1, "Local file")] string LocalFile, [Option(2, "Remote file")] string RemoteFile, [Option(3, "Result file")] string ResultFile)
 	{
-		UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItemExceptTemp(Directory.GetCurrentDirectory(), UnrealItemType.Project)
+		var UnrealItem = UnrealItemDescription.DetectUnrealItemExceptTemp(Directory.GetCurrentDirectory(), UnrealItemType.Project)
 			?? UnrealItemDescription.DetectUnrealItemExceptTemp(Path.GetDirectoryName(BaseFile), UnrealItemType.Project)
 			?? UnrealItemDescription.DetectUnrealItemExceptTemp(Path.GetDirectoryName(LocalFile), UnrealItemType.Project)
 			?? UnrealItemDescription.DetectUnrealItemExceptTemp(Path.GetDirectoryName(RemoteFile), UnrealItemType.Project);
@@ -396,7 +468,7 @@ class CLI : ConsoleAppBase
 			throw new RequireUnrealItemException(Directory.GetCurrentDirectory(), UnrealItemType.Project);
 		}
 
-		UnrealEngineInstance UnrealInstance = new UnrealEngineInstance(UnrealItem);
+		var UnrealInstance = new UnrealEngineInstance(UnrealItem);
 
 		if (!File.Exists(ResultFile))
 			File.Copy(LocalFile, ResultFile);
@@ -408,8 +480,8 @@ class CLI : ConsoleAppBase
 	[Command("merge_lfs", "Launch UE4 diff tool to merge conflict file.")]
 	public async Task MergeAssetFromLFS([Option(0, "asset path")] string AssetPath)
 	{
-		UnrealItemDescription UnrealItem = UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
-		UnrealEngineInstance UnrealInstance = new UnrealEngineInstance(UnrealItem);
+		var UnrealItem = UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
+		var UnrealInstance = new UnrealEngineInstance(UnrealItem);
 
 		string savedDiffPath = Path.Combine(UnrealItem.RootPath, "Saved\\Diff");
 		if (!Directory.Exists(savedDiffPath))
@@ -448,7 +520,7 @@ class CLI : ConsoleAppBase
 	//[Command("move", "Move class to another path. NOT IMPLEMENTED.")]
 	public async Task MoveClass([Option(0)] string OriginalFileName, [Option(1)] string DestinationPath)
 	{
-		UnrealItemDescription UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Module);
+		var UnrealItem = UnrealItemDescription.DetectUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Module);
 
 		if (UnrealItem == null)
 		{
@@ -480,12 +552,12 @@ class CLI : ConsoleAppBase
 	[Command("create_config", "Create new or update old template config in current project or module.")]
 	public async Task CreateConfig()
 	{
-		UnrealItemDescription UnrealItem = UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project, UnrealItemType.Module);
+		var UnrealItem = UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project, UnrealItemType.Module);
 
 		if (UnrealItem.Type == UnrealItemType.Project)
-			Configuration.WriteConfiguration(UnrealItem.ConfigurationPath, UnrealItem.ReadConfiguration<ProjectConfiguration>() ?? new ProjectConfiguration());
+			Configuration.WriteConfiguration(UnrealItem.Ue4AssistantConfigurationPath, UnrealItem.ReadConfiguration<ProjectConfiguration>() ?? new ProjectConfiguration());
 		else if (UnrealItem.Type == UnrealItemType.Module)
-			Configuration.WriteConfiguration(UnrealItem.ConfigurationPath, UnrealItem.ReadConfiguration<TemplateConfiguration>() ?? new TemplateConfiguration());
+			Configuration.WriteConfiguration(UnrealItem.Ue4AssistantConfigurationPath, UnrealItem.ReadConfiguration<TemplateConfiguration>() ?? new TemplateConfiguration());
 	}
 }
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously

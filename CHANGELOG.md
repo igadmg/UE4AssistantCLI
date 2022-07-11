@@ -1,3 +1,7 @@
+## 1.5.6
+
+1. Added 'config get/set' commands to get/set values from project config files. Set values can be piped from a stream.
+
 ## 1.5.5
 
 1. Added PlatformDenyList and AdditionalDependencies support to uproject parser.

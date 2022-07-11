@@ -77,6 +77,7 @@ class Program
 			})
 			.AddCommands<CLI>()
 			.AddSubCommands<CLI.Add>()
+			.AddSubCommands<CLI.Config>()
 			.AddSubCommands<CLI.Fix>()
 			.AddSubCommands<CLI.Log>()
 			.AddSubCommands<CLI.Uuid>()

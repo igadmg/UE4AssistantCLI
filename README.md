@@ -18,6 +18,8 @@ Commands:
   build [Config] [--dump]                       Build project. --dump - Dump configuration file to the console.
   clean                                         Clean project and plugins from build files.
   code                                          Open Source Code Editor for current project.
+  config get [File] [Section] [Key]             Get value from config file.
+  config set [File] [Section] [Key] <Value>     Set value in config file. Value can be piped through a stream.
   convert                                       Convert copied clipboard data to json file.
   cook [Config] [--dump]                        Cook project with cook settings. --dump - Dump configuration file to the console.
   create_config                                 Create new or update old template config in current project or module.

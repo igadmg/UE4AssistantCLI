@@ -48,6 +48,11 @@
       "commandName": "Project",
       "commandLineArgs": "run CompileAllBlueprints -msg=\"hello world\" random parameters here",
       "workingDirectory": "D:\\Pixelynx\\Globant-Dev\\PixelynxClient"
+    },
+    "ue4cli config get": {
+      "commandName": "Project",
+      "commandLineArgs": "config set Game /Script/PixelynxClient.PixelynxGameInstance BuildIdentifier \"hi\"",
+      "workingDirectory": "D:\\Pixelynx\\Globant-Dev\\PixelynxClient\\Packages\\Windows"
     }
   }
 }
