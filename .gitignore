@@ -6,3 +6,4 @@ nupkg
 publish
 *.user
 UE4AssistantCLI/feed
+launchSettings.json 

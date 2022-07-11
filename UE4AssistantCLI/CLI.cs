@@ -69,26 +69,23 @@ class CLI : ConsoleAppBase
 			var f = Path.Combine(path, configFile);
 			if (File.Exists(f)) return f;
 
-			var UnrealItem = UnrealItemDescription.RequireUnrealItem(path, UnrealItemType.Engine, UnrealItemType.Project);
+			var UnrealItem = UnrealItemDescription.RequireUnrealItem(path, UnrealItemType.Engine, UnrealItemType.Project, UnrealItemType.Game);
 			f = Path.Combine(UnrealItem.RootPath, configFile);
 			if (File.Exists(f)) return f;
 
-			if (UnrealItem.Type == UnrealItemType.Project)
+			foreach (var ConfigurationPath in UnrealItem.ConfigurationPaths)
 			{
-				foreach (var ConfigurationPath in UnrealItem.ConfigurationPaths)
-				{
-					f = Path.Combine(ConfigurationPath, configFile);
-					if (File.Exists(f)) return f;
+				f = Path.Combine(ConfigurationPath, configFile);
+				if (File.Exists(f)) return f;
 
-					f = Path.Combine(ConfigurationPath, configFile + ".ini");
-					if (File.Exists(f)) return f;
+				f = Path.Combine(ConfigurationPath, configFile + ".ini");
+				if (File.Exists(f)) return f;
 
-					f = Path.Combine(ConfigurationPath, "Default" + configFile);
-					if (File.Exists(f)) return f;
+				f = Path.Combine(ConfigurationPath, "Default" + configFile);
+				if (File.Exists(f)) return f;
 
-					f = Path.Combine(ConfigurationPath, "Default" + configFile + ".ini");
-					if (File.Exists(f)) return f;
-				}
+				f = Path.Combine(ConfigurationPath, "Default" + configFile + ".ini");
+				if (File.Exists(f)) return f;
 			}
 
 			return null;

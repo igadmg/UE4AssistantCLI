@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "UE4AssistantCLI.UI": {
-      "commandName": "Project",
-      "commandLineArgs": "parse -ci 40"
-    }
-  }
-}
