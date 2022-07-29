@@ -11,8 +11,9 @@ class CLI : ConsoleAppBase
 	public class Add : ConsoleAppBase
 	{
 		[Command("project", "Create new project.")]
-		public async Task AddProject([Option(0, "project name")] string name)
+		public async Task AddProject([Option(0, "project name")] string name, [Option("ng", "skip project generation step")] bool no_generate = false)
 		{
+			Program.no_generate = no_generate;
 			Program.AddProject(name);
 		}
 
@@ -29,32 +30,37 @@ class CLI : ConsoleAppBase
 		}
 
 		[Command("class", "Add new class to current module.")]
-		public async Task AddClass([Option(0, "class name")] string name, [Option(1, "base class name")] string basename = "UObject")
+		public async Task AddClass([Option(0, "class name")] string name, [Option(1, "base class name")] string basename = "UObject", [Option("ng", "skip project generation step")] bool no_generate = false)
 		{
+			Program.no_generate = no_generate;
 			Program.AddClass(Directory.GetCurrentDirectory(), name, basename);
 		}
 
 		[Command("bpfl", "Add a function library to current module, if one does not exist.")]
-		public async Task AddBpfl([Option(0, "class name")] string name = null)
+		public async Task AddBpfl([Option(0, "class name")] string name = null, [Option("ng", "skip project generation step")] bool no_generate = false)
 		{
+			Program.no_generate = no_generate;
 			Program.AddBpfl(Directory.GetCurrentDirectory(), name);
 		}
 
 		[Command("interface", "Add new interface to current module.")]
-		public async Task AddInterface([Option(0, "interface name")] string name)
+		public async Task AddInterface([Option(0, "interface name")] string name, [Option("ng", "skip project generation step")] bool no_generate = false)
 		{
+			Program.no_generate = no_generate;
 			Program.AddInterface(Directory.GetCurrentDirectory(), name);
 		}
 
 		[Command("dataasset", "Add a data asset class with given name.")]
-		public async Task AddDataAsset([Option(0, "data asset name")] string name, [Option(1, "data asset base class name")] string basename = "UDataAsset")
+		public async Task AddDataAsset([Option(0, "data asset name")] string name, [Option(1, "data asset base class name")] string basename = "UDataAsset", [Option("ng", "skip project generation step")] bool no_generate = false)
 		{
+			Program.no_generate = no_generate;
 			Program.AddDataAsset(Directory.GetCurrentDirectory(), name, basename);
 		}
 
 		[Command("tablerow", "Add a data table row struct with given name.")]
-		public async Task AddTableRow([Option(0, "table row name")] string name, [Option(1, "table row base class name")] string basename = "FTableRowBase")
+		public async Task AddTableRow([Option(0, "table row name")] string name, [Option(1, "table row base class name")] string basename = "FTableRowBase", [Option("ng", "skip project generation step")] bool no_generate = false)
 		{
+			Program.no_generate = no_generate;
 			Program.AddTableRow(Directory.GetCurrentDirectory(), name, basename);
 		}
 	}
@@ -283,13 +289,13 @@ class CLI : ConsoleAppBase
 	}
 
 	[Command("editor", "Open UE4 Editor for current project.")]
-	public async Task OpenEditor()
+	public async Task OpenEditor([Option("ng", "skip project generation step")] bool no_generate = false)
 	{
 		var UnrealItem = UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project, UnrealItemType.Engine);
 
 		if (UnrealItem.Type == UnrealItemType.Project)
 		{
-			if (UnrealItem.ReadConfiguration<ProjectConfiguration>()?.GenerateProject.onEditor ?? false)
+			if (!no_generate && (UnrealItem.ReadConfiguration<ProjectConfiguration>()?.GenerateProject.onEditor ?? false))
 			{
 				await GenerateProject();
 			}
@@ -304,11 +310,11 @@ class CLI : ConsoleAppBase
 	}
 
 	[Command("code", "Open Source Code Editor for current project.")]
-	public async Task OpenCode()
+	public async Task OpenCode([Option("ng", "skip project generation step")] bool no_generate = false)
 	{
 		var UnrealItem = UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
 
-		if (UnrealItem.ReadConfiguration<ProjectConfiguration>()?.GenerateProject.onCode ?? false)
+		if (!no_generate && (UnrealItem.ReadConfiguration<ProjectConfiguration>()?.GenerateProject.onCode ?? false))
 		{
 			await GenerateProject();
 		}

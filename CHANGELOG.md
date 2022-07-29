@@ -1,6 +1,10 @@
+## 1.5.7
+
+1. Added `-ng`/`-no_generate` parameter to `add`, `editor`, `code` commands to skip project generation step.
+
 ## 1.5.6
 
-1. Added 'config get/set' commands to get/set values from project config files. Set values can be piped from a stream.
+1. Added `config get/set` commands to get/set values from project config files. Set values can be piped from a stream.
 
 ## 1.5.5
 

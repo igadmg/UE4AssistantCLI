@@ -56,6 +56,8 @@ class Program
 		}
 	}
 
+	public static bool no_generate = false;
+
 	static async Task<int> Main(string[] args)
 	{
 		using var ansi = new ANSIInitializer();
@@ -89,6 +91,9 @@ class Program
 	static IDisposable GenerateOnAdd(string path) => GenerateOnAdd(UnrealItemDescription.DetectUnrealItem(path, UnrealItemType.Project));
 	static IDisposable GenerateOnAdd(UnrealItemDescription UnrealItem)
 	{
+		if (no_generate)
+			return DisposableLock.empty;
+
 		if (UnrealItem?.ReadConfiguration<ProjectConfiguration>()?.GenerateProject.onAddItem ?? false)
 		{
 			return DisposableLock.Lock(() => GenerateProject(UnrealItem.RootPath));
