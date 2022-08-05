@@ -4,7 +4,7 @@
     <OutputType>Exe</OutputType>
     <TargetFrameworks>net50;net60</TargetFrameworks>
     <Version>1.5.7</Version>
-    <AssemblyName>ue4cli</AssemblyName>
+    <AssemblyName>uecli</AssemblyName>
 
     <LangVersion>latest</LangVersion>
 
@@ -23,6 +23,7 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/yatagarasu25/UE4AssistantCLI</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -54,6 +55,7 @@
 
   <ItemGroup>
     <Folder Include="Properties\" />
+    <None Include="..\README.md" Pack="true" PackagePath="\"/>
   </ItemGroup>
 
 </Project>

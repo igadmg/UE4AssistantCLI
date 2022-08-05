@@ -2,17 +2,15 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFrameworks>net50-windows;net60-windows</TargetFrameworks>
     <UseWindowsForms>true</UseWindowsForms>
 
-	<ImplicitUsings>enable</ImplicitUsings>
-	<Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
 
     <Version>1.5.0</Version>
-    <AssemblyName>ue4cli-ui</AssemblyName>
-
-    <PackAsTool>true</PackAsTool>
-    <ToolCommandName>$(AssemblyName)</ToolCommandName>
+    <AssemblyName>uecli-ui</AssemblyName>
 
     <PackageId>$(AssemblyName)</PackageId>
     <PackageVersion>$(Version)</PackageVersion>

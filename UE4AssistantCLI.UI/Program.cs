@@ -28,9 +28,11 @@ static class Program
 	///  The main entry point for the application.
 	/// </summary>
 	[STAThread]
-	static void Main()
+	public static void Main()
 	{
+#if NET6_0_OR_GREATER
 		ApplicationConfiguration.Initialize();
+#endif
 		AllocConsole();
 
 		Console.SetIn(new StringReader("	UPROPERTY(Category = \"Default\", VisibleAnywhere, BlueprintReadOnly) int i = 0;\n"));

@@ -4,7 +4,7 @@ Most commands work in OSX (project, plugin, module and code generation) some nee
 Build and Cook are working in Linux.
 
 ```
-Usage: ue4cli <Command>
+Usage: uecli <Command>
 
 Commands:
   add module <Name>                             Add new module to current project or plugin.

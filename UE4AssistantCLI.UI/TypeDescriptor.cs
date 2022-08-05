@@ -93,7 +93,7 @@ public class SpecializerTypeDescriptor : DynamicTypeDescriptor
 		=> specifier.GroupProperties(name).ToDictionary(i => i.Key
 			, i => i.Count() == 1
 				? (specifier.GetData(name).GetValueOrDefault(i.First().name, i.First().DefaultValue), i.First().Type)
-				: (i.Select(i => i.name).FirstOrDefault(i => specifier.GetData(name).ContainsKey(i), i.First().name), typeof(string))
+				: (i.Select(i => i.name).FirstOrDefault(i => specifier.GetData(name).ContainsKey(i)) ?? i.First().name, typeof(string))
 			);
 
 	private static void DecorateProperty(DynamicPropertyDescriptor dp, IEnumerable<SpecifierParameterModel> items)
