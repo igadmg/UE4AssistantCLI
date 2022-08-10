@@ -333,7 +333,9 @@ class CLI : ConsoleAppBase
 		var UnrealInstance = new UnrealEngineInstance(UnrealItem);
 
 		Utilities.RequireExecuteCommandLine(Utilities.EscapeCommandLineArgs(
-			new[] { UnrealInstance.UnrealCmdPath, UnrealItem.FullPath, $"-run={commandlet}" }.Concat(parameters)));
+			new[] { UnrealInstance.UnrealCmdPath, UnrealItem.FullPath, $"-run={commandlet}" }.Concat(parameters)), str => {
+				UnrealLogPrinter.WriteLine(str);
+			});
 	}
 
 	[Command("get_ue_root", "Get UE root of associated UE build.")]
