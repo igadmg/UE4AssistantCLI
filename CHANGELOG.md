@@ -1,3 +1,8 @@
+## 1.5.8
+
+1. Fixed `run` log coloring.
+1. Fixed `run` working without parameters.
+
 ## 1.5.7
 
 1. Added `-ng`/`-no_generate` parameter to `add`, `editor`, `code` commands to skip project generation step.
