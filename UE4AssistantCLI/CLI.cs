@@ -10,8 +10,11 @@ class CLI : ConsoleAppBase
 	[Command("add")]
 	public class Add : ConsoleAppBase
 	{
+		[Option("ng", "skip project generation step")]
+		bool no_generate = false;
+
 		[Command("project", "Create new project.")]
-		public async Task AddProject([Option(0, "project name")] string name, [Option("ng", "skip project generation step")] bool no_generate = false)
+		public async Task AddProject([Option(0, "project name")] string name)
 		{
 			Program.no_generate = no_generate;
 			Program.AddProject(name);
@@ -20,45 +23,47 @@ class CLI : ConsoleAppBase
 		[Command("plugin", "Create and add new plugin to current project.")]
 		public async Task AddPlugin([Option(0, "plugin names")] params string[] names)
 		{
+			Program.no_generate = no_generate;
 			Program.AddPlugin(Directory.GetCurrentDirectory(), names);
 		}
 
 		[Command("module", "Add new module to current project or plugin.")]
 		public async Task AddModule([Option(0, "module names")] params string[] names)
 		{
+			Program.no_generate = no_generate;
 			Program.AddModule(Directory.GetCurrentDirectory(), names);
 		}
 
 		[Command("class", "Add new class to current module.")]
-		public async Task AddClass([Option(0, "class name")] string name, [Option(1, "base class name")] string basename = "UObject", [Option("ng", "skip project generation step")] bool no_generate = false)
+		public async Task AddClass([Option(0, "class name")] string name, [Option(1, "base class name")] string basename = "UObject")
 		{
 			Program.no_generate = no_generate;
 			Program.AddClass(Directory.GetCurrentDirectory(), name, basename);
 		}
 
 		[Command("bpfl", "Add a function library to current module, if one does not exist.")]
-		public async Task AddBpfl([Option(0, "class name")] string name = null, [Option("ng", "skip project generation step")] bool no_generate = false)
+		public async Task AddBpfl([Option(0, "class name")] string name = null)
 		{
 			Program.no_generate = no_generate;
 			Program.AddBpfl(Directory.GetCurrentDirectory(), name);
 		}
 
 		[Command("interface", "Add new interface to current module.")]
-		public async Task AddInterface([Option(0, "interface name")] string name, [Option("ng", "skip project generation step")] bool no_generate = false)
+		public async Task AddInterface([Option(0, "interface name")] string name)
 		{
 			Program.no_generate = no_generate;
 			Program.AddInterface(Directory.GetCurrentDirectory(), name);
 		}
 
 		[Command("dataasset", "Add a data asset class with given name.")]
-		public async Task AddDataAsset([Option(0, "data asset name")] string name, [Option(1, "data asset base class name")] string basename = "UDataAsset", [Option("ng", "skip project generation step")] bool no_generate = false)
+		public async Task AddDataAsset([Option(0, "data asset name")] string name, [Option(1, "data asset base class name")] string basename = "UDataAsset")
 		{
 			Program.no_generate = no_generate;
 			Program.AddDataAsset(Directory.GetCurrentDirectory(), name, basename);
 		}
 
 		[Command("tablerow", "Add a data table row struct with given name.")]
-		public async Task AddTableRow([Option(0, "table row name")] string name, [Option(1, "table row base class name")] string basename = "FTableRowBase", [Option("ng", "skip project generation step")] bool no_generate = false)
+		public async Task AddTableRow([Option(0, "table row name")] string name, [Option(1, "table row base class name")] string basename = "FTableRowBase")
 		{
 			Program.no_generate = no_generate;
 			Program.AddTableRow(Directory.GetCurrentDirectory(), name, basename);
@@ -218,6 +223,7 @@ class CLI : ConsoleAppBase
 			}
 		}
 
+		[RootCommand]
 		[Command("show", "Show project's Unreal Engine uuid identifier.")]
 		public async Task Show()
 		{
