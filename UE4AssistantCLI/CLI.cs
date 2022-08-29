@@ -294,7 +294,7 @@ class CLI : ConsoleAppBase
 		Program.GenerateProject(Directory.GetCurrentDirectory());
 	}
 
-	[Command("editor", "Open UE4 Editor for current project.")]
+	[Command("editor", "Open Unreal Engine Editor and open current project if run inside project folder.")]
 	public async Task OpenEditor([Option("ng", "skip project generation step")] bool no_generate = false)
 	{
 		var UnrealItem = UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project, UnrealItemType.Engine);
