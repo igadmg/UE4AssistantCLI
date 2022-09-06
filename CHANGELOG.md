@@ -1,3 +1,7 @@
+## 1.5.9
+
+1. Added support of path in type names. Ex. `add class Folder\Class UObject`
+
 ## 1.5.8
 
 1. Fixed `run` log coloring.
