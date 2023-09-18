@@ -1,5 +1,6 @@
 ﻿using ClipboardEx.Win32;
 using ConsoleAppFramework;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace UE4AssistantCLI;
@@ -569,6 +570,28 @@ class CLI : ConsoleAppBase
 			Configuration.WriteConfiguration(UnrealItem.Ue4AssistantConfigurationPath, UnrealItem.ReadConfiguration<ProjectConfiguration>() ?? new ProjectConfiguration());
 		else if (UnrealItem.Type == UnrealItemType.Module)
 			Configuration.WriteConfiguration(UnrealItem.Ue4AssistantConfigurationPath, UnrealItem.ReadConfiguration<TemplateConfiguration>() ?? new TemplateConfiguration());
+	}
+
+	void ProtectFolder(string path)
+	{
+		foreach (string file in Directory.GetFiles(path, "*.*", SearchOption.AllDirectories))
+		{
+			if (file.EndsWith(".cpp") || file.EndsWith(".h") || file.EndsWith(".cs"))
+			{
+				var currentAttributes = File.GetAttributes(file);
+				File.SetAttributes(file, currentAttributes | FileAttributes.ReadOnly);
+			}
+		}
+	}
+
+	[Command("protect", "Protect Unreal Engine source folder - mark most source files as readonly to avoid accidental change.")]
+	public async Task Protect()
+	{
+		var UnrealItem = UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Engine);
+
+		ProtectFolder(Path.Combine(UnrealItem.RootPath, "Engine", "Source", "Developer"));
+		ProtectFolder(Path.Combine(UnrealItem.RootPath, "Engine", "Source", "Editor"));
+		ProtectFolder(Path.Combine(UnrealItem.RootPath, "Engine", "Source", "Runtime"));
 	}
 }
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously

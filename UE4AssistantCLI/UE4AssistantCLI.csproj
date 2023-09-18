@@ -1,61 +1,61 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFrameworks>net60;net70</TargetFrameworks>
-    <Version>1.5.9</Version>
-    <AssemblyName>uecli</AssemblyName>
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFrameworks>net60;net70</TargetFrameworks>
+		<Version>1.5.10</Version>
+		<AssemblyName>uecli</AssemblyName>
 
-    <LangVersion>latest</LangVersion>
+		<LangVersion>latest</LangVersion>
 
-    <PackAsTool>true</PackAsTool>
-    <ToolCommandName>$(AssemblyName)</ToolCommandName>
+		<PackAsTool>true</PackAsTool>
+		<ToolCommandName>$(AssemblyName)</ToolCommandName>
 
-    <PackageId>$(AssemblyName)</PackageId>
-    <PackageVersion>$(Version)</PackageVersion>
-    <PackageOutputPath>./nupkg</PackageOutputPath>
+		<PackageId>$(AssemblyName)</PackageId>
+		<PackageVersion>$(Version)</PackageVersion>
+		<PackageOutputPath>./nupkg</PackageOutputPath>
 
-    <Authors>Igor Karatayev</Authors>
-    <Description>Command line tools for Unreal Engine</Description>
-    <Copyright>Igor Karatayev</Copyright>
-    <PackageTags>unreal engine;</PackageTags>
-    <PackageProjectUrl>https://github.com/yatagarasu25/UE4AssistantCLI</PackageProjectUrl>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <RepositoryUrl>https://github.com/yatagarasu25/UE4AssistantCLI</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-  </PropertyGroup>
+		<Authors>Igor Karatayev</Authors>
+		<Description>Command line tools for Unreal Engine</Description>
+		<Copyright>Igor Karatayev</Copyright>
+		<PackageTags>unreal engine;</PackageTags>
+		<PackageProjectUrl>https://github.com/yatagarasu25/UE4AssistantCLI</PackageProjectUrl>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<RepositoryUrl>https://github.com/yatagarasu25/UE4AssistantCLI</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="publish\**" />
-    <EmbeddedResource Remove="publish\**" />
-    <None Remove="publish\**" />
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Remove="publish\**" />
+		<EmbeddedResource Remove="publish\**" />
+		<None Remove="publish\**" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="IndexRange" Version="1.0.2" />
-    <PackageReference Include="IsExternalInit" Version="1.0.3">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="IndexRange" Version="1.0.2" />
+		<PackageReference Include="IsExternalInit" Version="1.0.3">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\ClipboardEx\ClipboardEx.Win32\ClipboardEx.Win32.csproj" />
-    <ProjectReference Include="..\ConsoleAppFramework\src\ConsoleAppFramework\ConsoleAppFramework.csproj" />
-    <ProjectReference Include="..\SystemEx.Sleep\SystemEx.Sleep.csproj" />
-    <ProjectReference Include="..\SystemEx\SystemEx.csproj" />
-    <ProjectReference Include="..\UE4Assistant.Templates\UE4Assistant.Templates.csproj">
-      <Private>true</Private>
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-    </ProjectReference>
-    <ProjectReference Include="..\UE4Assistant\UE4Assistant.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\ClipboardEx\ClipboardEx.Win32\ClipboardEx.Win32.csproj" />
+		<ProjectReference Include="..\ConsoleAppFramework\src\ConsoleAppFramework\ConsoleAppFramework.csproj" />
+		<ProjectReference Include="..\SystemEx.Sleep\SystemEx.Sleep.csproj" />
+		<ProjectReference Include="..\SystemEx\SystemEx.csproj" />
+		<ProjectReference Include="..\UE4Assistant.Templates\UE4Assistant.Templates.csproj">
+			<Private>true</Private>
+			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+		</ProjectReference>
+		<ProjectReference Include="..\UE4Assistant\UE4Assistant.csproj" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Properties\" />
-    <None Include="..\README.md" Pack="true" PackagePath="\" />
-  </ItemGroup>
+	<ItemGroup>
+		<Folder Include="Properties\" />
+		<None Include="..\README.md" Pack="true" PackagePath="\" />
+	</ItemGroup>
 
 </Project>

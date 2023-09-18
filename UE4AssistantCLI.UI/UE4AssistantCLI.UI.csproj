@@ -1,43 +1,43 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFrameworks>net60-windows;net70-windows</TargetFrameworks>
-    <UseWindowsForms>true</UseWindowsForms>
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFrameworks>net60-windows;net70-windows</TargetFrameworks>
+		<UseWindowsForms>true</UseWindowsForms>
 
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <LangVersion>latest</LangVersion>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<LangVersion>latest</LangVersion>
 
-    <Version>1.5.0</Version>
-    <AssemblyName>uecli-ui</AssemblyName>
+		<Version>1.5.1</Version>
+		<AssemblyName>uecli-ui</AssemblyName>
 
-    <PackageId>$(AssemblyName)</PackageId>
-    <PackageVersion>$(Version)</PackageVersion>
-    <PackageOutputPath>./nupkg</PackageOutputPath>
+		<PackageId>$(AssemblyName)</PackageId>
+		<PackageVersion>$(Version)</PackageVersion>
+		<PackageOutputPath>./nupkg</PackageOutputPath>
 
-    <Authors>Igor Karatayev</Authors>
-    <Description>Command line UI tools for Unreal Engine</Description>
-    <Copyright>Igor Karatayev</Copyright>
-    <PackageTags>unreal engine;</PackageTags>
-    <PackageProjectUrl>https://github.com/yatagarasu25/UE4AssistantCLI</PackageProjectUrl>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <RepositoryUrl>https://github.com/yatagarasu25/UE4AssistantCLI</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-  </PropertyGroup>
+		<Authors>Igor Karatayev</Authors>
+		<Description>Command line UI tools for Unreal Engine</Description>
+		<Copyright>Igor Karatayev</Copyright>
+		<PackageTags>unreal engine;</PackageTags>
+		<PackageProjectUrl>https://github.com/yatagarasu25/UE4AssistantCLI</PackageProjectUrl>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<RepositoryUrl>https://github.com/yatagarasu25/UE4AssistantCLI</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="Resources\Members.png" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Remove="Resources\Members.png" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\Members.png" />
-  </ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="Resources\Members.png" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\ConsoleAppFramework\src\ConsoleAppFramework\ConsoleAppFramework.csproj" />
-    <ProjectReference Include="..\DynamicDescriptors\src\DynamicDescriptors\DynamicDescriptors.csproj" />
-    <ProjectReference Include="..\UE4Assistant.Specifier\UE4Assistant.Specifier.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\ConsoleAppFramework\src\ConsoleAppFramework\ConsoleAppFramework.csproj" />
+		<ProjectReference Include="..\DynamicDescriptors\src\DynamicDescriptors\DynamicDescriptors.csproj" />
+		<ProjectReference Include="..\UE4Assistant.Specifier\UE4Assistant.Specifier.csproj" />
+	</ItemGroup>
 
 </Project>
