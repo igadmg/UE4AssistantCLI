@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net50;net60</TargetFrameworks>
+    <TargetFrameworks>net60;net70</TargetFrameworks>
     <Version>1.5.9</Version>
     <AssemblyName>uecli</AssemblyName>
 

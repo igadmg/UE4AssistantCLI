@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net50;net60</TargetFrameworks>
+    <TargetFrameworks>net50;net60;net70</TargetFrameworks>
 
     <Version>1.0.0</Version>
   </PropertyGroup>
