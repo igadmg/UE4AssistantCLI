@@ -394,7 +394,7 @@ class Program
 		{
 			string UnrealVersionSelector = UnrealEngineInstance.GetUEVersionSelectorPath();
 			Console.Out.WriteLine(UnrealVersionSelector);
-			Utilities.RequireExecuteCommandLine(Utilities.EscapeCommandLineArgs(UnrealVersionSelector, "/projectfiles", UnrealItem.FullPath));
+			Utilities.RequireExecuteCommandLine(ProcessEx.EscapeArguments(UnrealVersionSelector, "/projectfiles", UnrealItem.FullPath));
 		}
 		else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
 		{

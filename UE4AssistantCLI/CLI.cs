@@ -338,7 +338,7 @@ class CLI : ConsoleAppBase
 		var UnrealItem = UnrealItemDescription.RequireUnrealItem(Directory.GetCurrentDirectory(), UnrealItemType.Project);
 		var UnrealInstance = new UnrealEngineInstance(UnrealItem);
 
-		Utilities.RequireExecuteCommandLine(Utilities.EscapeCommandLineArgs(
+		Utilities.RequireExecuteCommandLine(ProcessEx.EscapeArguments(
 			new[] { UnrealInstance.UnrealCmdPath, UnrealItem.FullPath, $"-run={commandlet}" }.Concat(parameters)), str => {
 				UnrealLogPrinter.WriteLine(str);
 			});
@@ -462,7 +462,7 @@ class CLI : ConsoleAppBase
 
 		var UnrealInstance = new UnrealEngineInstance(UnrealItem);
 
-		Utilities.RequireExecuteCommandLine(Utilities.EscapeCommandLineArgs(
+		Utilities.RequireExecuteCommandLine(ProcessEx.EscapeArguments(
 			UnrealInstance.UnrealEditorPath, UnrealItem.FullPath, "-diff", LeftFile, RightFile));
 	}
 
@@ -484,7 +484,7 @@ class CLI : ConsoleAppBase
 		if (!File.Exists(ResultFile))
 			File.Copy(LocalFile, ResultFile);
 
-		Utilities.RequireExecuteCommandLine(Utilities.EscapeCommandLineArgs(
+		Utilities.RequireExecuteCommandLine(ProcessEx.EscapeArguments(
 			UnrealInstance.UnrealEditorPath, UnrealItem.FullPath, "-diff", RemoteFile, LocalFile, BaseFile, ResultFile));
 	}
 
@@ -510,7 +510,7 @@ class CLI : ConsoleAppBase
 		Utilities.RequireExecuteCommandLine(string.Format("git show :3:./{0} | git lfs smudge > {1}", file, remoteFile));
 		Utilities.RequireExecuteCommandLine(string.Format("git show :1:./{0} | git lfs smudge > {1}", file, resultFile));
 
-		Utilities.RequireExecuteCommandLine(Utilities.EscapeCommandLineArgs(
+		Utilities.RequireExecuteCommandLine(ProcessEx.EscapeArguments(
 			UnrealInstance.UnrealEditorPath, UnrealItem.FullPath, "-diff", remoteFile, localFile, baseFile, resultFile));
 
 		var baseMd5 = Utilities.CalculateMD5(baseFile);
