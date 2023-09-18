@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Xml;
+using System.Xml.Linq;
 using SystemEx.Sleep;
 
 using ILogger = Microsoft.Extensions.Logging.ILogger;
@@ -185,15 +186,27 @@ class Program
 		}
 	}
 
-	public static void AddClass(string path, string typeName, string baseName, bool hasConstructor = true, string[] headers = null)
+	public static void SanitizePathAndName(ref string path, ref string name)
 	{
+		var fullPath = Path.Combine(path, name);
+		path = Path.GetDirectoryName(fullPath);
+		name = Path.GetFileName(fullPath);
+
+		if (!Directory.Exists(path))
+			Directory.CreateDirectory(path);
+	}
+
+	public static void AddClass(string path, string name, string baseName, bool hasConstructor = true, string[] headers = null)
+	{
+		SanitizePathAndName(ref path, ref name);
 		using var GenerateOnAddGuard = GenerateOnAdd(path);
 
-		Template.CreateClass(path, typeName, baseName, hasConstructor, headers);
+		Template.CreateClass(path, name, baseName, hasConstructor, headers);
 	}
 
 	public static void AddBpfl(string path, string name = null)
 	{
+		SanitizePathAndName(ref path, ref name);
 		UnrealItemDescription UnrealItem = UnrealItemDescription.RequireUnrealItem(path, UnrealItemType.Module);
 
 		using var GenerateOnAddGuard = GenerateOnAdd(UnrealItem);
@@ -215,31 +228,34 @@ class Program
 				});
 	}
 
-	public static void AddInterface(string path, string typeName)
+	public static void AddInterface(string path, string name)
 	{
+		SanitizePathAndName(ref path, ref name);
 		using var GenerateOnAddGuard = GenerateOnAdd(path);
 
 		var ProjectConfiguration = UnrealItemDescription.DetectUnrealItem(path, UnrealItemType.Project)?.ReadConfiguration<ProjectConfiguration>();
 		var InterfaceSuffix = ProjectConfiguration?.InterfaceSuffix ?? "Interface";
 
-		if (!typeName.EndsWith(InterfaceSuffix))
-			typeName += InterfaceSuffix;
+		if (!name.EndsWith(InterfaceSuffix))
+			name += InterfaceSuffix;
 
-		Template.CreateInterface(path, typeName);
+		Template.CreateInterface(path, name);
 	}
 
-	public static void AddDataAsset(string path, string typeName, string baseName)
+	public static void AddDataAsset(string path, string name, string baseName)
 	{
+		SanitizePathAndName(ref path, ref name);
 		using var GenerateOnAddGuard = GenerateOnAdd(path);
 
-		Template.CreateDataAsset(path, typeName, baseName);
+		Template.CreateDataAsset(path, name, baseName);
 	}
 
-	public static void AddTableRow(string path, string typeName, string baseName)
+	public static void AddTableRow(string path, string name, string baseName)
 	{
+		SanitizePathAndName(ref path, ref name);
 		using var GenerateOnAddGuard = GenerateOnAdd(path);
 
-		Template.CreateTableRow(path, typeName, baseName);
+		Template.CreateTableRow(path, name, baseName);
 	}
 
 	class VSProject
