@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-test-pack:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Restore
+        run: dotnet restore UE4AssistantCLI.sln
+
+      - name: Build
+        run: dotnet build UE4AssistantCLI.sln --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test UE4AssistantCLI.sln --configuration Release --no-build --verbosity normal
+
+      - name: Pack
+        run: dotnet pack UE4AssistantCLI/UE4AssistantCLI.csproj --configuration Release --no-build
