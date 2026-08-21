@@ -1,27 +1,27 @@
 [submodule "SystemEx"]
 	path = SystemEx
-	url = git@github.com:yatagarasu25/SystemEx.git
+	url = git@github.com:igadmg/SystemEx.git
 [submodule "UE4Assistant"]
 	path = UE4Assistant
-	url = git@github.com:yatagarasu25/UE4Assistant.git
+	url = git@github.com:igadmg/UE4Assistant.git
 [submodule "UE4Assistant.Templates"]
 	path = UE4Assistant.Templates
-	url = git@github.com:yatagarasu25/UE4Assistant.Templates.git
+	url = git@github.com:igadmg/UE4Assistant.Templates.git
 [submodule "ClipboardEx"]
 	path = ClipboardEx
-	url = git@github.com:yatagarasu25/ClipboardEx.git
+	url = git@github.com:igadmg/ClipboardEx.git
 [submodule "ConsoleAppFramework"]
 	path = ConsoleAppFramework
-	url = git@github.com:yatagarasu25/ConsoleAppFramework.git
+	url = git@github.com:igadmg/ConsoleAppFramework.git
 [submodule "UE4Assistant.Specifier"]
 	path = UE4Assistant.Specifier
-	url = git@github.com:yatagarasu25/UE4Assistant.Specifier.git
+	url = git@github.com:igadmg/UE4Assistant.Specifier.git
 [submodule "DynamicDescriptors"]
 	path = DynamicDescriptors
-	url = git@github.com:yatagarasu25/DynamicDescriptors.git
+	url = git@github.com:igadmg/DynamicDescriptors.git
 [submodule "WheatConsole"]
 	path = WheatConsole
-	url = git@github.com:yatagarasu25/WheatConsole.git
+	url = git@github.com:igadmg/WheatConsole.git
 [submodule "ANSIConsole"]
 	path = ANSIConsole
-	url = git@github.com:yatagarasu25/ANSIConsole.git
+	url = git@github.com:igadmg/ANSIConsole.git
