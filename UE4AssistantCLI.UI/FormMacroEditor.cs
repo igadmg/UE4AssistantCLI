@@ -10,7 +10,8 @@ public partial class FormMacroEditor : Form
 	DynamicTypeDescriptor? so = null;
 	Specifier specifier_;
 
-	public Specifier specifier {
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    public Specifier specifier {
 		get {
 			bool tabSelected = propertyGridSpecifier.SelectedTab is MetaPropertyTab;
 			var cn = tabSelected ? "meta" : "parameters";

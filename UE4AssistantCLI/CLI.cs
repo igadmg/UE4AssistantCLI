@@ -183,7 +183,7 @@ class CLI : ConsoleAppBase
 
 				foreach (var pchFile in pchFiles)
 				{
-					Console.WriteLine(pchFiles);
+					Console.WriteLine(pchFile);
 					File.Delete(pchFile);
 				}
 			}
@@ -510,6 +510,8 @@ class CLI : ConsoleAppBase
 		Utilities.RequireExecuteCommandLine(string.Format("git show :2:./{0} | git lfs smudge > {1}", file, localFile));
 		Utilities.RequireExecuteCommandLine(string.Format("git show :3:./{0} | git lfs smudge > {1}", file, remoteFile));
 		Utilities.RequireExecuteCommandLine(string.Format("git show :1:./{0} | git lfs smudge > {1}", file, resultFile));
+		// propsal to do that?
+		//Utilities.RequireExecuteCommandLine(string.Format("git show :2:./{0} | git lfs smudge > {1}", file, resultFile));
 
 		Utilities.RequireExecuteCommandLine(ProcessEx.EscapeArguments(
 			UnrealInstance.UnrealEditorPath, UnrealItem.FullPath, "-diff", remoteFile, localFile, baseFile, resultFile));
